@@ -1,13 +1,12 @@
 import * as easyReadTools from '../scripts/easyReadTools.js';
 
-chrome.storage.local.get(null).then((result) => {
-  // document.getElementById("output").innerHTML = JSON.stringify(result);
+easyReadTools.getStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME]), (result) => {
     const elements = new Set();
     const template = document.getElementById('line_template');
     const allRecords = result[easyReadTools.ALL_RECORDS_NAME];
-    //document.getElementById("output").innerHTML = JSON.stringify(allRecords);
     let i = 0;
-    for (let key in allRecords) {
+    if(allRecords){
+      for (let key in allRecords) {
         ++i;
         const element = template.content.firstElementChild.cloneNode(true);
         const item = allRecords[key];
@@ -19,19 +18,28 @@ chrome.storage.local.get(null).then((result) => {
         }
         elements.add(element);
         document.getElementById('outputTable').appendChild(element);
+      }
     }
-    document.getElementById('createdTime').innerText = easyReadTools.formatDate(Date.now());
+    document.getElementById('createdTime').innerText = easyReadTools.formatDate(Date.now()); 
 });
 
-const btnClearAll = document.getElementById("btnClearAll");
-btnClearAll.addEventListener('click', async () => {
-  chrome.storage.local.clear(()=>{
-    document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("allrecords_page_allBeCleared");
+const btnRemoveAllRecords = document.getElementById("btnRemoveAllRecords");
+btnRemoveAllRecords.addEventListener('click', async () => {
+  easyReadTools.removeStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME]), ()=>{
+    document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("allrecords_page_allRecordsRemoved");
+  });
+});
+
+const btnDropStorage = document.getElementById("btnDropStorage");
+btnDropStorage.addEventListener('click', async () => {
+  easyReadTools.clearAllStorage(()=>{
+    document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("allrecords_page_storageDroped");
   });
 });
 
 window.addEventListener('load', function() {
   document.getElementById("allrecords_page_title").textContent = easyReadTools.getMessageForLocales("allrecords_page_title");
   document.getElementById("allrecords_page_notice").textContent = easyReadTools.getMessageForLocales("allrecords_page_notice");
-  document.getElementById("btnClearAll").textContent = easyReadTools.getMessageForLocales("allrecords_page_btnClearAll");
+  document.getElementById("btnRemoveAllRecords").textContent = easyReadTools.getMessageForLocales("allrecords_page_btnRemoveAllRecords");
+  document.getElementById("btnDropStorage").textContent = easyReadTools.getMessageForLocales("allrecords_page_btnDropStorage");
 });

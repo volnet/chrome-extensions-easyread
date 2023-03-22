@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Test Page - Json Update</title>
+</head>
+
+<body>
+    <h1>Test Page - Json Update<</h1>
+    <div>
+        span01:<span id="span01"></span><br />
+        span02:<span id="span02"></span><br />
+        span03:<span id="span03"></span><br />
+    </div>
+    <script type="text/javascript">
+        var obj = {
+            key0_0: {
+                key1_0: {
+                    key2: "value01"
+                },
+                key1_2: {
+                    key2: "value02"
+                }
+            },
+            key0_1: {
+                key1_0: {
+                    key2: "value03"
+                },
+                key2_0: {
+                    key2: "value04"
+                },
+            }
+        };
+        function getValue(keyChain) {
+            var keys = keyChain.split(".");            
+            var value = obj;
+            for (var i = 0; i < keys.length; i++) {
+                if (!value[keys[i]]) {
+                    return undefined;
+                }
+                value = value[keys[i]];
+            }
+            return value;
+        }
+        function setValue(keyChain, newValue) {
+            var keys = keyChain.split(".");
+            var value = obj;
+            for (var i = 0; i < keys.length - 1; i++) {
+                if (!value[keys[i]]) {
+                    value[keys[i]] = {};
+                }
+                value = value[keys[i]];
+            }
+            value[keys[keys.length - 1]] = newValue;
+        }
+
+        window.onload = function () {
+            document.getElementById("span01").textContent = JSON.stringify(getValue("key0_0.key1_5"));
+            document.getElementById("span02").textContent = JSON.stringify(obj);
+            setValue("key0_0.key3_5.key3_6.key3_7", "hello");
+            document.getElementById("span03").textContent = JSON.stringify(obj);
+        }
+    </script>
+</body>
+
+</html>

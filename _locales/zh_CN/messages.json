@@ -1,18 +1,26 @@
 {
   "allrecords_page_title": {
     "message": "EasyRead：让阅读更美好！",
-    "description": "The all records display list.(zh_CN)"
+    "description": "The all records display list.(en)"
   },
   "allrecords_page_notice": {
-    "message": "下面是你的阅读记录：",
-    "description": "Notice the user what's next."
+      "message": "这是您的所有阅读历史记录：",
+      "description": "Notice the user what's next."
   },
-  "allrecords_page_btnClearAll": {
-        "message": "全部删除",
-        "description": "Notice the user what's next."
+  "allrecords_page_btnRemoveAllRecords": {
+      "message": "删除所有记录",
+      "description": "The button text."
   },
-  "allrecords_page_allBeCleared": {
-    "message": "所有记录已经删除！",
-    "description": "Notice the user what's happened."
-   }
+  "allrecords_page_allrecords_page_allRecordsRemoved": {
+      "message": "所有记录已被删除。",
+      "description": "The message for button click."
+  },
+  "allrecords_page_btnDropStorage": {
+      "message": "删除存储",
+      "description": "The button text."
+  },
+  "allrecords_page_storageDroped": {
+      "message": "存储已删除。",
+      "description": "The message for button click."
+  }
 }

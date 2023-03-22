@@ -7,12 +7,20 @@
         "message": "This is all your readed history:",
         "description": "Notice the user what's next."
     },
-    "allrecords_page_btnClearAll": {
-        "message": "Clear All!",
+    "allrecords_page_btnRemoveAllRecords": {
+        "message": "Remove All Records",
         "description": "The button text."
     },
-    "allrecords_page_allBeCleared": {
-        "message": "All be cleared!",
-        "description": "Notice the user what's happened."
+    "allrecords_page_allrecords_page_allRecordsRemoved": {
+        "message": "All records has been removed.",
+        "description": "The message for button click."
+    },
+    "allrecords_page_btnDropStorage": {
+        "message": "Drop Storage",
+        "description": "The button text."
+    },
+    "allrecords_page_storageDroped": {
+        "message": "The Storage is dropped.",
+        "description": "The message for button click."
     }
   }

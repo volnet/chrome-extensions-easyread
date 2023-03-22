@@ -12,39 +12,32 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   readingWeb(tab);
 });
 
+function updateStorageCallback_AllRecordsURLDateTimes(queryValue, params) {
+  var result = { status:easyReadTools.UPDATE_STATUS_NO, value:null, message:"" };
+  var newValue = {};
+  if(queryValue) {
+    const datetimes = queryValue["datetimes"];
+    if(datetimes && datetimes.length > 0 && easyReadTools.isByHuman(datetimes)){
+      newValue = { title: params.title, url: params.url, datetimes: [...datetimes, Date.now()] };
+      result.value = newValue;
+      result.status = easyReadTools.UPDATE_STATUS_YES;
+    } else {
+      result.status = easyReadTools.UPDATE_STATUS_NO;
+      result.message = "NoUpdate Reason: The last datetime is too closely.";
+    }
+  } else {
+    // create new
+    newValue = { title: params.title, url: params.url, datetimes: [ Date.now() ] };
+    result.value = newValue;
+    result.status = easyReadTools.UPDATE_STATUS_YES;
+  }
+  return result;
+}
+
 function readingWeb(tab) {
   const pageUrl = easyReadTools.getKey(tab.url);
   if (easyReadTools.isSupportedScheme(pageUrl)) {
-    chrome.storage.local.get([easyReadTools.ALL_RECORDS_NAME], (result) => {
-      if (result[easyReadTools.ALL_RECORDS_NAME]) {
-        const currentPage = result[easyReadTools.ALL_RECORDS_NAME][pageUrl];
-        if(currentPage) {
-          if (currentPage.datetimes.length > 0 && easyReadTools.isByHuman(currentPage.datetimes)) {
-            const currentTime = Date.now();
-            const datetimeArray = [...currentPage.datetimes, currentTime];
-            result[easyReadTools.ALL_RECORDS_NAME][pageUrl] = { title:tab.title, url: tab.url, datetimes: datetimeArray };
-            chrome.storage.local.set(result, () => {
-              console.log("Update record " + pageUrl);
-            });
-          }
-        }
-        else {
-          const datetimeArray = new Array();
-          datetimeArray.push(Date.now());
-          result[easyReadTools.ALL_RECORDS_NAME][pageUrl] = { title:tab.title, url: tab.url, datetimes: datetimeArray } ;
-          chrome.storage.local.set(result, () => {
-            console.log("Insert new record successed!");
-          });
-        }
-      } else {
-        const datetimeArray = new Array();
-        datetimeArray.push(Date.now());
-        const record = { [pageUrl] : { title:tab.title, url: tab.url, datetimes: datetimeArray } };
-        const records = { [easyReadTools.ALL_RECORDS_NAME]: record };
-        chrome.storage.local.set(records, () => {
-          console.log("Init the allRecords successed! Insert new record successed!");
-        });
-      }
-    });
+    const keyChain = easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME, pageUrl]);
+    easyReadTools.updateStorageJsonData(keyChain, updateStorageCallback_AllRecordsURLDateTimes, tab);
   }
 }
