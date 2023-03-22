@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="allRecords.css" />
+</head>
+
+<body>
+	<template id="line_template">
+        <tr>
+            <td><span class="seq">Line Seq</span></td>
+		    <td><a href="" target="_blank"><span class="title">Page Title</span></a></td>
+		    <td><span class="readedTimes">Read Times</span></td>
+        </tr>
+	</template>
+
+	<h1 id="allrecords_page_title">EasyRead</h1>
+    <h2 id="allrecords_page_notice">This is all your readed history:</h2>
+	<button id="btnClearAll">Clear All!</button>
+    <br /><br />
+	<div id="output" class="output">
+        <table id="outputTable">
+            <th class="col-01">No.</th>
+            <th class="col-02">Title(Url)</th>
+            <th class="col-03">Read Times</th>
+        </table>
+		<div>Created Time: <span id="createdTime"></span></div>
+    </div>
+	<script src="allRecords.js" type="module"></script>
+</body>
+
+</html>

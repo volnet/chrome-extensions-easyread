@@ -1,0 +1,18 @@
+{
+  "allrecords_page_title": {
+    "message": "EasyRead：让阅读更美好！",
+    "description": "The all records display list.(zh_CN)"
+  },
+  "allrecords_page_notice": {
+    "message": "下面是你的阅读记录：",
+    "description": "Notice the user what's next."
+  },
+  "allrecords_page_btnClearAll": {
+        "message": "全部删除",
+        "description": "Notice the user what's next."
+  },
+  "allrecords_page_allBeCleared": {
+    "message": "所有记录已经删除！",
+    "description": "Notice the user what's happened."
+   }
+}

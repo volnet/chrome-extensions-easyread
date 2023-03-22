@@ -1,0 +1,18 @@
+{
+    "allrecords_page_title": {
+      "message": "EasyRead: enjoy your read!",
+      "description": "The all records display list.(en)"
+    },
+    "allrecords_page_notice": {
+        "message": "This is all your readed history:",
+        "description": "Notice the user what's next."
+    },
+    "allrecords_page_btnClearAll": {
+        "message": "Clear All!",
+        "description": "The button text."
+    },
+    "allrecords_page_allBeCleared": {
+        "message": "All be cleared!",
+        "description": "Notice the user what's happened."
+    }
+  }

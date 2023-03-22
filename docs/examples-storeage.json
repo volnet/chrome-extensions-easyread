@@ -1,0 +1,12 @@
+{
+    "allRecords": {
+        "http://www.google.com/": {
+            "url": "http://www.google.com/#search",
+            "datetime": []
+        },
+        "http://www.facebook.com/": {
+            "url": "http://www.facebook.com/#user",
+            "datetime": []
+        }
+    }
+}
