@@ -9,18 +9,31 @@
 </head>
 
 <body>
-	<template id="mytemplate">
+	<template id="templateReadLater">
+		<li>
+			<a href="" target="_blank"><span class="title">Page Title</span></a>
+		</li>
+	</template>
+	<template id="templateAllRecords">
 		<h3 class="title">Page's Title</h3>
 		<p class="url">Page's URL</p>
 		<p class="message">Message</p>
 		<p class="readedTimes">ReadedTimes</p>
 	</template>
-
-	<h1>EasyRead</h1>
-	<button id="btnReadedAndRemove">Readed & Remove!</button>
-	&nbsp;<button id="btnAllRecords">All Records</button>
-	<br />
-	<div id="output" class="output"></div>
+	<div>
+		<button id="btnReadLater">Read Later</button>
+		&nbsp;|&nbsp;
+		<button id="btnReadedAndRemove">Remove Info</button>
+		&nbsp;<button id="btnAllRecords">Go to All Records</button>
+		<div id="outputMesssages" class="outputMesssages"></div>
+		<br />
+		<div id="outputReadLaters" class="outputReadLaters">
+			<span id="outputReadLatersCount" class="outputReadLatersCount"></span>
+			<ol></ol>
+		</div>
+		<hr />
+		<div id="outputAllRecords" class="outputAllRecords"></div>
+	</div>
 	<script src="popup.js" type="module"></script>
 </body>
 

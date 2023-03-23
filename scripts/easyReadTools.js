@@ -1,4 +1,5 @@
 export const ALL_RECORDS_NAME = "allRecords";
+export const READ_LATERS_NAME = "readLaters";
 
 export function getKey(url) {
   return url.split('#')[0].toLowerCase().trim();
@@ -50,28 +51,51 @@ export function keyChainGenerate(keys) {
 }
 
 // keys: a key chain like allRecords[KEYCHAIN_SEPARATOR]datetimes
-// callback: return the { status:UPDATE_STATUS_*, value:[object], message:[string][optional] }
-export function updateStorageJsonData(keyChain, callback, params) {
+// callback: Query the value of the keyChain;
+//      <return> callback(queryValue);
+//        if KEYCHAIN_SEPARATOR == "."
+//        queryValue: 
+//          if keyChain == "exist_key0" , queryValue:
+//                return { "exist_key0": it'sValue }
+//          if keyChain == "not_exist_key0" , queryValue:
+//                return {}
+//          if keyChain == "exist_key0.exist_key1" , queryValue:
+//                return { "exist_key1": it'sValue }
+//          if keyChain == "exist_key0.not_exist_key1" , queryValue:
+//                return {}
+//          if keyChain == "exist_key0.not_exist_key1...not_exist_keyN" , queryValue:
+//                return {}
+// - suggest: in the callback, use the queryValue[key] to check is it available.
+// - <return>: updateBlock = { status:UPDATE_STATUS_*, value:[object], message:[string][optional], callback_onUpdated }
+//          if update, status = UPDATE_STATUS_YES, the path exist_key0.not_exist_key1 will auto create.
+//          if not update, status = UPDATE_STATUS_NO
+// context: pass the params;
+export function updateStorageJsonData(keyChain, callback, context) {
   const keyArray = keyChainSplit(keyChain);
   if (keyArray && keyArray.length > 0) {
     const key0 = keyArray[0];
 
     _storeage.get([key0], (result) => {
-      var obj = null;
+      console.log("key0=" + key0);
+      console.log(result);
+      var obj = {};
       if (!result[key0]) {
         obj = { [key0]: null };
       } else {
         obj = result;
       }
       function getValue(keys) {
-        var value = obj;
+        var value = result;
         for (var i = 0; i < keys.length; i++) {
           if (!value[keys[i]]) {
-            return undefined;
+            return {};
           }
           value = value[keys[i]];
         }
-        return value;
+        if(keys.length > 0)
+          return {[keys[keys.length-1]]:value};
+        else
+          return value;
       }
       function setValue(keys, newValue) {
         var value = obj;
@@ -85,15 +109,23 @@ export function updateStorageJsonData(keyChain, callback, params) {
       }
       let updateBlock = null;
       if (callback) {
-        updateBlock = callback(getValue(keyArray), params)
+        console.log(getValue(keyArray));
+        updateBlock = callback(getValue(keyArray), context);
       };
       if (updateBlock && updateBlock.status == UPDATE_STATUS_YES) {
         setValue(keyArray, updateBlock.value);
         _storeage.set(obj, () => {
-          console.log("['" + key0 + "']:Updated:" + JSON.stringify(obj));
+          console.log("['" + key0 + "']:Updated:");
+          console.log(obj);
+          if(updateBlock.callback_onUpdated) {
+            updateBlock.callback_onUpdated(true, obj);
+          }
         });
       } else {
         console.log("Nothing updated. Message: " + updateBlock["message"]);
+        if(updateBlock && updateBlock.callback_onUpdated) {
+          updateBlock.callback_onUpdated(false);
+        }
       }
     });
   }
@@ -133,10 +165,26 @@ export function removeStorageJsonData(keyChain, callback) {
 }
 
 // keyChain: null=all; like allRecords[KEYCHAIN_SEPARATOR][pageUrl]
-export function getStorageJsonData(keyChain, callback) {
+// callback: Query the value of the keyChain;
+//      void callback(queryValue);
+//        if KEYCHAIN_SEPARATOR == "."
+//        queryValue: 
+//          if keyChain == "exist_key0" , queryValue:
+//                return { "exist_key0": it'sValue }
+//          if keyChain == "not_exist_key0" , queryValue:
+//                return {}
+//          if keyChain == "exist_key0.exist_key1" , queryValue:
+//                return { "exist_key1": it'sValue }
+//          if keyChain == "exist_key0.not_exist_key1" , queryValue:
+//                return {}
+//          if keyChain == "exist_key0.not_exist_key1...not_exist_keyN" , queryValue:
+//                return {}
+// - suggest: in the callback, use the queryValue[key] to check is it available.
+// context: pass the params;
+export function getStorageJsonData(keyChain, callback, context) {
   if (!keyChain) {
     _storeage.get(null, (result) => {
-      if (callback) { callback(result); }
+      if (callback) { callback(result, context); }
     });
   } else {
     const keyArray = keyChainSplit(keyChain);
@@ -144,19 +192,22 @@ export function getStorageJsonData(keyChain, callback) {
       const key0 = keyArray[0];
       _storeage.get([key0], (result) => {
         if (keyArray.length == 1) {
-          if (callback) { callback(result); }
+          if (callback) { callback(result, context); }
         } else {
           function getValue(keys) {
             var value = result;
             for (var i = 0; i < keys.length; i++) {
               if (!value[keys[i]]) {
-                return undefined;
+                return {};
               }
               value = value[keys[i]];
             }
-            return value;
+            if(keys.length > 0)
+              return {[keys[keys.length-1]]:value};
+            else
+              return value;
           }
-          if (callback) { callback(getValue(keyArray)); }
+          if (callback) { callback(getValue(keyArray), context); }
         }
       });
     }

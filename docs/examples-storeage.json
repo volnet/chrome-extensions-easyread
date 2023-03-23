@@ -2,11 +2,17 @@
     "allRecords": {
         "http://www.google.com/": {
             "url": "http://www.google.com/#search",
+            "title": "Google Search",
             "datetime": []
         },
         "http://www.facebook.com/": {
             "url": "http://www.facebook.com/#user",
+            "title": "Facebook",
             "datetime": []
         }
-    }
+    },
+    "readLaters": [
+        { key:"http://www.google.com/", url: "http://www.google.com/#search", title: "Google Search", createDateTime: 1679496233321, startReadDateTime:1679496233321, endReadDateTime:1679496233321, status:0 },
+        { key:"http://www.facebook.com/", url: "http://www.facebook.com/#user", title: "Facebook", createDateTime: 1679496233321, startReadDateTime:1679496233321, endReadDateTime:1679496233321, status:0 }
+    ]
 }

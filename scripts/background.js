@@ -12,22 +12,24 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   readingWeb(tab);
 });
 
-function updateStorageCallback_AllRecordsURLDateTimes(queryValue, params) {
-  var result = { status:easyReadTools.UPDATE_STATUS_NO, value:null, message:"" };
-  var newValue = {};
-  if(queryValue) {
-    const datetimes = queryValue["datetimes"];
+function updateStorageCallback_AllRecordsURLDateTimes(queryValue, context) {
+  let result = { status:easyReadTools.UPDATE_STATUS_NO, value:null, message:"" };
+  let newValue = {};
+  // queryValue == {} or {thePageKey : it's value}
+  console.log(queryValue);
+  if(queryValue[context.key]) {
+    const datetimes = queryValue[context.key]["datetimes"];
     if(datetimes && datetimes.length > 0 && easyReadTools.isByHuman(datetimes)){
-      newValue = { title: params.title, url: params.url, datetimes: [...datetimes, Date.now()] };
+      newValue = { title: context.tab.title, url: context.tab.url, datetimes: [...datetimes, Date.now()] };
       result.value = newValue;
       result.status = easyReadTools.UPDATE_STATUS_YES;
     } else {
       result.status = easyReadTools.UPDATE_STATUS_NO;
-      result.message = "NoUpdate Reason: The last datetime is too closely.";
+      result.message = "No update reason: The last datetime is too closely.";
     }
   } else {
     // create new
-    newValue = { title: params.title, url: params.url, datetimes: [ Date.now() ] };
+    newValue = { title: context.tab.title, url: context.tab.url, datetimes: [ Date.now() ] };
     result.value = newValue;
     result.status = easyReadTools.UPDATE_STATUS_YES;
   }
@@ -36,8 +38,11 @@ function updateStorageCallback_AllRecordsURLDateTimes(queryValue, params) {
 
 function readingWeb(tab) {
   const pageUrl = easyReadTools.getKey(tab.url);
-  if (easyReadTools.isSupportedScheme(pageUrl)) {
+  if (easyReadTools.isSupportedScheme(tab.url)) {
     const keyChain = easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME, pageUrl]);
-    easyReadTools.updateStorageJsonData(keyChain, updateStorageCallback_AllRecordsURLDateTimes, tab);
+    easyReadTools.updateStorageJsonData(keyChain, updateStorageCallback_AllRecordsURLDateTimes, {
+      key: pageUrl,
+      tab: tab
+    });
   }
 }
