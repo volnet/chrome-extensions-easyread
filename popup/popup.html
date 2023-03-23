@@ -11,28 +11,27 @@
 <body>
 	<template id="templateReadLater">
 		<li>
-			<a href="" target="_blank"><span class="title">Page Title</span></a>
+			<a href="" target="_blank"><span class="unreadTitle">Page Title</span></a>
 		</li>
 	</template>
 	<template id="templateAllRecords">
-		<h3 class="title">Page's Title</h3>
+		<span class="pageTitle">Page's Title</span>
 		<p class="url">Page's URL</p>
 		<p class="message">Message</p>
 		<p class="readedTimes">ReadedTimes</p>
 	</template>
 	<div>
-		<button id="btnReadLater">Read Later</button>
-		&nbsp;|&nbsp;
-		<button id="btnReadedAndRemove">Remove Info</button>
-		&nbsp;<button id="btnAllRecords">Go to All Records</button>
+		<div class="buttonWrapper"><img src="../images/allRecords.png" id="btnAllRecords" class="buttonImg" alt="View all records"></div>
 		<div id="outputMesssages" class="outputMesssages"></div>
-		<br />
 		<div id="outputReadLaters" class="outputReadLaters">
+			<div class="buttonWrapper"><button id="btnReadLater" class="buttonWithIcon"><img src="../images/icon-48.png" />Read Later</button></div>
 			<span id="outputReadLatersCount" class="outputReadLatersCount"></span>
 			<ol></ol>
 		</div>
 		<hr />
-		<div id="outputAllRecords" class="outputAllRecords"></div>
+		<div id="outputAllRecords" class="outputAllRecords">
+			<div class="buttonWrapper"><img src="../images/delete.png" id="btnReadedAndRemove" class="buttonImg" alt="Delete the page's records"></div>
+		</div>
 	</div>
 	<script src="popup.js" type="module"></script>
 </body>

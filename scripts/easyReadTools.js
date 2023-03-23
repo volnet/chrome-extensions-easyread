@@ -1,5 +1,13 @@
 export const ALL_RECORDS_NAME = "allRecords";
 export const READ_LATERS_NAME = "readLaters";
+export const READ_STATUS_UNREAD = 0;
+export const READ_STATUS_READING = 1;
+export const READ_STATUS_READED = 2;
+
+// storage.
+export const UPDATE_STATUS_YES = 0;
+export const UPDATE_STATUS_NO = 1;
+export const KEYCHAIN_SEPARATOR = "__EasyReadSeparator__";
 
 export function getKey(url) {
   return url.split('#')[0].toLowerCase().trim();
@@ -39,9 +47,6 @@ export function getMessageForLocales(name, placeHolder) {
 }
 
 const _storeage = chrome.storage.local;
-export const UPDATE_STATUS_YES = 0;
-export const UPDATE_STATUS_NO = 1;
-export const KEYCHAIN_SEPARATOR = "__EasyReadSeparator__";
 
 function keyChainSplit(keyChain) {
   return keyChain.split(KEYCHAIN_SEPARATOR);
@@ -217,5 +222,33 @@ export function getStorageJsonData(keyChain, callback, context) {
 export function clearAllStorage(callback) {
   _storeage.clear(()=>{
     if (callback) { callback() }
+  });
+}
+
+export async function updateBudgeText () {
+  const key = READ_LATERS_NAME;
+  let unreadCount = 0;
+  let badgeText = "";
+  _storeage.get(key, (queryValue) => {
+    const list = queryValue[key];
+    if(list) {
+      for(let i = 0; i < list.length; ++i) {
+        if(!list[i].status || list[i].status == READ_STATUS_UNREAD) {
+          ++unreadCount;
+        }
+      }
+    }
+    if(unreadCount && unreadCount > 0) {
+      badgeText = unreadCount.toString();
+    }
+    chrome.action.setBadgeText({
+      text: badgeText
+    });
+    chrome.action.setBadgeTextColor({
+      color: "#6c5004"
+    });
+    chrome.action.setBadgeBackgroundColor({
+      color: "#ffe803"
+    });
   });
 }

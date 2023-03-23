@@ -17,7 +17,7 @@ function renderReadLaters(queryValue, context) {
     for(let i = 0; i < lists.length; ++i) {
       let item = lists[i];
       const element = template.content.firstElementChild.cloneNode(true);
-      element.querySelector('.title').textContent = item["title"];
+      element.querySelector('.unreadTitle').textContent = item["title"];
       element.querySelector('a').href = item["url"];
       elements.add(element);
     }
@@ -29,6 +29,7 @@ function renderReadLaters(queryValue, context) {
     console.log("Because no record to found, so it may be your first time to reach the page!");
     showMessages("Because no record to found, so it may be your first time to reach the page!");
   }
+  easyReadTools.updateBudgeText();
 }
 
 function addReadLatersStorageUpdated(updateStatus, updateData) {
@@ -50,7 +51,7 @@ function renderPageRecords(queryValue, context) {
       const elements = new Set();
       const element = template.content.cloneNode(true);
 
-      element.querySelector('.title').textContent = readedPage.title;
+      element.querySelector('.pageTitle').textContent = readedPage.title;
       element.querySelector('.url').textContent = readedPage.url;
       element.querySelector('.message').textContent = message;
       element.querySelector('.readedTimes').innerHTML = readTimesToString;
@@ -64,6 +65,7 @@ function renderPageRecords(queryValue, context) {
     }
   }
   else {
+    document.getElementById('outputAllRecords').innerHTML = "No records.";
     console.log("Because no record to found, so it may be your first time to reach the page!");
     showMessages("Because no record to found, so it may be your first time to reach the page!");
   }
@@ -82,7 +84,7 @@ function updateStorageCallback_ReadLaterAdd(queryValue, context) {
   if (!oldValue) {
     // not exists "readLaters json object", create new one to init.
     newValue = new Array();
-    newValue.push({ key: key, url: context.tab.url, title: context.tab.title, createDateTime: Date.now(), status: 0 });
+    newValue.push({ key: key, url: context.tab.url, title: context.tab.title, createDateTime: Date.now(), status: easyReadTools.READ_STATUS_UNREAD });
     result.value = newValue;
     result.status = easyReadTools.UPDATE_STATUS_YES;
     showMessages("Add a new page to the read later list.");
@@ -105,7 +107,7 @@ function updateStorageCallback_ReadLaterAdd(queryValue, context) {
     if (!isFound) {
       console.log("!Found");
       console.log(oldValue);
-      result.value = [...oldValue, { key: key, url: context.tab.url, title: context.tab.title, createDateTime: Date.now(), status: 0 }];
+      result.value = [...oldValue, { key: key, url: context.tab.url, title: context.tab.title, createDateTime: Date.now(), status: easyReadTools.READ_STATUS_UNREAD }];
       result.status = easyReadTools.UPDATE_STATUS_YES;
       result.message = "Add a new page to the read later list.";
       showMessages("Add a new page to the read later list.");

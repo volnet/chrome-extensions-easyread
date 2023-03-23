@@ -3,13 +3,20 @@ import * as easyReadTools from './easyReadTools.js';
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
   chrome.tabs.get(activeInfo.tabId, (tab) => {
     // console.log("chrome.tabs.onActivated.callback = " + tab.url);
-    readingWeb(tab);
+    AutoRecord(tab);
   });
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   // console.log("chrome.tabs.onUpdated.callback = " + tab.url);
-  readingWeb(tab);
+  AutoRecord(tab);
+});
+
+chrome.runtime.onStartup.addListener(()=>{
+  easyReadTools.updateBudgeText();
+});
+chrome.runtime.onInstalled.addListener((details)=>{
+  easyReadTools.updateBudgeText();
 });
 
 function updateStorageCallback_AllRecordsURLDateTimes(queryValue, context) {
@@ -36,7 +43,7 @@ function updateStorageCallback_AllRecordsURLDateTimes(queryValue, context) {
   return result;
 }
 
-function readingWeb(tab) {
+function AutoRecord(tab) {
   const pageUrl = easyReadTools.getKey(tab.url);
   if (easyReadTools.isSupportedScheme(tab.url)) {
     const keyChain = easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME, pageUrl]);
