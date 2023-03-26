@@ -11,26 +11,34 @@
 <body>
 	<template id="templateReadLater">
 		<li>
-			<a href="" target="_blank"><span class="unreadTitle">Page Title</span></a>
+			<input type="checkbox" id="checkbox1">
+			<label for="checkbox1"><a href="" target="_blank" title="Page Title">Page
+					Title</a></label>
 		</li>
 	</template>
 	<template id="templateAllRecords">
-		<span class="pageTitle">Page's Title</span>
+		<span class="titleAllRecords">Page's Title</span>
 		<p class="url">Page's URL</p>
 		<p class="message">Message</p>
 		<p class="readedTimes">ReadedTimes</p>
 	</template>
 	<div>
-		<div class="buttonWrapper"><img src="../images/allRecords.png" id="btnAllRecords" class="buttonImg" alt="View all records"></div>
+		<div class="buttonWrapper">
+			<img src="../images/allRecords.png" id="btnAllRecords" class="buttonImg" alt="View all records">
+		</div>
 		<div id="outputMesssages" class="outputMesssages"></div>
 		<div id="outputReadLaters" class="outputReadLaters">
-			<div class="buttonWrapper"><button id="btnReadLater" class="buttonWithIcon"><img src="../images/icon-48.png" />Read Later</button></div>
-			<span id="outputReadLatersCount" class="outputReadLatersCount"></span>
+			<div class="buttonWrapper"><button id="btnReadLater" class="buttonWithIcon"><img
+						src="../images/icon-48.png" />Read Later</button></div>
+			<span id="titleReadLaters" class="titleReadLaters"></span>
 			<ol></ol>
 		</div>
 		<hr />
 		<div id="outputAllRecords" class="outputAllRecords">
-			<div class="buttonWrapper"><img src="../images/delete.png" id="btnReadedAndRemove" class="buttonImg" alt="Delete the page's records"></div>
+			<div class="buttonWrapper">
+				<img src="../images/delete.png" id="btnReadedAndRemove" class="buttonImg"
+					alt="Delete the page's records">
+			</div>
 		</div>
 	</div>
 	<script src="popup.js" type="module"></script>

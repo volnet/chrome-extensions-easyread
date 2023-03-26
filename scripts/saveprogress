@@ -1,0 +1,30 @@
+/**
+ * Get the scroll bar progress
+ * @returns {string} Scroll bar progress
+ */
+function getScrollProgress() {
+  // Get page height
+  const pageHeight = document.documentElement.scrollHeight;
+  // Get visible area height
+  const windowHeight = window.innerHeight;
+  // Get scroll bar position
+  const scrollPosition = window.scrollY;
+  // Calculate scroll bar progress
+  const progress = (scrollPosition / (pageHeight - windowHeight)) * 100;
+  if (isNaN(progress)) {
+    return "The page does not have a scroll bar";
+  } else {
+    return `The page has a scroll bar, and the scroll bar progress is: ${progress}%`;
+  }
+}
+
+/**
+ * Set the scroll bar progress
+ * @param {number} progress Scroll bar progress
+ */
+function setScrollProgress(progress) {
+  const pageHeight = document.documentElement.scrollHeight;
+  const windowHeight = window.innerHeight;
+  const scrollPosition = (pageHeight - windowHeight) * (progress / 100);
+  window.scrollTo(0, scrollPosition);
+}

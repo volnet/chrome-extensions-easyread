@@ -1,10 +1,28 @@
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #f1f1f1;
+}
+
+/*
 table, th, td {
   border: 1px solid black;
 }
-
 .col-01 { width: 20px}
 .col-02 {
   width: 500px;
   word-wrap: break-word;
 }
 .col-03 { width: 60px}
+
+*/

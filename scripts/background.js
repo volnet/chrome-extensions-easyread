@@ -1,4 +1,9 @@
+
 import * as easyReadTools from './easyReadTools.js';
+
+(function() {
+  console.log(easyReadTools.configs.getConfigs().IsAutoRecordedEnabled);
+})()
 
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
   chrome.tabs.get(activeInfo.tabId, (tab) => {

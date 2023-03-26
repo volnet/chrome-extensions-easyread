@@ -97,8 +97,8 @@ export function updateStorageJsonData(keyChain, callback, context) {
           }
           value = value[keys[i]];
         }
-        if(keys.length > 0)
-          return {[keys[keys.length-1]]:value};
+        if (keys.length > 0)
+          return { [keys[keys.length - 1]]: value };
         else
           return value;
       }
@@ -122,14 +122,18 @@ export function updateStorageJsonData(keyChain, callback, context) {
         _storeage.set(obj, () => {
           console.log("['" + key0 + "']:Updated:");
           console.log(obj);
-          if(updateBlock.callback_onUpdated) {
-            updateBlock.callback_onUpdated(true, obj);
+          if (updateBlock.callback_onUpdated) {
+            updateBlock.callback_onUpdated(true, obj, context);
           }
         });
       } else {
-        console.log("Nothing updated. Message: " + updateBlock["message"]);
-        if(updateBlock && updateBlock.callback_onUpdated) {
-          updateBlock.callback_onUpdated(false);
+        const msg = "";
+        if(updateBlock && updateBlock["message"]) {
+          msg = updateBlock["message"];
+        }
+        console.log("Nothing updated. Message: " + msg);
+        if (updateBlock && updateBlock.callback_onUpdated) {
+          updateBlock.callback_onUpdated(false, null, context);
         }
       }
     });
@@ -207,8 +211,8 @@ export function getStorageJsonData(keyChain, callback, context) {
               }
               value = value[keys[i]];
             }
-            if(keys.length > 0)
-              return {[keys[keys.length-1]]:value};
+            if (keys.length > 0)
+              return { [keys[keys.length - 1]]: value };
             else
               return value;
           }
@@ -220,25 +224,25 @@ export function getStorageJsonData(keyChain, callback, context) {
 }
 
 export function clearAllStorage(callback) {
-  _storeage.clear(()=>{
+  _storeage.clear(() => {
     if (callback) { callback() }
   });
 }
 
-export async function updateBudgeText () {
+export async function updateBudgeText() {
   const key = READ_LATERS_NAME;
   let unreadCount = 0;
   let badgeText = "";
   _storeage.get(key, (queryValue) => {
     const list = queryValue[key];
-    if(list) {
-      for(let i = 0; i < list.length; ++i) {
-        if(!list[i].status || list[i].status == READ_STATUS_UNREAD) {
+    if (list) {
+      for (let i = 0; i < list.length; ++i) {
+        if (!list[i].status || list[i].status == READ_STATUS_UNREAD) {
           ++unreadCount;
         }
       }
     }
-    if(unreadCount && unreadCount > 0) {
+    if (unreadCount && unreadCount > 0) {
       badgeText = unreadCount.toString();
     }
     chrome.action.setBadgeText({
@@ -252,3 +256,59 @@ export async function updateBudgeText () {
     });
   });
 }
+
+// Define a module called Config
+const configs = (function() {
+  // Define a private variable to store configuration values
+  let _configs;
+
+  // Define a private method for loading configuration values from LocalStorage
+  function loadConfigFromLocalStorage() {
+  /*
+    const savedConfig = localStorage. getItem('configs');
+    if (savedConfig) {
+      return JSON.parse(savedConfig);
+    } else {
+      return {};
+    }*/
+    return {};
+  }
+
+  // Define a private method for merging configuration objects
+  function mergeConfig(configObj) {
+    // Load configuration values from LocalStorage
+    const savedConfig = loadConfigFromLocalStorage();
+
+    // Merge configuration objects, where values stored in LocalStorage have higher priority
+    return Object.assign({}, configObj, savedConfig);
+  }
+
+  // Define a public method for initializing the configuration object
+  function init(configObj) {
+    // If the configuration object has been initialized, return directly
+    if (_configs) {
+      return;
+    }
+
+    // Merge configuration object
+    _configs = mergeConfig(configObj);
+  }
+
+  // Define a public method for getting configuration objects
+  function getConfigs() {
+    return _configs;
+  }
+
+  // return public method
+  return {
+    init,
+    getConfigs
+  };
+})();
+
+// Initialize the configuration object globally
+configs.init({
+  IsAutoRecordedEnabled : true
+});
+
+export { configs };
