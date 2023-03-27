@@ -127,7 +127,7 @@ export function updateStorageJsonData(keyChain, callback, context) {
           }
         });
       } else {
-        const msg = "";
+        let msg = "";
         if(updateBlock && updateBlock["message"]) {
           msg = updateBlock["message"];
         }

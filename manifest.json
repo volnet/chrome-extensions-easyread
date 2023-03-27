@@ -24,6 +24,15 @@
     },
     "default_popup": "popup/popup.html"
   },
+  "content_scripts": [
+    {
+      "js": ["scripts/content.js"],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
+    }
+  ],
   "permissions": ["activeTab", "tabs", "storage"],
   "default_locale": "en"
 }

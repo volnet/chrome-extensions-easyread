@@ -3,7 +3,12 @@
         "http://www.google.com/": {
             "url": "http://www.google.com/#search",
             "title": "Google Search",
-            "datetime": []
+            "datetime": [],
+            "position": {
+                "progress": 70.6894614893343,
+                "scrollX": 0,
+                "scrollY": 13040.0849609375
+              }
         },
         "http://www.facebook.com/": {
             "url": "http://www.facebook.com/#user",
@@ -12,7 +17,7 @@
         }
     },
     "readLaters": [
-        { key:"http://www.google.com/", url: "http://www.google.com/#search", title: "Google Search", createDateTime: 1679496233321, startReadDateTime:1679496233321, endReadDateTime:1679496233321, status:0 },
-        { key:"http://www.facebook.com/", url: "http://www.facebook.com/#user", title: "Facebook", createDateTime: 1679496233321, startReadDateTime:1679496233321, endReadDateTime:1679496233321, status:0 }
+        { "key":"http://www.google.com/", "url": "http://www.google.com/#search", "title": "Google Search", "createDateTime": 1679496233321, "startReadDateTime":1679496233321, "endReadDateTime":1679496233321, "status":0, "position":{"progress": 70.6894614893343, "scrollX": 100, "scrollY":200} },
+        { "key":"http://www.facebook.com/", "url": "http://www.facebook.com/#user", "title": "Facebook", "createDateTime": 1679496233321, "startReadDateTime":1679496233321, "endReadDateTime":1679496233321, "status":0 }
     ]
 }

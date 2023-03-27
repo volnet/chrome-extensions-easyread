@@ -16,6 +16,11 @@ easyReadTools.getStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.A
         if(item['datetimes']) {
           element.querySelector('.readedTimes').textContent = item['datetimes'].length.toString();
         }
+        if(item['position']) {
+          element.querySelector('.readProgress').textContent = item['position'].progress.toFixed(2) + "%";
+        }
+ 
+        
         elements.add(element);
         document.getElementById('outputTable').appendChild(element);
       }

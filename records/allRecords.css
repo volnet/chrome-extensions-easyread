@@ -13,6 +13,14 @@ td, th {
 tr:nth-child(even) {
   background-color: #f1f1f1;
 }
+td {
+  white-space: pre-wrap; 
+  word-wrap: break-word;
+  max-width: 500px;
+  line-height: 18px;
+  height: auto;
+  vertical-align: middle;
+}
 
 /*
 table, th, td {
