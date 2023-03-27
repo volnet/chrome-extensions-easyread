@@ -1,28 +1,5 @@
 import * as easyReadTools from "../scripts/easyReadTools.js";
 
-var onAllRecordsDataLoad = (function () {
-  var handlers = [];
-  var addEventListener = function (eventName, callback, hostContext) {
-    if (eventName == "load") {
-      handlers.push({ "callback": callback, "hostContext": hostContext });
-    }
-  };
-  var triggerEvent = function(sender, eventContext) {
-    for(let i = 0; i < handlers.length; ++i) {
-      const handler = handlers[i];
-      handler.callback(sender, { 
-        "eventContext" : eventContext,
-        "hostContext" : handler.hostContext
-      });
-    }
-  };
-
-  return {
-    addEventListener: addEventListener,
-    triggerEvent: triggerEvent
-  }
-})();
-
 /* showMessages to notify users */
 function showMessages(message) {
   document.getElementById("outputMesssages").textContent = message;
@@ -82,33 +59,6 @@ async function renderReadLaters(queryValue, context) {
         element.querySelector('a').textContent = (isHighlightItem ? "👀 " : "") + item["title"];
         element.querySelector('a').href = item["url"];
         element.querySelector('a').setAttribute('title', item["title"]);
-
-        console.log('onAllRecordsDataLoad.addEventListener');
-        const hostContext = { key: item["key"] };
-        onAllRecordsDataLoad.addEventListener("load", (sender, context) => {
-          const recordList = context["eventContext"][easyReadTools.ALL_RECORDS_NAME];
-          console.log(recordList);
-          const itemPageKey = context["hostContext"]["key"];
-          if(recordList) {
-            const dataItem = recordList[itemPageKey];
-            console.log(dataItem);
-            if(dataItem) {
-              const position = dataItem["position"];
-              if(position) {
-                const ckbs = element.querySelector('input[type=checkbox]');
-                console.log(ckbs.length);
-                if(ckbs && ckbs.length > 0) {
-                  for(let i = 0; i < ckbs.length; ++i) {
-                    const c = ckbs[i];
-                    if(ckb.value === itemPageKey) {
-                      ckb.parentElement.innerHTML += position.progress.toFixed(2) + "%";
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }, hostContext);
 
         if (isHighlightItem) {
           element.classList.add('highlightLi');
@@ -329,17 +279,8 @@ async function onPageLoad_InitAllRecords() {
   }
 }
 
-async function onPageLoad_LoadAllRecords() {
-  easyReadTools.getStorageJsonData(
-    easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME]),
-    (queryValue, context) => {
-      onAllRecordsDataLoad.triggerEvent(this, queryValue);
-    });
-}
-
 (function onPageLoad() {
   onPageLoad_InitTopMenuBar();
   onPageLoad_InitReadLaters();
   onPageLoad_InitAllRecords();
-  onPageLoad_LoadAllRecords();
 })();
