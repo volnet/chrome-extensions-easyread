@@ -1,11 +1,24 @@
 import * as easyReadTools from "../scripts/easyReadTools.js";
 
+/* showMessages to notify users */
 function showMessages(message) {
   document.getElementById("outputMesssages").textContent = message;
   setTimeout(function () {
     document.getElementById("outputMesssages").textContent = "";
   }, 3000);
 }
+
+/* -------- Top Menu bar -------- */
+
+function onPageLoad_InitTopMenuBar() {
+  const btnAllRecords = document.getElementById("btnAllRecords");
+  btnAllRecords.addEventListener('click', async () => {
+    chrome.tabs.create({ active: true, url: '/records/allRecords.html' });
+  });
+}
+
+/* -------- ReadLaters -------- */
+
 function renderReadLaters(queryValue, context) {
   let lists = queryValue[context.key];
   let unreadCount = 0;
@@ -75,38 +88,6 @@ function removeReadLatersStorageUpdated(updateStatus, updateData, context) {
         document.getElementById("titleReadLaters").innerHTML = "Total Page: " + (olElement.childNodes.length) + "";
       }
     }, 500);
-  }
-}
-
-function renderPageRecords(queryValue, context) {
-  let readedPage = queryValue[context.key];
-  if (readedPage) {
-    if (readedPage.datetimes && readedPage.datetimes.length > 0) {
-      const readTimes = readedPage.datetimes.length;
-      const message = "已读：" + readTimes + "次";
-      const readTimesToString = easyReadTools.sortDateTimeList(readedPage.datetimes).map((datetime) => easyReadTools.formatDate(datetime) + '<br />').join('');
-
-      const template = document.getElementById('templateAllRecords');
-      const elements = new Set();
-      const element = template.content.cloneNode(true);
-
-      element.querySelector('.titleAllRecords').textContent = readedPage.title;
-      element.querySelector('.url').textContent = readedPage.url;
-      element.querySelector('.message').textContent = message;
-      element.querySelector('.readedTimes').innerHTML = readTimesToString;
-
-      elements.add(element);
-      document.getElementById('outputAllRecords').append(...elements);
-    }
-    else {
-      console.log("It's your first time to reach the page!");
-      showMessages("It's your first time to reach the page!");
-    }
-  }
-  else {
-    document.getElementById('outputAllRecords').innerHTML = "No records.";
-    console.log("Because no record to found, so it may be your first time to reach the page!");
-    showMessages("Because no record to found, so it may be your first time to reach the page!");
   }
 }
 
@@ -191,59 +172,98 @@ function updateStorageCallback_ReadLaterRemove(queryValue, context) {
   }
 }
 
-const btnReadLater = document.getElementById("btnReadLater");
-btnReadLater.addEventListener('click', async () => {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tabs && tabs.length > 0) {
-    const tab = tabs[0];
-    if (easyReadTools.isSupportedScheme(tab.url)) {
-      easyReadTools.updateStorageJsonData(
-        easyReadTools.keyChainGenerate([easyReadTools.READ_LATERS_NAME]),
-        updateStorageCallback_ReadLaterAdd,
-        {
-          key: easyReadTools.READ_LATERS_NAME,
-          tab: tab
-        });
-    };
-  }
-});
 
-const btnReadedAndRemove = document.getElementById("btnReadedAndRemove");
-btnReadedAndRemove.addEventListener('click', async () => {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tabs && tabs.length > 0) {
-    const tab = tabs[0];
-    const pageUrl = easyReadTools.getKey(tab.url);
-    easyReadTools.removeStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME, pageUrl]), () => {
-      document.getElementById("outputAllRecords").innerHTML = "The records of the page is removed.";
-    });
-  }
-});
 
-const btnAllRecords = document.getElementById("btnAllRecords");
-btnAllRecords.addEventListener('click', async () => {
-  chrome.tabs.create({ active: true, url: '/records/allRecords.html' });
-});
+function onPageLoad_InitReadLaters() {
+  const btnReadLater = document.getElementById("btnReadLater");
+  btnReadLater.addEventListener('click', async () => {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tabs && tabs.length > 0) {
+      const tab = tabs[0];
+      if (easyReadTools.isSupportedScheme(tab.url)) {
+        easyReadTools.updateStorageJsonData(
+          easyReadTools.keyChainGenerate([easyReadTools.READ_LATERS_NAME]),
+          updateStorageCallback_ReadLaterAdd,
+          {
+            key: easyReadTools.READ_LATERS_NAME,
+            tab: tab
+          });
+      };
+    }
+  });
 
-// on the page load.
-easyReadTools.getStorageJsonData(
-  easyReadTools.keyChainGenerate([easyReadTools.READ_LATERS_NAME]),
-  renderReadLaters, { key: easyReadTools.READ_LATERS_NAME });
+  const btnReadedAndRemove = document.getElementById("btnReadedAndRemove");
+  btnReadedAndRemove.addEventListener('click', async () => {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tabs && tabs.length > 0) {
+      const tab = tabs[0];
+      const pageUrl = easyReadTools.getKey(tab.url);
+      easyReadTools.removeStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME, pageUrl]), () => {
+        document.getElementById("outputAllRecords").innerHTML = "The records of the page is removed.";
+      });
+    }
+  });
 
-const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-if (tabs && tabs.length > 0) {
-  const tab = tabs[0];
-  const title = tab.title;
-  const pageUrl = easyReadTools.getKey(tab.url);
-  if (easyReadTools.isSupportedScheme(pageUrl)) {
-    easyReadTools.getStorageJsonData(
-      easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME, pageUrl]),
-      renderPageRecords,
-      { key: pageUrl });
+  easyReadTools.getStorageJsonData(
+    easyReadTools.keyChainGenerate([easyReadTools.READ_LATERS_NAME]),
+    renderReadLaters, { key: easyReadTools.READ_LATERS_NAME });
+}
+
+/* -------- AutoRecords -------- */
+
+function renderPageRecords(queryValue, context) {
+  let readedPage = queryValue[context.key];
+  if (readedPage) {
+    if (readedPage.datetimes && readedPage.datetimes.length > 0) {
+      const readTimes = readedPage.datetimes.length;
+      const message = "已读：" + readTimes + "次";
+      const readTimesToString = easyReadTools.sortDateTimeList(readedPage.datetimes).map((datetime) => easyReadTools.formatDate(datetime) + '<br />').join('');
+
+      const template = document.getElementById('templateAllRecords');
+      const elements = new Set();
+      const element = template.content.cloneNode(true);
+
+      element.querySelector('.titleAllRecords').textContent = readedPage.title;
+      element.querySelector('.url').textContent = readedPage.url;
+      element.querySelector('.message').textContent = message;
+      element.querySelector('.readedTimes').innerHTML = readTimesToString;
+
+      elements.add(element);
+      document.getElementById('outputAllRecords').append(...elements);
+    }
+    else {
+      console.log("It's your first time to reach the page!");
+      showMessages("It's your first time to reach the page!");
+    }
   }
   else {
-    console.log("This page not supported.");
-    document.getElementById("outputAllRecords").innerHTML = "This page not supported.";
+    document.getElementById('outputAllRecords').innerHTML = "No records.";
+    console.log("Because no record to found, so it may be your first time to reach the page!");
+    showMessages("Because no record to found, so it may be your first time to reach the page!");
   }
 }
 
+async function onPageLoad_InitAllRecords() {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tabs && tabs.length > 0) {
+    const tab = tabs[0];
+    const title = tab.title;
+    const pageUrl = easyReadTools.getKey(tab.url);
+    if (easyReadTools.isSupportedScheme(pageUrl)) {
+      easyReadTools.getStorageJsonData(
+        easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME, pageUrl]),
+        renderPageRecords,
+        { key: pageUrl });
+    }
+    else {
+      console.log("This page not supported.");
+      document.getElementById("outputAllRecords").innerHTML = "This page not supported.";
+    }
+  }
+}
+
+(function onPageLoad() {
+  onPageLoad_InitTopMenuBar();
+  onPageLoad_InitReadLaters();
+  onPageLoad_InitAllRecords();
+})();
