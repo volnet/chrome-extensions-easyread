@@ -59,6 +59,24 @@ ol li {
   line-height: 18px;
 }
 
+.highlightLi {
+  background-color: #ffd5bd;
+  border: 1px #f0843d solid;
+  animation: highlight 0.5s ease-in-out;
+}
+
+@keyframes highlight {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 a {  
   white-space:nowrap; 
   overflow:hidden;

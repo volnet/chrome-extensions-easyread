@@ -19,7 +19,7 @@ function onPageLoad_InitTopMenuBar() {
 
 /* -------- ReadLaters -------- */
 
-function renderReadLaters(queryValue, context) {
+async function renderReadLaters(queryValue, context) {
   let lists = queryValue[context.key];
   let unreadCount = 0;
   if (lists && lists.length > 0) {
@@ -53,10 +53,16 @@ function renderReadLaters(queryValue, context) {
           }
         });
 
+        const isHighlightItem = await isNeedHighlightCurrentPageInReadLaters(item["key"]);
+
         element.querySelector('label').setAttribute('for', ckId)
-        element.querySelector('a').textContent = item["title"];
+        element.querySelector('a').textContent = (isHighlightItem ? "👀 " : "") + item["title"];
         element.querySelector('a').href = item["url"];
         element.querySelector('a').setAttribute('title', item["title"]);
+        if(isHighlightItem) {
+          element.classList.add('highlightLi');
+        }
+        
         elements.add(element);
       }
     }
@@ -70,6 +76,7 @@ function renderReadLaters(queryValue, context) {
   }
   document.getElementById("titleReadLaters").innerHTML = "Total Page: " + (unreadCount) + "";
   easyReadTools.updateBudgeText();
+  highlightCurrentPageInReadLaters();
 }
 
 function addReadLatersStorageUpdated(updateStatus, updateData) {
@@ -172,7 +179,17 @@ function updateStorageCallback_ReadLaterRemove(queryValue, context) {
   }
 }
 
-
+async function isNeedHighlightCurrentPageInReadLaters(key) {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tabs && tabs.length > 0) {
+    const tab = tabs[0];
+    const pageUrl = easyReadTools.getKey(tab.url);
+    if(key == pageUrl) {
+      return true;
+    }
+  }
+  return false;
+}
 
 function onPageLoad_InitReadLaters() {
   const btnReadLater = document.getElementById("btnReadLater");
