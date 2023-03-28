@@ -81,7 +81,7 @@ a {
   white-space:nowrap; 
   overflow:hidden;
   text-overflow: ellipsis;
-  width: 300px;
+  width: 280px;
   display: inline-block;
   line-height: 18px;
   height: 18px;
@@ -117,6 +117,11 @@ a:hover {
   text-overflow: ellipsis;
   width: 350px;
   display: inline-block;
+}
+
+.progress {
+  padding-left: 3px;
+  color:rgb(203, 146, 95);
 }
 
 .url {}

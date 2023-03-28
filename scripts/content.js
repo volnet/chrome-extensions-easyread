@@ -45,7 +45,7 @@ function setScrollPostion(postion) {
 // sendMessage from UserPage(content.js) to Extension(background.js)
 function sendMessagePagePosition(position) {
     chrome.runtime.sendMessage({ position: position }, function (response) {
-        console.log("Background page responded: " + response);
+        // console.log("Background page responded: " + response);
     });
 }
 
@@ -54,8 +54,19 @@ let scrollTimer;
 window.addEventListener('scroll', () => {
     clearTimeout(scrollTimer);
     scrollTimer = setTimeout(() => {
-        const position = getScrollPosition();
-        sendMessagePagePosition(position);
-        console.log("sendMessagePageProgress(" + position + ")");
+        try {
+            const position = getScrollPosition();
+            sendMessagePagePosition(position);
+        } catch(e) {
+            console.warn(e);
+        }
+        // console.log("sendMessagePageProgress(" + position + ")");
     }, 1000);
+});
+
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+    // console.log("chrome.runtime.onMessage.addListener");
+    if(message && message.command == "setScroll") {
+        setScrollPostion(message.position);
+    }
 });

@@ -55,10 +55,17 @@ async function renderReadLaters(queryValue, context) {
 
         const isHighlightItem = await isNeedHighlightCurrentPageInReadLaters(item["key"]);
 
-        element.querySelector('label').setAttribute('for', ckId)
+        const label = element.querySelector('label').setAttribute('for', ckId);
+        element.querySelector('label')
         element.querySelector('a').textContent = (isHighlightItem ? "👀 " : "") + item["title"];
         element.querySelector('a').href = item["url"];
         element.querySelector('a').setAttribute('title', item["title"]);
+
+        const position = item["position"];
+        if(position) {
+          element.querySelector('.progress').textContent = " (" + position.progress.toFixed(2) + "%)";
+        }
+        
 
         if (isHighlightItem) {
           element.classList.add('highlightLi');
@@ -72,7 +79,7 @@ async function renderReadLaters(queryValue, context) {
     olElement.append(...elements);
   }
   else {
-    console.log("Because no record to found, so it may be your first time to reach the page!");
+    // console.log("Because no record to found, so it may be your first time to reach the page!");
     showMessages("Because no record to found, so it may be your first time to reach the page!");
   }
   document.getElementById("titleReadLaters").innerHTML = "Total Page: " + (unreadCount) + "";
@@ -112,7 +119,7 @@ function updateStorageCallback_ReadLaterAdd(queryValue, context) {
     result.value = newValue;
     result.status = easyReadTools.UPDATE_STATUS_YES;
     showMessages("Add a new page to the read later list.");
-    console.log("create readLaters json object. add new page.");
+    // console.log("create readLaters json object. add new page.");
   } else {
     // exists "readLaters json object"
 
@@ -133,7 +140,7 @@ function updateStorageCallback_ReadLaterAdd(queryValue, context) {
       result.status = easyReadTools.UPDATE_STATUS_YES;
       result.message = "Add a new page to the read later list.";
       showMessages("Add a new page to the read later list.");
-      console.log("no found it. add new page.");
+      // console.log("no found it. add new page.");
     }
   }
   return result;
@@ -142,10 +149,10 @@ function updateStorageCallback_ReadLaterAdd(queryValue, context) {
 function updateStorageCallback_ReadLaterRemove(queryValue, context) {
   var result = { status: easyReadTools.UPDATE_STATUS_NO, value: null, message: "", callback_onUpdated: removeReadLatersStorageUpdated };
   // queryValue == {} or {context.key: it's value}
-  console.log(queryValue);
-  console.log(context.key);
+  // console.log(queryValue);
+  // console.log(context.key);
   const oldValue = queryValue[context.key];
-  console.log(oldValue);
+  // console.log(oldValue);
 
   if (!oldValue) {
     showMessages("Nothing be removed.");
@@ -170,10 +177,10 @@ function updateStorageCallback_ReadLaterRemove(queryValue, context) {
     }
 
     if (!isFound) {
-      console.log("!Found");
+      // console.log("!Found");
       result.message = "Nothing be removed.";
       showMessages("Nothing be removed.");
-      console.log("Nothing be removed.");
+      // console.log("Nothing be removed.");
     }
     return result;
   }
@@ -249,13 +256,13 @@ function renderPageRecords(queryValue, context) {
       document.getElementById('outputAllRecords').append(...elements);
     }
     else {
-      console.log("It's your first time to reach the page!");
+      // console.log("It's your first time to reach the page!");
       showMessages("It's your first time to reach the page!");
     }
   }
   else {
     document.getElementById('outputAllRecords').innerHTML = "No records.";
-    console.log("Because no record to found, so it may be your first time to reach the page!");
+    // console.log("Because no record to found, so it may be your first time to reach the page!");
     showMessages("Because no record to found, so it may be your first time to reach the page!");
   }
 }
@@ -273,7 +280,7 @@ async function onPageLoad_InitAllRecords() {
         { key: pageUrl });
     }
     else {
-      console.log("This page not supported.");
+      // console.log("This page not supported.");
       document.getElementById("outputAllRecords").innerHTML = "This page not supported.";
     }
   }
