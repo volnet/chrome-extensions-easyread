@@ -15,9 +15,9 @@ function getScrollProgress() {
 }
 
 /**
- * Set the scroll bar progress
- * @param {number} progress Scroll bar progress
- */
+* Set the scroll bar progress
+* @param {number} progress Scroll bar progress
+*/
 function setScrollProgress(progress) {
     const pageHeight = document.documentElement.scrollHeight;
     const windowHeight = window.innerHeight;
@@ -26,7 +26,7 @@ function setScrollProgress(progress) {
 }
 
 function getScrollPosition() {
-    let postion =  {
+    let postion = {
         scrollX: window.scrollX,
         scrollY: window.scrollY,
         progress: getScrollProgress()
@@ -43,30 +43,41 @@ function setScrollPostion(postion) {
 }
 
 // sendMessage from UserPage(content.js) to Extension(background.js)
-function sendMessagePagePosition(position) {
-    chrome.runtime.sendMessage({ position: position }, function (response) {
-        // console.log("Background page responded: " + response);
-    });
+async function sendMessagePagePosition(position) {
+    const response = await chrome.runtime.sendMessage({ position: position });
+    console.log(response);
 }
 
-
+let userHasScrolled = false;
 let scrollTimer;
-window.addEventListener('scroll', () => {
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(() => {
-        try {
-            const position = getScrollPosition();
-            sendMessagePagePosition(position);
-        } catch(e) {
-            console.warn(e);
-        }
-        // console.log("sendMessagePageProgress(" + position + ")");
-    }, 1000);
-});
 
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
-    // console.log("chrome.runtime.onMessage.addListener");
-    if(message && message.command == "setScroll") {
-        setScrollPostion(message.position);
-    }
-});
+(() => {
+    window.addEventListener('scroll', () => {
+        userHasScrolled = true;
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(async () => {
+            try {
+                const position = getScrollPosition();
+                await sendMessagePagePosition(position);
+            } catch (e) {
+                console.log(e);
+            }
+            // console.log("sendMessagePageProgress(" + position + ")");
+        }, 3000); // After scroll 3 seconds to reduce message.
+    });
+    chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+        console.log("chrome.runtime.onMessage.addListener - callback invoked.");
+        /*
+        if(userHasScrolled) {
+            console.log("User has scroll the page, don't recovery the old scroll postion.");
+            // Here can inject a confirm div to user to decide is need to auto set scroll.
+        }
+        else {*/
+        console.log("chrome.runtime.onMessage.addListener - setScroll - received message:");
+        console.log(message);
+        if (message && message.command == "setScroll") {
+            setScrollPostion(message.position);
+        }
+        /*}*/
+    });
+})();

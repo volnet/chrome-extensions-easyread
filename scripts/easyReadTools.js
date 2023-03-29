@@ -75,14 +75,14 @@ export function keyChainGenerate(keys) {
 //          if update, status = UPDATE_STATUS_YES, the path exist_key0.not_exist_key1 will auto create.
 //          if not update, status = UPDATE_STATUS_NO
 // context: pass the params;
-export function updateStorageJsonData(keyChain, callback, context) {
+export async function updateStorageJsonData(keyChain, callback, context) {
   const keyArray = keyChainSplit(keyChain);
   if (keyArray && keyArray.length > 0) {
     const key0 = keyArray[0];
 
-    _storeage.get([key0], (result) => {
-      console.log("key0=" + key0);
-      console.log(result);
+    await _storeage.get([key0], (result) => {
+      // console.log("key0=" + key0);
+      // console.log(result);
       var obj = {};
       if (!result[key0]) {
         obj = { [key0]: null };
@@ -114,14 +114,14 @@ export function updateStorageJsonData(keyChain, callback, context) {
       }
       let updateBlock = null;
       if (callback) {
-        console.log(getValue(keyArray));
+        // console.log(getValue(keyArray));
         updateBlock = callback(getValue(keyArray), context);
       };
       if (updateBlock && updateBlock.status == UPDATE_STATUS_YES) {
         setValue(keyArray, updateBlock.value);
         _storeage.set(obj, () => {
-          console.log("['" + key0 + "']:Updated:");
-          console.log(obj);
+          // console.log("['" + key0 + "']:Updated:");
+          // console.log(obj);
           if (updateBlock.callback_onUpdated) {
             updateBlock.callback_onUpdated(true, obj, context);
           }
@@ -131,7 +131,7 @@ export function updateStorageJsonData(keyChain, callback, context) {
         if(updateBlock && updateBlock["message"]) {
           msg = updateBlock["message"];
         }
-        console.log("Nothing updated. Message: " + msg);
+        // console.log("Nothing updated. Message: " + msg);
         if (updateBlock && updateBlock.callback_onUpdated) {
           updateBlock.callback_onUpdated(false, null, context);
         }
@@ -190,7 +190,7 @@ export function removeStorageJsonData(keyChain, callback) {
 //                return {}
 // - suggest: in the callback, use the queryValue[key] to check is it available.
 // context: pass the params;
-export function getStorageJsonData(keyChain, callback, context) {
+export async function getStorageJsonData(keyChain, callback, context) {
   if (!keyChain) {
     _storeage.get(null, (result) => {
       if (callback) { callback(result, context); }
@@ -199,7 +199,7 @@ export function getStorageJsonData(keyChain, callback, context) {
     const keyArray = keyChainSplit(keyChain);
     if (keyArray) {
       const key0 = keyArray[0];
-      _storeage.get([key0], (result) => {
+      await _storeage.get([key0], (result) => {
         if (keyArray.length == 1) {
           if (callback) { callback(result, context); }
         } else {
@@ -254,6 +254,50 @@ export async function updateBudgeText() {
     chrome.action.setBadgeBackgroundColor({
       color: "#ffe803"
     });
+  });
+}
+
+/**
+ * Get the scroll bar progress
+ * @returns {string} Scroll bar progress
+ */
+export function getScrollProgress() {
+  // Get page height
+  const pageHeight = document.documentElement.scrollHeight;
+  // Get visible area height
+  const windowHeight = window.innerHeight;
+  // Get scroll bar position
+  const scrollPosition = window.scrollY;
+  // Calculate scroll bar progress
+  const progress = (scrollPosition / (pageHeight - windowHeight)) * 100;
+  return progress;
+}
+
+/**
+* Set the scroll bar progress
+* @param {number} progress Scroll bar progress
+*/
+export function setScrollProgress(progress) {
+  const pageHeight = document.documentElement.scrollHeight;
+  const windowHeight = window.innerHeight;
+  const scrollPosition = (pageHeight - windowHeight) * (progress / 100);
+  window.scrollTo(0, scrollPosition);
+}
+
+export function getScrollPosition() {
+  let postion = {
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+      progress: getScrollProgress()
+  }
+  return postion;
+}
+
+export function setScrollPostion(postion) {
+  window.scroll({
+      left: postion.scrollX,
+      top: postion.scrollY,
+      behavior: 'smooth'
   });
 }
 

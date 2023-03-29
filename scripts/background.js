@@ -8,16 +8,24 @@ import * as easyReadTools from './easyReadTools.js';
 
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
   chrome.tabs.get(activeInfo.tabId, (tab) => {
-    // console.log("chrome.tabs.onActivated.callback = " + tab.url);
-    autoRecordCurrentPage(tab);
-    setTabScroll(tab);
+    if(tab && tab.status === 'complete') {
+      console.log("chrome.tabs.onActivated.callback = " + tab.url);
+      if (easyReadTools.isSupportedScheme(tab.url)) {
+        autoRecordCurrentPage(tab);
+      }
+    }
   });
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   // console.log("chrome.tabs.onUpdated.callback = " + tab.url);
-  autoRecordCurrentPage(tab);
-  setTabScroll(tab);
+  if (changeInfo && changeInfo.status === 'complete') {
+    console.log("chrome.tabs.onUpdated.addListener + changeInfo.status === 'complete'")
+    if (easyReadTools.isSupportedScheme(tab.url)) {
+      autoRecordCurrentPage(tab);
+      setTabScroll(tab);
+    }
+  }
 });
 
 chrome.runtime.onStartup.addListener(() => {
@@ -32,11 +40,13 @@ function updateStorageCallback_AllRecordsURLDateTimes(queryValue, context) {
   let newValue = {};
   // queryValue == {} or {thePageKey : it's value}
   // console.log(queryValue);
-  if (queryValue[context.key]) {
+  let oldValue = queryValue[context.key];
+  if (oldValue) {
     const datetimes = queryValue[context.key]["datetimes"];
     if (datetimes && datetimes.length > 0 && easyReadTools.isByHuman(datetimes)) {
-      newValue = { title: context.tab.title, url: context.tab.url, datetimes: [...datetimes, Date.now()] };
-      result.value = newValue;
+      // newValue = { title: context.tab.title, url: context.tab.url, datetimes: [...datetimes, Date.now()] };
+      oldValue["datetimes"] = [...datetimes, Date.now()];
+      result.value = oldValue;
       result.status = easyReadTools.UPDATE_STATUS_YES;
     } else {
       result.status = easyReadTools.UPDATE_STATUS_NO;
@@ -69,8 +79,8 @@ function updateStorageCallback_ReadLatersPosition(queryValue, context) {
   // console.log(queryValue);
   let oldValue = queryValue[context.key];
   if (oldValue && oldValue.length > 0) {
-    for(let i = 0; i < oldValue.length; ++i) {
-      if(oldValue[i].key ===  context.pageKey) {
+    for (let i = 0; i < oldValue.length; ++i) {
+      if (oldValue[i].key === context.pageKey) {
         oldValue[i]["position"] = context.position;
         result.value = oldValue;
         result.status = easyReadTools.UPDATE_STATUS_YES;
@@ -87,17 +97,17 @@ function updateStorageCallback_AllRecordsPosition(queryValue, context) {
   // console.log(queryValue);
   let oldValue = queryValue[context.key];
   if (oldValue) {
-      oldValue["position"] = context.position;
-      result.value = oldValue;
-      result.status = easyReadTools.UPDATE_STATUS_YES;
-      result.message = "position is updated";
+    oldValue["position"] = context.position;
+    result.value = oldValue;
+    result.status = easyReadTools.UPDATE_STATUS_YES;
+    result.message = "position is updated";
   }
   return result;
 }
 
 // add a Listener to add
 // receive the page position.
-chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   const tab = sender.tab;
   if (tab) {
     const pageKey = easyReadTools.getKey(tab.url);
@@ -113,7 +123,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
           position: message.position
         });
 
-      // update autoRecord's position.
+        // update autoRecord's position.
         const keyChainAllRecords = easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME, pageKey]);
         easyReadTools.updateStorageJsonData(keyChainAllRecords, updateStorageCallback_AllRecordsPosition, {
           key: pageKey,
@@ -126,24 +136,36 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       sendResponse("success");
     }
   }
-  return true;
+  // https://developer.chrome.com/docs/extensions/mv3/messaging/
+  // If you want to asynchronously use sendResponse(), add return true; to the onMessage event handler.
+  // return true;
 });
 
-function setTabScroll(tab) {
-  if(tab) {
-    const pageKey = easyReadTools.getKey(tab.url);
-    const keyChainAllRecords = easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME, pageKey]);
-    easyReadTools.getStorageJsonData(keyChainAllRecords, (queryValue, context) => {
-      let dataValue = queryValue[pageKey];
-      if (dataValue && dataValue.position) {
-        let msg = {
-          "command": "setScroll",
-          "position": dataValue.position
-        };
-        console.log("Relocate the page at the position: ");
-        console.log(msg);
-        chrome.tabs.sendMessage(tab.id, msg);
-      }
-    });
+async function setTabScroll(tab) {
+  try {
+    // console.log("query the tab's position and send message to content.js to set it.");
+    if (tab) {
+      const pageKey = easyReadTools.getKey(tab.url);
+      const keyChainAllRecords = easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME, pageKey]);
+      await easyReadTools.getStorageJsonData(keyChainAllRecords, async (queryValue, context) => {
+        let dataValue = queryValue[pageKey];
+        if (dataValue && dataValue.position) {
+          let msg = {
+            "command": "setScroll",
+            "position": dataValue.position
+          };
+          // console.log("Relocate the page at the position: ");
+          try {
+            chrome
+            await chrome.tabs.sendMessage(tab.id, msg);
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      });
+    }
+  }
+  catch (e) {
+    console.log(e);
   }
 }

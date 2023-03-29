@@ -16,7 +16,7 @@ easyReadTools.getStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.A
         if(item['datetimes']) {
           element.querySelector('.readedTimes').textContent = item['datetimes'].length.toString();
         }
-        if(item['position']) {
+        if(item['position'] && item['position'].progress) {
           element.querySelector('.readProgress').textContent = item['position'].progress.toFixed(2) + "%";
         }
  

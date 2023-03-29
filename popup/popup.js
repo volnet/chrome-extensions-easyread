@@ -37,11 +37,11 @@ async function renderReadLaters(queryValue, context) {
         const checkBox = element.querySelector('input[type=checkbox]');
         checkBox.id = ckId;
         checkBox.value = item["key"];
-        checkBox.addEventListener('change', (e) => {
+        checkBox.addEventListener('change', async (e) => {
           if (e.target.checked) {
             const key = e.target.value;
             if (key) {
-              easyReadTools.updateStorageJsonData(
+              await easyReadTools.updateStorageJsonData(
                 easyReadTools.keyChainGenerate([easyReadTools.READ_LATERS_NAME]),
                 updateStorageCallback_ReadLaterRemove,
                 {
@@ -49,6 +49,9 @@ async function renderReadLaters(queryValue, context) {
                   pageKey: key,
                   checkBoxId: e.target.id
                 });
+              setTimeout(()=>{
+                easyReadTools.updateBudgeText();
+              }, 1000);
             }
           }
         });
@@ -112,6 +115,9 @@ function updateStorageCallback_ReadLaterAdd(queryValue, context) {
   const oldValue = queryValue[context.key];
   const key = easyReadTools.getKey(context.tab.url);
 
+  // const posision: if we want to get the page's postion, we have to try read from allrecords.
+  // here no implement.
+
   if (!oldValue) {
     // not exists "readLaters json object", create new one to init.
     newValue = new Array();
@@ -128,7 +134,7 @@ function updateStorageCallback_ReadLaterAdd(queryValue, context) {
 
     let isFound = false;
     for (let i = 0; i < oldValue.length; ++i) {
-      if (key === oldValue[i].key) {
+      if (key === oldValue[i].key && oldValue[i].status === easyReadTools.READ_STATUS_UNREAD) {
         result.message = "The page is in your read later list yet.";
         isFound = true;
         showMessages("The page is in your read later list yet.");
@@ -165,7 +171,7 @@ function updateStorageCallback_ReadLaterRemove(queryValue, context) {
 
     let isFound = false;
     for (let i = 0; i < oldValue.length; ++i) {
-      if (context.pageKey === oldValue[i].key) {
+      if (context.pageKey === oldValue[i].key && oldValue[i].status === easyReadTools.READ_STATUS_UNREAD) {
         oldValue[i]["status"] = easyReadTools.READ_STATUS_READED;
         oldValue[i]["endReadDateTime"] = Date.now();
         result.status = easyReadTools.UPDATE_STATUS_YES;
@@ -182,6 +188,7 @@ function updateStorageCallback_ReadLaterRemove(queryValue, context) {
       showMessages("Nothing be removed.");
       // console.log("Nothing be removed.");
     }
+
     return result;
   }
 }
