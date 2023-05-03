@@ -65,7 +65,7 @@ async function renderReadLaters(queryValue, context) {
         element.querySelector('a').setAttribute('title', item["title"]);
 
         const position = item["position"];
-        if(position) {
+        if(position && position.progress) {
           element.querySelector('.progress').textContent = " (" + position.progress.toFixed(2) + "%)";
         }
         
