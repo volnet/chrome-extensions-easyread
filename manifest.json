@@ -33,6 +33,6 @@
       ]
     }
   ],
-  "permissions": ["activeTab", "tabs", "storage"],
+  "permissions": ["activeTab", "tabs", "storage", "unlimitedStorage"],
   "default_locale": "en"
 }
