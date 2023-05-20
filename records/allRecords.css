@@ -22,15 +22,6 @@ td {
   vertical-align: middle;
 }
 
-/*
-table, th, td {
-  border: 1px solid black;
+.output {
+  color:red;
 }
-.col-01 { width: 20px}
-.col-02 {
-  width: 500px;
-  word-wrap: break-word;
-}
-.col-03 { width: 60px}
-
-*/

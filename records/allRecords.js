@@ -28,23 +28,7 @@ easyReadTools.getStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.A
     document.getElementById('createdTime').innerText = easyReadTools.formatDate(Date.now()); 
 });
 
-const btnRemoveAllRecords = document.getElementById("btnRemoveAllRecords");
-btnRemoveAllRecords.addEventListener('click', async () => {
-  easyReadTools.removeStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME]), ()=>{
-    document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("allrecords_page_allRecordsRemoved");
-  });
-});
-
-const btnDropStorage = document.getElementById("btnDropStorage");
-btnDropStorage.addEventListener('click', async () => {
-  easyReadTools.clearAllStorage(()=>{
-    document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("allrecords_page_storageDroped");
-  });
-});
-
 window.addEventListener('load', function() {
   document.getElementById("allrecords_page_title").textContent = easyReadTools.getMessageForLocales("allrecords_page_title");
   document.getElementById("allrecords_page_notice").textContent = easyReadTools.getMessageForLocales("allrecords_page_notice");
-  document.getElementById("btnRemoveAllRecords").textContent = easyReadTools.getMessageForLocales("allrecords_page_btnRemoveAllRecords");
-  document.getElementById("btnDropStorage").textContent = easyReadTools.getMessageForLocales("allrecords_page_btnDropStorage");
 });

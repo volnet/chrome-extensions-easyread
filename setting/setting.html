@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="setting.css" />
+</head>
+
+<body>	
+	<h1 id="setting_page_title">EasyRead: enjoy your read!</h1>
+	<h2 id="setting_page_notice">Setting Page, manage the EasyRead better.</h2>
+	<h3 id="setting_page_notice_allRecords">It's only about all records, they are record by EasyRead.</h3>
+	<div class="settingBlock">
+		<button id="btnDownloadAllRecordsAsJson">Download All Records</button>&nbsp;
+		<button id="btnRemoveAllRecords" class="btnWarning">Remove All Records</button>&nbsp;
+	</div>
+	<h3 id="setting_page_notice_readLaters">It's only about all readLaters, they are record by YOU(Human).</h3>
+	<div class="settingBlock">
+		<button id="btnDownloadReadLatersAsJson">Download ReadLaters</button>&nbsp;
+		<button id="btnRemoveReadLaters" class="btnWarning">Remove Read Laters</button>
+	</div>
+	<h3 id="setting_page_notice_storage">(full backup)It will download all storage.</h3>
+	<div class="settingBlock">
+		<button id="btnDownloadStorageAsJson">Download Storage</button>&nbsp;
+		<button id="btnDropStorage" class="btnWarning">Drop Storage</button>
+	</div>
+	<div id="output" class="output"></div>
+	<script src="setting.js" type="module"></script>
+</body>
+
+</html>

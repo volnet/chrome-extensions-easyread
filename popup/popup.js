@@ -15,6 +15,11 @@ function onPageLoad_InitTopMenuBar() {
   btnAllRecords.addEventListener('click', async () => {
     chrome.tabs.create({ active: true, url: '/records/allRecords.html' });
   });
+
+  const btnSetting = document.getElementById("btnSetting");
+  btnSetting.addEventListener('click', async () => {
+    chrome.tabs.create({ active: true, url: '/setting/setting.html' });
+  });
 }
 
 /* -------- ReadLaters -------- */

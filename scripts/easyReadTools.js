@@ -56,6 +56,39 @@ export function getMessageForLocales(name, placeHolder) {
   }
 }
 
+function padZero(num, length = 2) {
+  var padded = num.toString();
+  while (padded.length < length) {
+    padded = "0" + padded;
+  }
+  return padded;
+}
+
+export function getNowDateTimeString() {
+  var currentDate = new Date();
+  var timestamp = currentDate.getFullYear().toString() +
+  padZero(currentDate.getMonth() + 1) +
+  padZero(currentDate.getDate()) +
+  padZero(currentDate.getHours()) +
+  padZero(currentDate.getMinutes()) +
+  padZero(currentDate.getSeconds()) +
+  padZero(currentDate.getMilliseconds(), 3);
+  return timestamp;
+}
+
+export function exportToJsonFile(data, filename) {
+  const jsonData = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonData], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  
+  URL.revokeObjectURL(url);
+}
+
 const _storeage = chrome.storage.local;
 
 function keyChainSplit(keyChain) {

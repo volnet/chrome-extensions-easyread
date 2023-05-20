@@ -1,0 +1,13 @@
+.settingBlock {
+    padding: 10px;
+    border: 1px solid #e35503;
+    border-radius: 8px;
+    background-color: #fbe0ce;
+    margin-bottom: 20px;
+}
+.output {
+    color:red;
+}
+.btnWarning {
+    background-color: red;
+}

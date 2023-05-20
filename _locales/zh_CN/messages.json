@@ -1,26 +1,66 @@
 {
-  "allrecords_page_title": {
-    "message": "EasyRead：让阅读更美好！",
-    "description": "The all records display list.(en)"
-  },
-  "allrecords_page_notice": {
-      "message": "这是您的所有阅读历史记录：",
-      "description": "Notice the user what's next."
-  },
-  "allrecords_page_btnRemoveAllRecords": {
-      "message": "删除所有记录",
-      "description": "The button text."
-  },
-  "allrecords_page_allrecords_page_allRecordsRemoved": {
-      "message": "所有记录已被删除。",
-      "description": "The message for button click."
-  },
-  "allrecords_page_btnDropStorage": {
-      "message": "删除存储",
-      "description": "The button text."
-  },
-  "allrecords_page_storageDroped": {
-      "message": "存储已删除。",
-      "description": "The message for button click."
-  }
+    "allrecords_page_title": {
+        "message": "EasyRead：让阅读更美好！",
+        "description": "The all records display list.(en)"
+    },
+    "allrecords_page_notice": {
+        "message": "这是您的所有阅读历史记录：",
+        "description": "Notice the user what's next."
+    },
+    "setting_page_title": {
+        "message": "EasyRead：让阅读更美好！",
+        "description": "The all records display list.(en)"
+    },
+    "setting_page_notice": {
+        "message": "设置页面，将帮助你更好地管理EasyRead。",
+        "description": "Notice the user what's next."
+    },
+    "setting_page_notice_allRecords": {
+        "message": "仅操作“阅读记录”，它们由EasyRead自动记录。",
+        "description": "The notice message."
+    },
+    "setting_page_btnDownloadAllRecordsAsJson": {
+        "message": "导出所有记录",
+        "description": "The button text."
+    },
+    "setting_page_btnRemoveAllRecords": {
+        "message": "删除所有记录",
+        "description": "The button text."
+    },
+    "setting_page_allRecordsRemoved": {
+        "message": "所有记录已被删除。",
+        "description": "The message for button click."
+    },
+    "setting_page_notice_readLaters": {
+        "message": "仅操作“稍后阅读”，它们由你（人类）记录。",
+        "description": "The notice message."
+    },
+    "setting_page_btnDownloadReadLatersAsJson": {
+        "message": "导出稍后阅读",
+        "description": "The button text."
+    },
+    "setting_page_btnRemoveReadLaters": {
+        "message": "删除稍后阅读",
+        "description": "The button text."
+    },
+    "setting_page_readLatersRemoved": {
+        "message": "稍后阅读已被删除。",
+        "description": "The message for button click."
+    },
+    "setting_page_notice_storage": {
+        "message": "（完全备份）操作所有数据。",
+        "description": "The notice message."
+    },    
+    "setting_page_btnDownloadStorageAsJson": {
+        "message": "导出存储",
+        "description": "The button text."
+    },
+    "setting_page_btnDropStorage": {
+        "message": "删除存储",
+        "description": "The button text."
+    },
+    "setting_page_storageDroped": {
+        "message": "存储已删除。",
+        "description": "The message for button click."
+    }
 }
