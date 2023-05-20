@@ -10,7 +10,17 @@ export const UPDATE_STATUS_NO = 1;
 export const KEYCHAIN_SEPARATOR = "__EasyReadSeparator__";
 
 export function getKey(url) {
-  return url.split('#')[0].toLowerCase().trim();
+  if (!url || typeof url !== 'string') 
+    return '';
+  else
+    return url.split('#')[0].toLowerCase().trim();
+}
+
+export function hasAnchor(url) {
+  if (!url || typeof url !== 'string') 
+    return false;
+  else
+    return url.includes('#');
 }
 
 export function formatDate(timestamp) {

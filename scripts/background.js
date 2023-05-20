@@ -18,12 +18,13 @@ chrome.tabs.onActivated.addListener(async (activeInfo) => {
 });
 
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
-  // console.log("chrome.tabs.onUpdated.callback = " + tab.url);
   if (changeInfo && changeInfo.status === 'complete') {
-    console.log("chrome.tabs.onUpdated.addListener + changeInfo.status === 'complete'")
     if (easyReadTools.isSupportedScheme(tab.url)) {
+      // Known bug: When clicking on an anchor, it may result in duplicate visit count records.
       autoRecordCurrentPage(tab);
-      setTabScroll(tab);
+      if(!easyReadTools.hasAnchor(tab.url)) {
+        setTabScroll(tab);
+      }
     }
   }
 });
