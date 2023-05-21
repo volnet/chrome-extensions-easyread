@@ -55,6 +55,14 @@
         "message": "Download Storage",
         "description": "The button text."
     },
+    "setting_page_btnMergeStorageJson": {
+        "message": "Merge Storage",
+        "description": "The button text."
+    },
+    "setting_page_btnReplaceStorageJson": {
+        "message": "Replace Storage",
+        "description": "The button text."
+    },
     "setting_page_btnDropStorage": {
         "message": "Drop Storage",
         "description": "The button text."
@@ -62,5 +70,25 @@
     "setting_page_storageDroped": {
         "message": "The Storage is dropped.",
         "description": "The message for button click."
+    },
+    "setting_page_storageMergedSuccessfully": {
+        "message": "The storage merged successfully.",
+        "description": "The message for button click." 
+    },
+    "setting_page_storageMergedFailed": {
+        "message": "The storage merged failed.",
+        "description": "The message for button click." 
+    },
+    "setting_page_storageReplacedSuccessfully": {
+        "message": "The storage replaced successfully.",
+        "description": "The message for button click." 
+    },
+    "setting_page_storageReplacedFailed": {
+        "message": "The storage replaced failed.",
+        "description": "The message for button click." 
+    },
+    "setting_page_fileInputNofiles": {
+        "message": "You must select *.json file.",
+        "description": "The message for button click." 
     }
 }

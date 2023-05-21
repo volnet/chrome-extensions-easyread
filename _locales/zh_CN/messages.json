@@ -55,12 +55,40 @@
         "message": "导出存储",
         "description": "The button text."
     },
+    "setting_page_btnMergeStorageJson": {
+        "message": "合并存储",
+        "description": "The button text."
+    },
+    "setting_page_btnReplaceStorageJson": {
+        "message": "替换存储",
+        "description": "The button text."
+    },
     "setting_page_btnDropStorage": {
         "message": "删除存储",
         "description": "The button text."
     },
     "setting_page_storageDroped": {
-        "message": "存储已删除。",
+        "message": "存储已删除",
         "description": "The message for button click."
+    },
+    "setting_page_storageMergedSuccessfully": {
+        "message": "存储合并成功",
+        "description": "The message for button click." 
+    },
+    "setting_page_storageMergedFailed": {
+        "message": "存储合并失败",
+        "description": "The message for button click." 
+    },
+    "setting_page_storageReplacedSuccessfully": {
+        "message": "存储替换成功",
+        "description": "The message for button click." 
+    },
+    "setting_page_storageReplacedFailed": {
+        "message": "存储替换失败",
+        "description": "The message for button click." 
+    },
+    "setting_page_fileInputNofiles": {
+        "message": "请选择文件（*.json）",
+        "description": "The message for button click." 
     }
 }

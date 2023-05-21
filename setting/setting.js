@@ -35,6 +35,81 @@ btnDownloadStorageAsJson.addEventListener('click', async () => {
   });
 });
 
+const btnMergeStorageJson = document.getElementById("btnMergeStorageJson");
+btnMergeStorageJson.addEventListener('click', async () => {
+  var fileInput = document.getElementById('fileInputStorageJson');
+  var file = fileInput.files[0];
+  var reader = new FileReader();
+
+  reader.onload = function(e) {
+    var contents = e.target.result;
+    try {
+      var json = JSON.parse(contents);
+      easyReadTools.mergeStorageJsonData(json, (e)=>{
+        if(e.status) {
+          var result = "counterAllRecordsDuplicateItems=" + e["counterAllRecordsDuplicateItems"] + "<br />"
+          + "counterAllRecordsMergeItems=" + e["counterAllRecordsMergeItems"] + "<br />"
+          + "counterReadLatersMergeItems=" + e["counterReadLatersMergeItems"] + "<br />"
+          + "takeMilliseconds=" + e["takeMilliseconds"] + "<br />";
+          document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("setting_page_storageMergedSuccessfully")
+            + "<br />" + result;
+          console.log("easyReadTools.mergeStorageJsonData " + file.name + " succeeded.");
+        }
+        else {
+          document.getElementById("output").innerHTML = "easyReadTools.mergeStorageJsonData - error";
+          console.log("easyReadTools.mergeStorageJsonData - error:", e);
+        }
+      });
+    } catch(err) {
+      document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("setting_page_storageMergedFailed") + err.toString();
+      console.error("parse " + file.name + " failed: " + err);
+    }
+  };
+  if(file) {
+    reader.readAsText(file);
+  }
+  else {
+    document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("setting_page_fileInputNofiles");
+    console.log("User must select a file (*.json) first, or the file is not exists.");
+  }
+});
+
+const btnReplaceStorageJson = document.getElementById("btnReplaceStorageJson");
+btnReplaceStorageJson.addEventListener('click', async () => {
+  var fileInput = document.getElementById('fileInputStorageJson');
+  var file = fileInput.files[0];
+  var reader = new FileReader();
+
+  reader.onload = function(e) {
+    var contents = e.target.result;
+    try {
+      var json = JSON.parse(contents);
+      easyReadTools.replaceStorageJsonData(json, (e)=>{
+        if(e.status) {
+          var result = "takeMilliseconds=" + e["takeMilliseconds"] + "<br />";
+          document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("setting_page_storageReplacedSuccessfully")
+            + "<br />" + result;
+          console.log("easyReadTools.relaceStorageJsonData " + file.name + " succeeded.");
+        }
+        else {
+          document.getElementById("output").innerHTML = "easyReadTools.relaceStorageJsonData - error";
+          console.log("easyReadTools.relaceStorageJsonData - error:", e);
+        }
+      });
+    } catch(err) {
+      document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("setting_page_storageReplacedFailed") + err.toString();
+      console.error("parse " + file.name + " failed: " + err);
+    }
+  };
+  if(file) {
+    reader.readAsText(file);
+  }
+  else {
+    document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("setting_page_fileInputNofiles");
+    console.log("User must select a file (*.json) first, or the file is not exists.");
+  }
+});
+
 const btnDropStorage = document.getElementById("btnDropStorage");
 btnDropStorage.addEventListener('click', async () => {
   easyReadTools.clearAllStorage(()=>{
@@ -56,5 +131,7 @@ window.addEventListener('load', function() {
   
   document.getElementById("setting_page_notice_storage").textContent = easyReadTools.getMessageForLocales("setting_page_notice_storage");
   document.getElementById("btnDownloadStorageAsJson").textContent = easyReadTools.getMessageForLocales("setting_page_btnDownloadStorageAsJson");
+  document.getElementById("btnMergeStorageJson").textContent = easyReadTools.getMessageForLocales("setting_page_btnMergeStorageJson");
+  document.getElementById("btnReplaceStorageJson").textContent = easyReadTools.getMessageForLocales("setting_page_btnReplaceStorageJson");
   document.getElementById("btnDropStorage").textContent = easyReadTools.getMessageForLocales("setting_page_btnDropStorage");
 });

@@ -10,14 +10,14 @@ export const UPDATE_STATUS_NO = 1;
 export const KEYCHAIN_SEPARATOR = "__EasyReadSeparator__";
 
 export function getKey(url) {
-  if (!url || typeof url !== 'string') 
+  if (!url || typeof url !== 'string')
     return '';
   else
     return url.split('#')[0].toLowerCase().trim();
 }
 
 export function hasAnchor(url) {
-  if (!url || typeof url !== 'string') 
+  if (!url || typeof url !== 'string')
     return false;
   else
     return url.includes('#');
@@ -67,12 +67,12 @@ function padZero(num, length = 2) {
 export function getNowDateTimeString() {
   var currentDate = new Date();
   var timestamp = currentDate.getFullYear().toString() +
-  padZero(currentDate.getMonth() + 1) +
-  padZero(currentDate.getDate()) +
-  padZero(currentDate.getHours()) +
-  padZero(currentDate.getMinutes()) +
-  padZero(currentDate.getSeconds()) +
-  padZero(currentDate.getMilliseconds(), 3);
+    padZero(currentDate.getMonth() + 1) +
+    padZero(currentDate.getDate()) +
+    padZero(currentDate.getHours()) +
+    padZero(currentDate.getMinutes()) +
+    padZero(currentDate.getSeconds()) +
+    padZero(currentDate.getMilliseconds(), 3);
   return timestamp;
 }
 
@@ -80,16 +80,16 @@ export function exportToJsonFile(data, filename) {
   const jsonData = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonData], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
-  
+
   const link = document.createElement('a');
   link.href = url;
   link.download = filename;
   link.click();
-  
+
   URL.revokeObjectURL(url);
 }
 
-const _storeage = chrome.storage.local;
+const _storage = chrome.storage.local;
 
 function keyChainSplit(keyChain) {
   return keyChain.split(KEYCHAIN_SEPARATOR);
@@ -123,7 +123,7 @@ export async function updateStorageJsonData(keyChain, callback, context) {
   if (keyArray && keyArray.length > 0) {
     const key0 = keyArray[0];
 
-    await _storeage.get([key0], (result) => {
+    await _storage.get([key0], (result) => {
       // console.log("key0=" + key0);
       // console.log(result);
       var obj = {};
@@ -162,7 +162,7 @@ export async function updateStorageJsonData(keyChain, callback, context) {
       };
       if (updateBlock && updateBlock.status == UPDATE_STATUS_YES) {
         setValue(keyArray, updateBlock.value);
-        _storeage.set(obj, () => {
+        _storage.set(obj, () => {
           // console.log("['" + key0 + "']:Updated:");
           // console.log(obj);
           if (updateBlock.callback_onUpdated) {
@@ -171,7 +171,7 @@ export async function updateStorageJsonData(keyChain, callback, context) {
         });
       } else {
         let msg = "";
-        if(updateBlock && updateBlock["message"]) {
+        if (updateBlock && updateBlock["message"]) {
           msg = updateBlock["message"];
         }
         // console.log("Nothing updated. Message: " + msg);
@@ -189,12 +189,12 @@ export function removeStorageJsonData(keyChain, callback) {
   if (keyArray) {
     const key0 = keyArray[0];
     if (keyArray.length == 1) {
-      _storeage.remove(key0, () => {
+      _storage.remove(key0, () => {
         if (callback) { callback(); }
         console.log("Removed: key:" + key0 + " removed from the storage.");
       });
     } else if (keyArray.length > 1) {
-      _storeage.get([key0], (result) => {
+      _storage.get([key0], (result) => {
         var obj = result;
         function remove(keys) {
           var value = obj;
@@ -204,7 +204,7 @@ export function removeStorageJsonData(keyChain, callback) {
           delete value[keys[keys.length - 1]];
         }
         remove(keyArray);
-        _storeage.set(obj, () => {
+        _storage.set(obj, () => {
           if (callback) { callback(); }
           console.log("Removed: keyChain:" + keyChain);
         });
@@ -235,14 +235,14 @@ export function removeStorageJsonData(keyChain, callback) {
 // context: pass the params;
 export async function getStorageJsonData(keyChain, callback, context) {
   if (!keyChain) {
-    _storeage.get(null, (result) => {
+    _storage.get(null, (result) => {
       if (callback) { callback(result, context); }
     });
   } else {
     const keyArray = keyChainSplit(keyChain);
     if (keyArray) {
       const key0 = keyArray[0];
-      await _storeage.get([key0], (result) => {
+      await _storage.get([key0], (result) => {
         if (keyArray.length == 1) {
           if (callback) { callback(result, context); }
         } else {
@@ -266,8 +266,127 @@ export async function getStorageJsonData(keyChain, callback, context) {
   }
 }
 
+export async function mergeStorageJsonData(data, callback) {
+  if (!data) {
+    console.log("mergeStorageJsonData: data is null.");
+    if(callback) {
+      callback({ "status": false });
+    }
+    return;
+  }
+  try {
+    var startDateTime = new Date();
+    var counterAllRecordsDuplicateItems = 0;
+    var counterAllRecordsMergeItems = 0;
+    var counterReadLatersMergeItems = 0;
+
+    var newAllRecords = data[ALL_RECORDS_NAME];
+    var newReadLaters = data[READ_LATERS_NAME];
+    _storage.get(null).then((result) => {
+      // merge all records.
+      if (newAllRecords) {
+        if(!result[ALL_RECORDS_NAME]) {
+          result[ALL_RECORDS_NAME] = {};
+        }
+
+        for (var rawKey in newAllRecords) {
+          var key = getKey(rawKey);
+          var oldItem = result[ALL_RECORDS_NAME][key];
+          var newItem = newAllRecords[key];
+          if (!oldItem) {
+            result[ALL_RECORDS_NAME][key] = newAllRecords[key];
+            ++counterAllRecordsMergeItems;
+          }
+          else {
+            // merge items.
+            oldItem["url"] = newItem["url"];
+            oldItem["title"] = newItem["title"];
+            oldItem["position"] = newItem["position"];
+            var newDateTimes = newItem["datetimes"];
+            var length = newDateTimes.length;
+            for (var i = 0; i < length; ++i) {
+              var datetime = newDateTimes[i];
+              if (!oldItem["datetimes"].includes(datetime)) {
+                oldItem["datetimes"].push(datetime);
+              }
+            } 
+            oldItem["datetimes"].sort((a, b) => a - b);
+            result[ALL_RECORDS_NAME][key] = oldItem;
+            ++counterAllRecordsDuplicateItems;
+          }
+        }
+      }
+      // merge readLaters.
+      if (newReadLaters) {
+        var length = newReadLaters.length;
+        if(!result[READ_LATERS_NAME]) {
+          result[READ_LATERS_NAME] = [];
+        }
+
+        for (var i = 0; i < length; ++i) {
+          var item = newReadLaters[i];
+          result[READ_LATERS_NAME].push(item);
+          ++counterReadLatersMergeItems;
+        }
+      }
+
+      _storage.set(result).then(() => {
+        if(callback) {
+          callback({
+            "status": true,
+            "newStorage": result,
+            "counterAllRecordsDuplicateItems": counterAllRecordsDuplicateItems,
+            "counterAllRecordsMergeItems": counterAllRecordsMergeItems,
+            "counterReadLatersMergeItems": counterReadLatersMergeItems,
+            "takeMilliseconds": (new Date() - startDateTime)
+          });
+        }
+      });
+    });
+  } catch(e) {
+    if(callback) {
+      callback({
+        "status": false,
+        "error": e
+      });
+    }
+  }
+}
+
+export async function replaceStorageJsonData(data, callback) {
+  if (!data) {
+    console.log("replaceStorageJsonData: data is null.");
+    if(callback) {
+      callback({ "status": false });
+    }
+    return;
+  }
+  try {
+    var startDateTime = new Date();
+    _storage.get(null).then((result) => {
+      _storage.set(data).then(() => {
+        if(callback) {
+          callback({
+            "status": true,
+            "oldStorage": result,
+            "newStorage": data,
+            "takeMilliseconds": (new Date() - startDateTime)
+          });
+        }
+      });
+    });
+  } catch(e) {
+    if(callback) {
+      callback({
+        "status": false,
+        "error": e
+      });
+    }
+  }
+}
+
 export function clearAllStorage(callback) {
-  _storeage.clear(() => {
+  _storage.clear(() => {
     if (callback) { callback() }
   });
 }
@@ -276,7 +395,7 @@ export async function updateBudgeText() {
   const key = READ_LATERS_NAME;
   let unreadCount = 0;
   let badgeText = "";
-  _storeage.get(key, (queryValue) => {
+  _storage.get(key, (queryValue) => {
     const list = queryValue[key];
     if (list) {
       for (let i = 0; i < list.length; ++i) {
@@ -329,35 +448,35 @@ export function setScrollProgress(progress) {
 
 export function getScrollPosition() {
   let postion = {
-      scrollX: window.scrollX,
-      scrollY: window.scrollY,
-      progress: getScrollProgress()
+    scrollX: window.scrollX,
+    scrollY: window.scrollY,
+    progress: getScrollProgress()
   }
   return postion;
 }
 
 export function setScrollPostion(postion) {
   window.scroll({
-      left: postion.scrollX,
-      top: postion.scrollY,
-      behavior: 'smooth'
+    left: postion.scrollX,
+    top: postion.scrollY,
+    behavior: 'smooth'
   });
 }
 
 // Define a module called Config
-const configs = (function() {
+const configs = (function () {
   // Define a private variable to store configuration values
   let _configs;
 
   // Define a private method for loading configuration values from LocalStorage
   function loadConfigFromLocalStorage() {
-  /*
-    const savedConfig = localStorage. getItem('configs');
-    if (savedConfig) {
-      return JSON.parse(savedConfig);
-    } else {
-      return {};
-    }*/
+    /*
+      const savedConfig = localStorage. getItem('configs');
+      if (savedConfig) {
+        return JSON.parse(savedConfig);
+      } else {
+        return {};
+      }*/
     return {};
   }
 
@@ -395,7 +514,7 @@ const configs = (function() {
 
 // Initialize the configuration object globally
 configs.init({
-  IsAutoRecordedEnabled : true
+  IsAutoRecordedEnabled: true
 });
 
 export { configs };
