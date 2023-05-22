@@ -42,6 +42,13 @@ btnDownloadNotesAsMarkdown.addEventListener('click', async () => {
   });
 });
 
+const btnRemoveNotes = document.getElementById("btnRemoveNotes");
+btnRemoveNotes.addEventListener('click', async () => {
+  easyReadTools.removeStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.NOTES_NAME]), ()=>{
+    document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("setting_page_notesRemoved");
+  });
+});
+
 const btnDownloadStorageAsJson = document.getElementById("btnDownloadStorageAsJson");
 btnDownloadStorageAsJson.addEventListener('click', async () => {
   easyReadTools.getStorageJsonData(null, (result) => {
