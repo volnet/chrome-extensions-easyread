@@ -63,8 +63,7 @@ async function renderReadLaters(queryValue, context) {
 
         const isHighlightItem = await isNeedHighlightCurrentPageInReadLaters(item["key"]);
 
-        const label = element.querySelector('label').setAttribute('for', ckId);
-        element.querySelector('label')
+        element.querySelector('label').setAttribute('for', ckId);
         element.querySelector('a').textContent = (isHighlightItem ? "👀 " : "") + item["title"];
         element.querySelector('a').href = item["url"];
         element.querySelector('a').setAttribute('title', item["title"]);
@@ -247,6 +246,58 @@ function onPageLoad_InitReadLaters() {
     renderReadLaters, { key: easyReadTools.READ_LATERS_NAME });
 }
 
+/* -------- Notes -------- */
+
+async function onPageLoad_InitNotes() {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tabs && tabs.length > 0) {
+    const tab = tabs[0];
+    const pageUrl = easyReadTools.getKey(tab.url);
+    if (easyReadTools.isSupportedScheme(pageUrl)) {
+      easyReadTools.getStorageJsonData(
+        easyReadTools.keyChainGenerate([easyReadTools.NOTES_NAME, pageUrl]),
+        renderPageNotes,
+        { key: pageUrl });
+    }
+  }
+}
+
+function renderPageNotes(queryValue, context) {
+  let notesPage = queryValue[context.key];
+  if (notesPage) {
+    if (notesPage.notes && notesPage.notes.length > 0) {
+      // display the outputNotes
+      const outputNotesSeperator = document.getElementById("outputNotesSeperator");
+      const outputNotes = document.getElementById("outputNotes");
+      outputNotesSeperator.classList.remove("outputNotesSeperatorDefault");
+      outputNotesSeperator.classList.add("outputNotesSeperator");
+      outputNotes.classList.remove("outputNotesDefault");
+      outputNotes.classList.add("outputNotes");
+
+      const elements = new Set();
+      for(var i = 0; i < notesPage.notes.length; i++) {
+        const template = document.getElementById('templateNotes');
+        const element = template.content.cloneNode(true);
+
+        const noteItem = element.querySelector('.noteItem');
+        noteItem.textContent = decodeURIComponent(notesPage.notes[i].selectionText);
+        noteItem.setAttribute("title", easyReadTools.formatDate(notesPage.notes[i].createDateTime));
+
+        elements.add(element);
+      }
+      document.getElementById("titleNotes").textContent = "Notes";
+      document.getElementById('outputNotes').querySelector("ol").append(...elements);
+    }
+    else {
+      // console.log("It's your first time to reach the page!");
+      showMessages("It's your first time to reach the page!");
+    }
+  }
+  else {
+    // showMessages("Because no notes to found, you can use the contextMenus to add notes!");
+  }
+}
+
 /* -------- AutoRecords -------- */
 
 function renderPageRecords(queryValue, context) {
@@ -303,5 +354,6 @@ async function onPageLoad_InitAllRecords() {
 (function onPageLoad() {
   onPageLoad_InitTopMenuBar();
   onPageLoad_InitReadLaters();
+  onPageLoad_InitNotes();
   onPageLoad_InitAllRecords();
 })();

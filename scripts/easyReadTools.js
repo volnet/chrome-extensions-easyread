@@ -3,6 +3,7 @@ export const READ_LATERS_NAME = "readLaters";
 export const READ_STATUS_UNREAD = 0;
 export const READ_STATUS_READING = 1;
 export const READ_STATUS_READED = 2;
+export const NOTES_NAME = "notes";
 
 // storage.
 export const UPDATE_STATUS_YES = 0;

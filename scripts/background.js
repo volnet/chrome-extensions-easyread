@@ -8,7 +8,7 @@ import * as easyReadTools from './easyReadTools.js';
 
 chrome.tabs.onActivated.addListener(async (activeInfo) => {
   chrome.tabs.get(activeInfo.tabId, (tab) => {
-    if(tab && tab.status === 'complete') {
+    if (tab && tab.status === 'complete') {
       console.log("chrome.tabs.onActivated.callback = " + tab.url);
       if (easyReadTools.isSupportedScheme(tab.url)) {
         autoRecordCurrentPage(tab);
@@ -22,7 +22,7 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
     if (easyReadTools.isSupportedScheme(tab.url)) {
       // Known bug: When clicking on an anchor, it may result in duplicate visit count records.
       autoRecordCurrentPage(tab);
-      if(!easyReadTools.hasAnchor(tab.url)) {
+      if (!easyReadTools.hasAnchor(tab.url)) {
         setTabScroll(tab);
       }
     }
@@ -174,9 +174,15 @@ async function setTabScroll(tab) {
 
 function installContextMenus() {
   chrome.contextMenus.create({
-    title: easyReadTools.getMessageForLocales("contextMenus_title"),
+    title: easyReadTools.getMessageForLocales("contextMenus_title_page_addReadLater"),
     contexts: ["page"],
     id: "page"
+  });
+
+  chrome.contextMenus.create({
+    title: easyReadTools.getMessageForLocales("contextMenus_title_selection_addNote"),
+    contexts: ["selection"],
+    id: "selection"
   });
 }
 
@@ -185,6 +191,9 @@ function contextMenusOnClick(info) {
   switch (info.menuItemId) {
     case 'page':
       addReadLater();
+      break;
+    case 'selection':
+      addNotesSelection(info.selectionText);
       break;
     default:
       console.log('No match context menus.');
@@ -262,4 +271,41 @@ function addReadLatersStorageUpdated(updateStatus, updateData) {
 /* showMessages to notify users */
 function showMessages(message) {
   console.log("background.js: " + message);
+}
+
+function updateStorageCallback_addNotes(queryValue, context) {
+  let result = { status: easyReadTools.UPDATE_STATUS_NO, value: null, message: "" };
+  // queryValue == {} or {thePageKey : it's value}
+  // console.log(queryValue);
+  let oldValue = queryValue[context.key];
+  if (oldValue && oldValue["notes"] && oldValue["notes"].length > 0) {
+      oldValue["notes"] = [...oldValue["notes"], {"selectionText": context.value, "createDateTime": Date.now()}];
+      result.value = oldValue;
+      result.status = easyReadTools.UPDATE_STATUS_YES;
+  }
+  else {
+    // create new
+    let newValue = { title: context.tab.title, url: context.tab.url, notes: [{"selectionText": context.value, "createDateTime": Date.now()}] };
+    result.value = newValue;
+    result.status = easyReadTools.UPDATE_STATUS_YES;
+  }
+  return result;
+}
+
+async function addNotesSelection(selectionText) {
+  if(selectionText && selectionText.length > 0) {
+    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tabs && tabs.length > 0) {
+      const tab = tabs[0];
+      const pageKey = easyReadTools.getKey(tab.url);
+      if (easyReadTools.isSupportedScheme(tab.url)) {
+        const keyChain = easyReadTools.keyChainGenerate([easyReadTools.NOTES_NAME, pageKey]);
+        easyReadTools.updateStorageJsonData(keyChain, updateStorageCallback_addNotes, {
+          key: pageKey,
+          tab: tab,
+          value: encodeURIComponent(selectionText)
+        });
+      }
+    }
+  }
 }

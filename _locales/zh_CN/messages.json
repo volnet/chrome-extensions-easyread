@@ -91,8 +91,12 @@
         "message": "请选择文件（*.json）",
         "description": "The message for button click." 
     }, 
-    "contextMenus_title": {
-        "message": "稍后阅读",
+    "contextMenus_title_page_addReadLater": {
+        "message": "稍后阅读（当前页面）",
+        "description": "The message for context menu."  
+    }, 
+    "contextMenus_title_selection_addNote": {
+        "message": "添加笔记（当前选中）",
         "description": "The message for context menu."  
     }
 }

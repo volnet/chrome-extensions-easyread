@@ -22,6 +22,11 @@
 		<p class="message">Message</p>
 		<p class="readedTimes">ReadedTimes</p>
 	</template>
+	<template id="templateNotes">
+		<li>
+			<span class="noteItem"></span>
+		</li>
+	</template>
 	<div>
 		<div class="buttonWrapper">
 			<img src="../images/allRecords.png" id="btnAllRecords" class="buttonImg" alt="View all records">&nbsp;
@@ -34,7 +39,12 @@
 			<span id="titleReadLaters" class="titleReadLaters"></span>
 			<ol></ol>
 		</div>
-		<hr />
+		<div id="outputNotesSeperator" class="outputNotesSeperatorDefault"><hr /></div>
+		<div id="outputNotes" class="outputNotesDefault">
+			<span id="titleNotes" class="titleNotes"></span>
+			<ol></ol>
+		</div>
+		<div><hr /></div>
 		<div id="outputAllRecords" class="outputAllRecords">
 			<div class="buttonWrapper">
 				<img src="../images/delete.png" id="btnReadedAndRemove" class="buttonImg"
