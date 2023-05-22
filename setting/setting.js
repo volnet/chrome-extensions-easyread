@@ -28,10 +28,24 @@ btnRemoveReadLaters.addEventListener('click', async () => {
   });
 });
 
+const btnDownloadNotesAsJson = document.getElementById("btnDownloadNotesAsJson");
+btnDownloadNotesAsJson.addEventListener('click', async () => {
+  easyReadTools.getStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.NOTES_NAME]), (result) => {
+    easyReadTools.exportToJsonFile(result, "EasyRead-notes-v" + easyReadTools.getNowDateTimeString() + ".json");
+  });
+});
+
+const btnDownloadNotesAsMarkdown = document.getElementById("btnDownloadNotesAsMarkdown");
+btnDownloadNotesAsMarkdown.addEventListener('click', async () => {
+  easyReadTools.getStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.NOTES_NAME]), (result) => {
+    easyReadTools.exportToJsonFile(result, "EasyRead-notes-v" + easyReadTools.getNowDateTimeString() + ".json");
+  });
+});
+
 const btnDownloadStorageAsJson = document.getElementById("btnDownloadStorageAsJson");
 btnDownloadStorageAsJson.addEventListener('click', async () => {
   easyReadTools.getStorageJsonData(null, (result) => {
-    easyReadTools.exportToJsonFile(result, "EasyRead-Storage-v" + easyReadTools.getNowDateTimeString() + ".json");
+    easyReadTools.exportToJsonFile(result, "EasyRead-Storage-v" + easyReadTools.getNowDateTimeString() + "-backup.json");
   });
 });
 
@@ -128,6 +142,11 @@ window.addEventListener('load', function() {
   document.getElementById("setting_page_notice_readLaters").textContent = easyReadTools.getMessageForLocales("setting_page_notice_readLaters");
   document.getElementById("btnDownloadReadLatersAsJson").textContent = easyReadTools.getMessageForLocales("setting_page_btnDownloadReadLatersAsJson");
   document.getElementById("btnRemoveReadLaters").textContent = easyReadTools.getMessageForLocales("setting_page_btnRemoveReadLaters");
+  
+  document.getElementById("setting_page_notice_notes").textContent = easyReadTools.getMessageForLocales("setting_page_notice_notes");
+  document.getElementById("btnDownloadNotesAsJson").textContent = easyReadTools.getMessageForLocales("setting_page_btnDownloadNotesAsJson");
+  document.getElementById("btnDownloadNotesAsMarkdown").textContent = easyReadTools.getMessageForLocales("setting_page_btnDownloadNotesAsMarkdown");
+  document.getElementById("btnRemoveNotes").textContent = easyReadTools.getMessageForLocales("setting_page_btnRemoveNotes");
   
   document.getElementById("setting_page_notice_storage").textContent = easyReadTools.getMessageForLocales("setting_page_notice_storage");
   document.getElementById("btnDownloadStorageAsJson").textContent = easyReadTools.getMessageForLocales("setting_page_btnDownloadStorageAsJson");

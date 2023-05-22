@@ -47,6 +47,26 @@
         "message": "稍后阅读已被删除。",
         "description": "The message for button click."
     },
+    "setting_page_notice_notes": {
+        "message": "仅操作“笔记”，它们由你（人类）记录。",
+        "description": "The notice message."
+    },
+    "setting_page_btnDownloadNotesAsJson": {
+        "message": "导出所有笔记为Json格式（*.json）",
+        "description": "The button text."
+    },
+    "setting_page_btnDownloadNotesAsMarkdown": {
+        "message": "导出所有笔记为Markdown格式（*.zip）",
+        "description": "The button text."
+    },
+    "setting_page_btnRemoveNotes": {
+        "message": "删除所有笔记",
+        "description": "The button text."
+    },
+    "setting_page_notesRemoved": {
+        "message": "所有笔记已被删除。",
+        "description": "The message for button click."
+    },
     "setting_page_notice_storage": {
         "message": "（完全备份）操作所有数据。",
         "description": "The notice message."

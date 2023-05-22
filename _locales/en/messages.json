@@ -47,6 +47,26 @@
         "message": "ReadLaters has been removed.",
         "description": "The message for button click."
     },
+    "setting_page_notice_notes": {
+        "message": "It's only about notes, they are record by YOU(Human).",
+        "description": "The notice message."
+    },
+    "setting_page_btnDownloadNotesAsJson": {
+        "message": "Download Notes As Json(*.json)",
+        "description": "The button text."
+    },
+    "setting_page_btnDownloadNotesAsMarkdown": {
+        "message": "Download Notes As Markdown(*.zip)",
+        "description": "The button text."
+    },
+    "setting_page_btnRemoveNotes": {
+        "message": "Remove Notes",
+        "description": "The button text."
+    },
+    "setting_page_notesRemoved": {
+        "message": "Notes has been removed.",
+        "description": "The message for button click."
+    },
     "setting_page_notice_storage": {
         "message": "(full backup)It will download all storage.",
         "description": "The notice message."
