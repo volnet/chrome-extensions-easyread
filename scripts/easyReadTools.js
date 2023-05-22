@@ -24,11 +24,41 @@ export function hasAnchor(url) {
     return url.includes('#');
 }
 
+// en-US
+// console.log(formatDate(1621760400000));  // export: "5/23/2021, 12:00:00 AM"
+// fr-FR
+// console.log(formatDate(1621760400000));  // export: "23/05/2021 à 00:00:00"
 export function formatDate(timestamp) {
   const dateObj = new Date(timestamp);
   const formattedDate = dateObj.toLocaleString(chrome.i18n.getUILanguage(), { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric' });
   return formattedDate;
 }
+
+// return: 2023-05-23
+export function formatDateAsFileName(timestamp) {
+  const dateObj = new Date(timestamp);
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const formattedDate = `${year}-${month}-${day}`;
+  return formattedDate;
+}
+
+export function convertToValidFileName(text) {
+  if(text && typeof text === 'string') {
+    const maxLength = 255;
+
+    const invalidCharsRegex = /[<>:"/\\|?*\x00-\x1F]/g;
+    const fileName = text.replace(invalidCharsRegex, '');
+
+    const truncatedFileName = fileName.slice(0, maxLength);
+    return truncatedFileName;
+  }
+  else {
+    return '';
+  }
+}
+
 
 export function sortDateTimeList(datetimes) {
   return datetimes.sort((a, b) => (new Date(b) - new Date(a)));
@@ -422,6 +452,47 @@ export async function updateBudgeText() {
       color: "#ffe803"
     });
   });
+}
+
+/** ------- Markdown ------- **/
+
+
+export function convertToMarkdownFiles(notes, mdTemplate, mdNotesSectionTemplate) {
+  let files = [];
+  if(notes) {
+    const data = notes[NOTES_NAME];
+    for(let key in data) {
+      const item = data[key];
+      const fileName = formatDateAsFileName(item["createDateTime"]) + "_" + convertToValidFileName(item["title"]) + ".md";
+
+      let markdown = "";
+      if(mdTemplate) {
+        markdown = mdTemplate;
+        markdown = markdownTemplaceReplace(markdown, "title", item["title"]);
+        markdown = markdownTemplaceReplace(markdown, "url", item["url"]);
+        markdown = markdownTemplaceReplace(markdown, "createDateTime", formatDate(item["createDateTime"]));
+      }
+      if(mdNotesSectionTemplate) {      
+        let notesSection = "";
+        for(let i = 0; i < item["notes"].length; ++i) {
+          const note = item["notes"][i];
+          let notesSectionItem = mdNotesSectionTemplate;
+          notesSectionItem = markdownTemplaceReplace(notesSectionItem, "createDateTime", formatDate(note["createDateTime"]))
+          notesSectionItem = markdownTemplaceReplace(notesSectionItem, "selectionText", decodeURIComponent(note["selectionText"]))
+          notesSection += notesSectionItem;
+        }
+        markdown = markdown.replace("{notes_section}", notesSection);
+      }
+      files.push({"name": fileName, "content": markdown} );
+    }
+  }
+  return files;
+}
+
+function markdownTemplaceReplace(template, key, value) {
+  var regex = new RegExp("\\$" + key + "\\$", "g");
+  template = template.replace(regex, value);
+  return template;
 }
 
 /**

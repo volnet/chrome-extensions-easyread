@@ -38,9 +38,43 @@ btnDownloadNotesAsJson.addEventListener('click', async () => {
 const btnDownloadNotesAsMarkdown = document.getElementById("btnDownloadNotesAsMarkdown");
 btnDownloadNotesAsMarkdown.addEventListener('click', async () => {
   easyReadTools.getStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.NOTES_NAME]), (result) => {
-    easyReadTools.exportToJsonFile(result, "EasyRead-notes-v" + easyReadTools.getNowDateTimeString() + ".json");
+    console.log(result);
+    var txtMarkdownTemplate = document.getElementById("txtMarkdownTemplate").value;
+    var txtMarkdownNotesSectionTemplate = document.getElementById("txtMarkdownNotesSectionTemplate").value;
+    const files = easyReadTools.convertToMarkdownFiles(result, txtMarkdownTemplate, txtMarkdownNotesSectionTemplate);
+    exportToZipFile(files, "EasyRead-notes-v" + easyReadTools.getNowDateTimeString() + ".zip");
   });
 });
+
+/*
+files = [
+  { name: "file1.txt", content: "Hello, world!" },
+  { name: "file2.txt", content: "This is a sample file." }
+];
+filename = "export.zip";
+*/
+function exportToZipFile(files, filename) {
+  if(Array.isArray(files) && files.length > 0) {
+    var zip = new JSZip();  
+
+    files.forEach(function(file) {
+      zip.file(file.name, file.content);
+    });
+  
+    zip.generateAsync({ type: "blob" }).then(function(content) {
+      var link = document.createElement("a");
+      link.href = URL.createObjectURL(content);
+      link.download = filename;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
+  }
+  else {
+    console.log("files is not array or files length is 0.");
+  }
+}
 
 const btnRemoveNotes = document.getElementById("btnRemoveNotes");
 btnRemoveNotes.addEventListener('click', async () => {

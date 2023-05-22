@@ -6,6 +6,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<link rel="stylesheet" href="setting.css" />
+	<script type="text/javascript" src="../node_modules/jszip/dist/jszip.min.js"></script>
 </head>
 
 <body>	
@@ -23,7 +24,25 @@
 	</div>
 	<h3 id="setting_page_notice_notes">It's only about notes, they are record by YOU(Human).</h3>
 	<div class="settingBlock">
-		<button id="btnDownloadNotesAsJson">Download Notes As Json(*.json)</button>
+		<button id="btnDownloadNotesAsJson">Download Notes As Json(*.json)</button><br /><br />
+		Markdown Template:
+		<textarea id="txtMarkdownTemplate" class="txtMarkdownTemplate">
+# $title$
+
+- Link: [$title$]($url$)
+- CreateDateTime: $createDateTime$
+- Tags: #EasyRead
+
+---
+
+## Notes
+{notes_section}</textarea><br />{notes_section}:
+		<textarea id="txtMarkdownNotesSectionTemplate" class="txtMarkdownNotesSectionTemplate">
+
+### $createDateTime$
+
+$selectionText$
+</textarea><br />
 		<button id="btnDownloadNotesAsMarkdown">Download Notes As Markdown(*.zip)</button><br /><br />
 		<button id="btnRemoveNotes" class="btnWarning">Remove Notes</button>
 	</div>

@@ -15,6 +15,14 @@ To install the extension, follow these steps:
 
 To use the extension, simply click on the EasyRead icon in the Chrome toolbar while on a web page you want to simplify. The page will be transformed into a clean and easy-to-read view.
 
+## Develop
+
+Recover the JavaScript Library by the command.
+
+```shell
+npm install
+```
+
 ## Contributing
 
 Contributions are welcome! If you find a bug or have a feature request, please open an issue. If you want to contribute code, please fork the repository and submit a pull request.
