@@ -90,5 +90,9 @@
     "setting_page_fileInputNofiles": {
         "message": "You must select *.json file.",
         "description": "The message for button click." 
+    }, 
+    "contextMenus_title": {
+        "message": "Read Later",
+        "description": "The message for context menu."  
     }
 }

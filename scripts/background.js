@@ -34,6 +34,7 @@ chrome.runtime.onStartup.addListener(() => {
 });
 chrome.runtime.onInstalled.addListener((details) => {
   easyReadTools.updateBudgeText();
+  installContextMenus();
 });
 
 function updateStorageCallback_AllRecordsURLDateTimes(queryValue, context) {
@@ -169,4 +170,96 @@ async function setTabScroll(tab) {
   catch (e) {
     console.log(e);
   }
+}
+
+function installContextMenus() {
+  chrome.contextMenus.create({
+    title: easyReadTools.getMessageForLocales("contextMenus_title"),
+    contexts: ["page"],
+    id: "page"
+  });
+}
+
+chrome.contextMenus.onClicked.addListener(contextMenusOnClick);
+function contextMenusOnClick(info) {
+  switch (info.menuItemId) {
+    case 'page':
+      addReadLater();
+      break;
+    default:
+      console.log('No match context menus.');
+  }
+}
+
+async function addReadLater() {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tabs && tabs.length > 0) {
+    const tab = tabs[0];
+    if (easyReadTools.isSupportedScheme(tab.url)) {
+      easyReadTools.updateStorageJsonData(
+        easyReadTools.keyChainGenerate([easyReadTools.READ_LATERS_NAME]),
+        updateStorageCallback_ReadLaterAdd,
+        {
+          key: easyReadTools.READ_LATERS_NAME,
+          tab: tab
+        });
+    };
+  }
+}
+
+// !!!IMPORTMENT!!! -- DON'T CHANGE THE CODE.
+// It's copied from popup.js, it shouldn't be changed from the source code, MUST keep sync to popup.js updateStorageCallback_ReadLaterAdd function.
+function updateStorageCallback_ReadLaterAdd(queryValue, context) {
+  var result = { status: easyReadTools.UPDATE_STATUS_NO, value: null, message: "", callback_onUpdated: addReadLatersStorageUpdated };
+  var newValue = {};
+  // queryValue == {} or {context.key: it's value}
+  const oldValue = queryValue[context.key];
+  const key = easyReadTools.getKey(context.tab.url);
+
+  // const posision: if we want to get the page's postion, we have to try read from allrecords.
+  // here no implement.
+
+  if (!oldValue) {
+    // not exists "readLaters json object", create new one to init.
+    newValue = new Array();
+    newValue.push({ key: key, url: context.tab.url, title: context.tab.title, createDateTime: Date.now(), status: easyReadTools.READ_STATUS_UNREAD });
+    result.value = newValue;
+    result.status = easyReadTools.UPDATE_STATUS_YES;
+    showMessages("Add a new page to the read later list.");
+    // console.log("create readLaters json object. add new page.");
+  } else {
+    // exists "readLaters json object"
+
+    // the url is in the read later list.
+    // assert the oldValue is Array.
+
+    let isFound = false;
+    for (let i = 0; i < oldValue.length; ++i) {
+      if (key === oldValue[i].key && oldValue[i].status === easyReadTools.READ_STATUS_UNREAD) {
+        result.message = "The page is in your read later list yet.";
+        isFound = true;
+        showMessages("The page is in your read later list yet.");
+      }
+    }
+
+    if (!isFound) {
+      result.value = [...oldValue, { key: key, url: context.tab.url, title: context.tab.title, createDateTime: Date.now(), status: easyReadTools.READ_STATUS_UNREAD }];
+      result.status = easyReadTools.UPDATE_STATUS_YES;
+      result.message = "Add a new page to the read later list.";
+      showMessages("Add a new page to the read later list.");
+      // console.log("no found it. add new page.");
+    }
+  }
+  return result;
+}
+
+function addReadLatersStorageUpdated(updateStatus, updateData) {
+  if (updateStatus) {
+    easyReadTools.updateBudgeText();
+  }
+}
+
+/* showMessages to notify users */
+function showMessages(message) {
+  console.log("background.js: " + message);
 }

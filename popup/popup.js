@@ -113,6 +113,8 @@ function removeReadLatersStorageUpdated(updateStatus, updateData, context) {
   }
 }
 
+// !!!IMPORTMENT!!! -- DON'T CHANGE THE CODE.
+// It's copied to background.js, if you should change it, MUST keep sync to popup.js updateStorageCallback_ReadLaterAdd function.
 function updateStorageCallback_ReadLaterAdd(queryValue, context) {
   var result = { status: easyReadTools.UPDATE_STATUS_NO, value: null, message: "", callback_onUpdated: addReadLatersStorageUpdated };
   var newValue = {};

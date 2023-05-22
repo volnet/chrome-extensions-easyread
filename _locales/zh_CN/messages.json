@@ -90,5 +90,9 @@
     "setting_page_fileInputNofiles": {
         "message": "请选择文件（*.json）",
         "description": "The message for button click." 
+    }, 
+    "contextMenus_title": {
+        "message": "稍后阅读",
+        "description": "The message for context menu."  
     }
 }
