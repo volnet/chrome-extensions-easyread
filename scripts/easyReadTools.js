@@ -77,6 +77,10 @@ export function getNowDateTimeString() {
   return timestamp;
 }
 
+export function generateRandomId() {
+  return ((new Date().getTime()) + Math.random().toFixed(4)) * 10000;
+}
+
 export function exportToJsonFile(data, filename) {
   const jsonData = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonData], { type: 'application/json' });

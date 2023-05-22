@@ -279,13 +279,13 @@ function updateStorageCallback_addNotes(queryValue, context) {
   // console.log(queryValue);
   let oldValue = queryValue[context.key];
   if (oldValue && oldValue["notes"] && oldValue["notes"].length > 0) {
-      oldValue["notes"] = [...oldValue["notes"], {"selectionText": context.value, "createDateTime": Date.now()}];
+      oldValue["notes"] = [...oldValue["notes"], {"id":easyReadTools.generateRandomId(), "selectionText": context.value, "createDateTime": Date.now()}];
       result.value = oldValue;
       result.status = easyReadTools.UPDATE_STATUS_YES;
   }
   else {
     // create new
-    let newValue = { title: context.tab.title, url: context.tab.url, notes: [{"selectionText": context.value, "createDateTime": Date.now()}] };
+    let newValue = { title: context.tab.title, url: context.tab.url, notes: [{"id":easyReadTools.generateRandomId(), "selectionText": context.value, "createDateTime": Date.now()}] };
     result.value = newValue;
     result.status = easyReadTools.UPDATE_STATUS_YES;
   }

@@ -294,9 +294,31 @@ function renderPageNotes(queryValue, context) {
     }
   }
   else {
+    // hidden the outputNotes
+    const outputNotesSeperator = document.getElementById("outputNotesSeperator");
+    const outputNotes = document.getElementById("outputNotes");
+    
+    outputNotesSeperator.classList.remove("outputNotesSeperator");
+    outputNotesSeperator.classList.add("outputNotesSeperatorDefault");
+
+    outputNotes.classList.remove("outputNotes");
+    outputNotes.classList.add("outputNotesDefault");
     // showMessages("Because no notes to found, you can use the contextMenus to add notes!");
   }
 }
+
+const btnRemoveNotes = document.getElementById("btnRemoveNotes");
+btnRemoveNotes.addEventListener('click', async () => {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tabs && tabs.length > 0) {
+    const tab = tabs[0];
+    const pageUrl = easyReadTools.getKey(tab.url);
+    easyReadTools.removeStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.NOTES_NAME, pageUrl]), () => {
+      onPageLoad_InitNotes();
+      showMessages("The notes of the page is removed.");
+    });
+  }
+});
 
 /* -------- AutoRecords -------- */
 

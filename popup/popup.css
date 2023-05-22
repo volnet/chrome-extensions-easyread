@@ -3,7 +3,36 @@ body {
 }
 
 .buttonWrapper {
-  text-align: right;
+  float: right;
+}
+
+.buttonLineWrapper {
+  display: flex;
+  justify-content: space-between;
+  align-self: center;
+}
+
+.buttonLineDivLeft {
+  align-self: flex-start;
+}
+
+.buttonLineDivRight {
+  align-self: flex-end;
+}
+
+.extensionTitle {
+  line-height: 18px;
+  height: 18px;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  font-size: 16px;
+  background-image: linear-gradient(to right, #e35503, #f4b793, #bd6939);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}
+.extensionButton {
+  line-height: 18px;
+  height: 18px;
 }
 
 .buttonImg {
@@ -29,6 +58,7 @@ body {
 .buttonImg:hover::after {
   opacity: 1;
 }
+
 .outputAllRecords,
 .outputReadLaters,
 .outputNotes {
@@ -107,8 +137,8 @@ a:hover {
   text-decoration: underline;
 }
 
-.titleAllRecords,
 .titleReadLaters,
+.titleAllRecords,
 .titleNotes {
   font-size: 16px;
   font-weight: bold;
@@ -116,8 +146,18 @@ a:hover {
   white-space:nowrap; 
   overflow:hidden;
   text-overflow: ellipsis;
-  width: 350px;
   display: inline-block;
+}
+
+.titleReadLaters {
+  height: 32px;
+  line-height: 32px;
+  vertical-align: middle;
+}
+
+.titleAllRecords
+{
+  width: 350px;
 }
 
 .progress {
