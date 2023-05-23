@@ -359,7 +359,7 @@ function renderPageRecords(queryValue, context) {
   if (readedPage) {
     if (readedPage.datetimes && readedPage.datetimes.length > 0) {
       const readTimes = readedPage.datetimes.length;
-      const message = "已读：" + readTimes + "次";
+      const message = easyReadTools.getMessageForLocales("popup_page_read_times", [readTimes]);
       const readTimesToString = easyReadTools.sortDateTimeList(readedPage.datetimes).map((datetime) => easyReadTools.formatDate(datetime) + '<br />').join('');
 
       const template = document.getElementById('templateAllRecords');

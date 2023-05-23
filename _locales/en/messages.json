@@ -7,6 +7,16 @@
         "message": "EasyRead: Better browser experence: ReadLater, AutoRecord, AddNote, Save Markdown.",
         "description": "The manifest field."
     },
+    "popup_page_read_times": {
+        "message": "Read Times: $READ_TIMES$",
+        "description": "The manifest field.",
+        "placeholders": {
+            "read_times": {
+                "content": "$1",
+                "example": "3"
+            }
+        }
+    },
     "allrecords_page_title": {
         "message": "EasyRead: enjoy your reading!",
         "description": "The all records display list.(en)"
