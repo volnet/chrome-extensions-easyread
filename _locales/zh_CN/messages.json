@@ -80,7 +80,7 @@
         "description": "The button text."
     },
     "setting_page_btnReplaceStorageJson": {
-        "message": "替换存储",
+        "message": "还原存储",
         "description": "The button text."
     },
     "setting_page_btnDropStorage": {
@@ -100,11 +100,11 @@
         "description": "The message for button click." 
     },
     "setting_page_storageReplacedSuccessfully": {
-        "message": "存储替换成功",
+        "message": "存储还原成功",
         "description": "The message for button click." 
     },
     "setting_page_storageReplacedFailed": {
-        "message": "存储替换失败",
+        "message": "存储还原失败",
         "description": "The message for button click." 
     },
     "setting_page_fileInputNofiles": {
@@ -116,7 +116,7 @@
         "description": "The message for context menu."  
     }, 
     "contextMenus_title_selection_addNote": {
-        "message": "添加笔记（当前选中）",
+        "message": "添加到笔记（当前选中）",
         "description": "The message for context menu."  
     }
 }

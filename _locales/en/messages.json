@@ -116,7 +116,7 @@
         "description": "The message for context menu."  
     }, 
     "contextMenus_title_selection_addNote": {
-        "message": "Add Note (Selection)",
+        "message": "Add To Note (Selection)",
         "description": "The message for context menu."  
     }
 }
