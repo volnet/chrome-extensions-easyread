@@ -1,6 +1,10 @@
 {
+    "manifest_name": {
+        "message": "EasyRead",
+        "description": "The manifest field."
+    },
     "manifest_description": {
-        "message": "It creates a smooth web browsing experience for you, providing but not limited to: core functions such as reading later, adding notes, and auto-recording. More information: https://github.com/volnet/chrome-extensions-easyread .",
+        "message": "EasyRead: Better browser experence: ReadLater, AutoRecord, AddNote, Save Markdown.",
         "description": "The manifest field."
     },
     "allrecords_page_title": {
