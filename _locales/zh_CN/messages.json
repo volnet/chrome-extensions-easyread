@@ -1,4 +1,8 @@
 {
+    "manifest_description": {
+        "message": "为您打造流畅的网页浏览体验，包括但不限于：稍后阅读、添加笔记、自动录音等核心功能。更多信息：https://github.com/volnet/chrome-extensions-easyread。",
+        "description": "The manifest field."
+    },
     "allrecords_page_title": {
         "message": "EasyRead：让阅读更美好！",
         "description": "The all records display list.(en)"

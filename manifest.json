@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "EasyRead",
-  "description": "An extension for easyread web pages. https://github.com/volnet/chrome-extensions-easyread .This is a Chrome / Edge extension that creates a smooth web browsing experience for you, providing but not limited to: core functions such as reading later, adding notes, and auto-recording.",
+  "description": "__MSG_manifest_description__",
   "version": "1.0",
   "icons": {
     "16": "images/icon-16.png",
