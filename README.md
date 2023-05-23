@@ -88,7 +88,7 @@ If you find a bug or have a feature request, please open an issue. If you want t
 ## Contact
 
 1. Get the latest contact information through [GitHub](https://github.com/volnet), project address: [https://github.com/volnet/chrome-extensions-easyread](https://github.com/volnet/chrome-extensions-easyread).
-2. Contact me via [Twitter](https://twitter.com/GongCen) or [Email](mailto:eeee6688@hotmail.com).
+2. Contact me via [Twitter(@GongCen)](https://twitter.com/GongCen) or [Email(eeee6688@hotmail.com)](mailto:eeee6688@hotmail.com).
 
 ## License
 

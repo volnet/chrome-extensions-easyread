@@ -88,7 +88,7 @@ npm install
 ## 联系我
 
 1. 通过[GitHub](https://github.com/volnet)获得最新的联系方式，项目地址：[https://github.com/volnet/chrome-extensions-easyread](https://github.com/volnet/chrome-extensions-easyread) 。
-2. 通过[Twitter](https://twitter.com/GongCen)或者[Email](mailto:eeee6688@hotmail.com)联系我。
+2. 通过[Twitter(@GongCen)](https://twitter.com/GongCen)或者[Email(eeee6688@hotmail.com)](mailto:eeee6688@hotmail.com)联系我。
 
 ## 许可协议
 

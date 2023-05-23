@@ -107,32 +107,32 @@ ol li {
   }
 }
 
-a {  
-  white-space:nowrap; 
-  overflow:hidden;
-  text-overflow: ellipsis;
+.outputReadLaters a {
   width: 280px;
   display: inline-block;
   line-height: 18px;
   height: 18px;
+  white-space:nowrap; 
+  overflow:hidden;
+  text-overflow: ellipsis;
   vertical-align: middle;
 }
 
-a:link {
+.outputReadLaters a:link {
   color: #b04202;
   text-decoration: none;
 }
 
-a:active {
+.outputReadLaters a:active {
   color: #8b3604;
 }
 
-a:visited {
+.outputReadLaters a:visited {
   color: purple;
   text-decoration: none;
 }
 
-a:hover {
+.outputReadLaters a:hover {
   color: #e35503;
   text-decoration: underline;
 }
@@ -339,4 +339,43 @@ a:hover {
 
 .noteItem {
 
+}
+
+.copyright {
+  line-height: 10px;
+  height: 10px;
+  padding-top: 5px;
+  vertical-align: middle;
+  text-align: left;
+}
+.copyright img {
+  height: 10px;
+  display: inline-block;
+  vertical-align: middle;
+}
+.copyright a {
+  font-size: 6px;
+  line-height: 10px;
+  height: 10px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.copyright a:link {
+  color: #999999;
+  text-decoration: none;
+}
+
+.copyright a:active {
+  color: #999999;
+}
+
+.copyright a:visited {
+  color: #999999;
+  text-decoration: none;
+}
+
+.copyright a:hover {
+  color: #999999;
+  text-decoration: underline;
 }
