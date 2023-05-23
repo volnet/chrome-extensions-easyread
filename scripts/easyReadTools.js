@@ -328,9 +328,12 @@ export async function mergeStorageJsonData(data, callback) {
     var counterAllRecordsDuplicateItems = 0;
     var counterAllRecordsMergeItems = 0;
     var counterReadLatersMergeItems = 0;
+    var counterNotesDuplicateItems = 0;
+    var counterNotesMergeItems = 0;
 
     var newAllRecords = data[ALL_RECORDS_NAME];
     var newReadLaters = data[READ_LATERS_NAME];
+    var newNotes = data[NOTES_NAME];
     _storage.get(null).then((result) => {
       // merge all records.
       if (newAllRecords) {
@@ -338,10 +341,10 @@ export async function mergeStorageJsonData(data, callback) {
           result[ALL_RECORDS_NAME] = {};
         }
 
-        for (var rawKey in newAllRecords) {
-          var key = getKey(rawKey);
-          var oldItem = result[ALL_RECORDS_NAME][key];
-          var newItem = newAllRecords[key];
+        for (let rawKey in newAllRecords) {
+          const key = getKey(rawKey);
+          let oldItem = result[ALL_RECORDS_NAME][key];
+          const newItem = newAllRecords[key];
           if (!oldItem) {
             result[ALL_RECORDS_NAME][key] = newAllRecords[key];
             ++counterAllRecordsMergeItems;
@@ -351,10 +354,10 @@ export async function mergeStorageJsonData(data, callback) {
             oldItem["url"] = newItem["url"];
             oldItem["title"] = newItem["title"];
             oldItem["position"] = newItem["position"];
-            var newDateTimes = newItem["datetimes"];
-            var length = newDateTimes.length;
-            for (var i = 0; i < length; ++i) {
-              var datetime = newDateTimes[i];
+            const newDateTimes = newItem["datetimes"];
+            const length = newDateTimes.length;
+            for (let i = 0; i < length; ++i) {
+              const datetime = newDateTimes[i];
               if (!oldItem["datetimes"].includes(datetime)) {
                 oldItem["datetimes"].push(datetime);
               }
@@ -367,15 +370,57 @@ export async function mergeStorageJsonData(data, callback) {
       }
       // merge readLaters.
       if (newReadLaters) {
-        var length = newReadLaters.length;
         if(!result[READ_LATERS_NAME]) {
           result[READ_LATERS_NAME] = [];
         }
-
+        const length = newReadLaters.length;
         for (var i = 0; i < length; ++i) {
           var item = newReadLaters[i];
           result[READ_LATERS_NAME].push(item);
           ++counterReadLatersMergeItems;
+        }
+      }
+      // merge notes.
+      if(newNotes) {
+        if(!result[NOTES_NAME]) {
+          result[NOTES_NAME] = [];
+        }
+
+        for (let rawKey in newNotes) {
+          const key = getKey(rawKey);
+          let oldItem = result[NOTES_NAME][key];
+          const newItem = newNotes[key];
+          if (!oldItem) {
+            result[NOTES_NAME][key] = newNotes[key];
+            ++counterNotesMergeItems;
+          }
+          else {
+            // merge items.
+            oldItem["url"] = newItem["url"];
+            oldItem["title"] = newItem["title"];
+            oldItem["createDateTime"] = oldItem["createDateTime"] < newItem["createDateTime"] ? oldItem["createDateTime"] : newItem["createDateTime"];
+            const newNotes = newItem["notes"];
+            const length = newNotes.length;
+            for (let i = 0; i < length; ++i) {
+              const newNote = newNotes[i];
+              let oldNoteFound = oldItem["notes"].find((n) => n.id === newNote.id)
+              if (oldNoteFound) {
+                if(oldNoteFound["createDateTime"] < newNote["createDateTime"]) {
+                  for(let jsonName in oldNoteFound) {
+                    if(jsonName !== "id" && oldNoteFound.hasOwnProperty(jsonName)) {
+                      oldNoteFound[jsonName] = newNote[jsonName];
+                    }
+                  }
+                }
+              }
+              else {
+                oldItem["notes"].push(newNote);
+              }
+            }
+            oldItem["notes"].sort((a, b) => a["createDateTime"] - b["createDateTime"]);
+            result[NOTES_NAME][key] = oldItem;
+            ++counterNotesDuplicateItems;
+          }
         }
       }
 
@@ -387,6 +432,8 @@ export async function mergeStorageJsonData(data, callback) {
             "counterAllRecordsDuplicateItems": counterAllRecordsDuplicateItems,
             "counterAllRecordsMergeItems": counterAllRecordsMergeItems,
             "counterReadLatersMergeItems": counterReadLatersMergeItems,
+            "counterNotesDuplicateItems": counterNotesDuplicateItems,
+            "counterNotesMergeItems": counterNotesMergeItems,
             "takeMilliseconds": (new Date() - startDateTime)
           });
         }

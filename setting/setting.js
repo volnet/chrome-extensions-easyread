@@ -105,6 +105,8 @@ btnMergeStorageJson.addEventListener('click', async () => {
           var result = "counterAllRecordsDuplicateItems=" + e["counterAllRecordsDuplicateItems"] + "<br />"
           + "counterAllRecordsMergeItems=" + e["counterAllRecordsMergeItems"] + "<br />"
           + "counterReadLatersMergeItems=" + e["counterReadLatersMergeItems"] + "<br />"
+          + "counterNotesDuplicateItems=" + e["counterNotesDuplicateItems"] + "<br />"
+          + "counterNotesMergeItems=" + e["counterNotesMergeItems"] + "<br />"
           + "takeMilliseconds=" + e["takeMilliseconds"] + "<br />";
           document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("setting_page_storageMergedSuccessfully")
             + "<br />" + result;
