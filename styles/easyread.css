@@ -10,21 +10,19 @@ body {
     vertical-align: middle;
     text-align: left;
   }
-  .copyright img {
+  .copyright img, a, span {
     line-height: 10px;
     height: 10px;
     display: inline-block;
     vertical-align: middle;
+  }
+  .copyright img {
     padding-right: 3px;
   }
-  .copyright a {
-    line-height: 10px;
-    height: 10px;
-    display: inline-block;
-    vertical-align: middle;
+  .copyright a, span {
+    color: #999999;
     padding-right: 5px;
   }
-  
   .copyright a:link {
     color: #999999;
     text-decoration: none;
