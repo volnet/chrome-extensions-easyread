@@ -1,0 +1,45 @@
+body {
+    Font-family: Helvetica, Tahoma, Arial, “Microsoft YaHei”, “微软雅黑”, sans-serif
+  }
+  
+.copyright {
+    line-height: 10px;
+    height: 10px;
+    font-size: 6px;
+    padding-top: 5px;
+    vertical-align: middle;
+    text-align: left;
+  }
+  .copyright img {
+    line-height: 10px;
+    height: 10px;
+    display: inline-block;
+    vertical-align: middle;
+    padding-right: 3px;
+  }
+  .copyright a {
+    line-height: 10px;
+    height: 10px;
+    display: inline-block;
+    vertical-align: middle;
+    padding-right: 5px;
+  }
+  
+  .copyright a:link {
+    color: #999999;
+    text-decoration: none;
+  }
+  
+  .copyright a:active {
+    color: #999999;
+  }
+  
+  .copyright a:visited {
+    color: #999999;
+    text-decoration: none;
+  }
+  
+  .copyright a:hover {
+    color: #999999;
+    text-decoration: underline;
+  }

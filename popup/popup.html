@@ -5,7 +5,10 @@
 	<meta charset="UTF-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="../styles/easyread.css" />
 	<link rel="stylesheet" href="popup.css" />
+	<script src="../scripts/copyright.js" type="text/javascript"></script>
+	<script src="popup.js" type="module"></script>
 </head>
 
 <body>
@@ -50,6 +53,7 @@
 		</div>
 		<div id="outputNotes" class="outputNotesDefault">
 			<div class="buttonWrapper">
+				<img src="../images/download-file.png" id="btnDownloadNotes" class="buttonImg" alt="Download the page's notes">
 				<img src="../images/delete.png" id="btnRemoveNotes" class="buttonImg" alt="Delete the page's notes">
 			</div>
 			<span id="titleNotes" class="titleNotes"></span>
@@ -65,13 +69,8 @@
 			</div>
 		</div>
 		<div class="copyright">
-			<img src="../images/github-favicon.svg" alt="GitHub Project"/>
-			<a href="https://github.com/volnet/chrome-extensions-easyread" title="https://github.com/volnet/chrome-extensions-easyread" target="_blank">GitHub</a>
-			<img src="../images/email.png" alt="Email" />
-			<a href="mailto:eeee6688@hotmail.com" title="eeee6688@hotmail.com">Email</a>
 		</div>
 	</div>
-	<script src="popup.js" type="module"></script>
 </body>
 
 </html>
