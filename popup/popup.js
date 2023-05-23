@@ -307,6 +307,38 @@ function renderPageNotes(queryValue, context) {
   }
 }
 
+const btnDownloadNotes = document.getElementById("btnDownloadNotes");
+btnDownloadNotes.addEventListener('click', async () => {
+  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (tabs && tabs.length > 0) {
+    const tab = tabs[0];
+    const pageUrl = easyReadTools.getKey(tab.url);
+    easyReadTools.getStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.NOTES_NAME, pageUrl]), (result) => {
+      var txtMarkdownTemplate = `  
+# $title$
+
+- Link: [$title$]($url$)
+- CreateDateTime: $createDateTime$
+- Tags: #EasyRead
+
+---
+
+## Notes
+{notes_section}`;
+      var txtMarkdownNotesSectionTemplate = `
+### $createDateTime$
+      
+$selectionText$
+`;
+      const files = easyReadTools.convertNotesToMarkdownFiles(result, txtMarkdownTemplate, txtMarkdownNotesSectionTemplate);
+      if(files && files.length > 0) {
+        easyReadTools.exportToMarkdownFile(files[0].content, files[0].name);
+      }
+      showMessages("The notes of the page is removed.");
+    });
+  }
+});
+
 const btnRemoveNotes = document.getElementById("btnRemoveNotes");
 btnRemoveNotes.addEventListener('click', async () => {
   const tabs = await chrome.tabs.query({ active: true, currentWindow: true });

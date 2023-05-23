@@ -38,10 +38,10 @@ btnDownloadNotesAsJson.addEventListener('click', async () => {
 const btnDownloadNotesAsMarkdown = document.getElementById("btnDownloadNotesAsMarkdown");
 btnDownloadNotesAsMarkdown.addEventListener('click', async () => {
   easyReadTools.getStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.NOTES_NAME]), (result) => {
-    console.log(result);
-    var txtMarkdownTemplate = document.getElementById("txtMarkdownTemplate").value;
-    var txtMarkdownNotesSectionTemplate = document.getElementById("txtMarkdownNotesSectionTemplate").value;
-    const files = easyReadTools.convertToMarkdownFiles(result, txtMarkdownTemplate, txtMarkdownNotesSectionTemplate);
+    const txtMarkdownTemplate = document.getElementById("txtMarkdownTemplate").value;
+    const txtMarkdownNotesSectionTemplate = document.getElementById("txtMarkdownNotesSectionTemplate").value;
+    const notes = result[easyReadTools.NOTES_NAME];
+    const files = easyReadTools.convertNotesToMarkdownFiles(notes, txtMarkdownTemplate, txtMarkdownNotesSectionTemplate);
     exportToZipFile(files, "EasyRead-notes-v" + easyReadTools.getNowDateTimeString() + ".zip");
   });
 });

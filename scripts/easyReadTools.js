@@ -112,16 +112,30 @@ export function generateRandomId() {
 }
 
 export function exportToJsonFile(data, filename) {
-  const jsonData = JSON.stringify(data, null, 2);
-  const blob = new Blob([jsonData], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
+  exportToFile(data, filename, 'application/json', (data) => {
+    return JSON.stringify(data, null, 2);
+  });
+}
 
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.click();
+export function exportToMarkdownFile(data, filename) {
+  exportToFile(data, filename, 'text/markdown');
+}
 
-  URL.revokeObjectURL(url);
+function exportToFile(data, filename, filetype, convertDataCallback) {
+  if(data) {
+    if(convertDataCallback) {
+      data = convertDataCallback(data);
+    }
+    const blob = new Blob([data], { type: filetype });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
+
+    URL.revokeObjectURL(url);
+  }
 }
 
 const _storage = chrome.storage.local;
@@ -456,34 +470,42 @@ export async function updateBudgeText() {
 
 /** ------- Markdown ------- **/
 
-
-export function convertToMarkdownFiles(notes, mdTemplate, mdNotesSectionTemplate) {
+/**
+ * Convert notes to markdown files
+ * @param {Array} data ["pageKey1": {...noteInfo...}, "pageKey2": {...noteInfo...}]
+ * @param {string} mdTemplate markdown template, with {notesSection} to replace notes section.
+ * @param {string} mdNotesSectionTemplate notes section template, with loop to page's notes.
+ * */
+export function convertNotesToMarkdownFiles(data, mdTemplate, mdNotesSectionTemplate) {
   let files = [];
-  if(notes) {
-    const data = notes[NOTES_NAME];
+  if(data) {
     for(let key in data) {
-      const item = data[key];
-      const fileName = formatDateAsFileName(item["createDateTime"]) + "_" + convertToValidFileName(item["title"]) + ".md";
+      if(data.hasOwnProperty(key)) {
+        const item = data[key];
+        const fileName = formatDateAsFileName(item["createDateTime"]) + "_" + convertToValidFileName(item["title"]) + ".md";
 
-      let markdown = "";
-      if(mdTemplate) {
-        markdown = mdTemplate;
-        markdown = markdownTemplaceReplace(markdown, "title", item["title"]);
-        markdown = markdownTemplaceReplace(markdown, "url", item["url"]);
-        markdown = markdownTemplaceReplace(markdown, "createDateTime", formatDate(item["createDateTime"]));
-      }
-      if(mdNotesSectionTemplate) {      
-        let notesSection = "";
-        for(let i = 0; i < item["notes"].length; ++i) {
-          const note = item["notes"][i];
-          let notesSectionItem = mdNotesSectionTemplate;
-          notesSectionItem = markdownTemplaceReplace(notesSectionItem, "createDateTime", formatDate(note["createDateTime"]))
-          notesSectionItem = markdownTemplaceReplace(notesSectionItem, "selectionText", decodeURIComponent(note["selectionText"]))
-          notesSection += notesSectionItem;
+        let markdown = "";
+        if(mdTemplate) {
+          markdown = mdTemplate;
+          markdown = markdownTemplaceReplace(markdown, "title", item["title"]);
+          markdown = markdownTemplaceReplace(markdown, "url", item["url"]);
+          markdown = markdownTemplaceReplace(markdown, "createDateTime", formatDate(item["createDateTime"]));
         }
-        markdown = markdown.replace("{notes_section}", notesSection);
+        if(mdNotesSectionTemplate) {      
+          let notesSection = "";
+          if(item["notes"]) {          
+            for(let i = 0; i < item["notes"].length; ++i) {
+              const note = item["notes"][i];
+              let notesSectionItem = mdNotesSectionTemplate;
+              notesSectionItem = markdownTemplaceReplace(notesSectionItem, "createDateTime", formatDate(note["createDateTime"]))
+              notesSectionItem = markdownTemplaceReplace(notesSectionItem, "selectionText", decodeURIComponent(note["selectionText"]))
+              notesSection += notesSectionItem;
+            }
+          }
+          markdown = markdown.replace("{notes_section}", notesSection);
+        }
+        files.push({"name": fileName, "content": markdown} );
       }
-      files.push({"name": fileName, "content": markdown} );
     }
   }
   return files;
