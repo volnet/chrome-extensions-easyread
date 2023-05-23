@@ -9,6 +9,7 @@ function addCopyrightInfo() {
         var imgElement1 = document.createElement('img');
         imgElement1.src = '../images/github-favicon.svg';
         imgElement1.alt = 'GitHub:';
+        imgElement1.classList.add("copyrightImg");
         
         var linkElement1 = document.createElement('a');
         linkElement1.href = manifest["homepage_url"];
@@ -19,6 +20,7 @@ function addCopyrightInfo() {
         var imgElement2 = document.createElement('img');
         imgElement2.src = '../images/email.png';
         imgElement2.alt = 'Email:';
+        imgElement2.classList.add("copyrightImg");
         
         var linkElement2 = document.createElement('a');
         linkElement2.href = "mailto:" + manifest["author"]["email"];
@@ -29,6 +31,7 @@ function addCopyrightInfo() {
         const versionText = "v" + manifest["version"];
         spanElement1.title = versionText;
         spanElement1.textContent = versionText;
+        spanElement1.classList.add("copyrightSpan");
         
         divElement.appendChild(imgElement1);
         divElement.appendChild(linkElement1);

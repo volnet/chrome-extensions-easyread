@@ -1,43 +1,57 @@
 body {
     Font-family: Helvetica, Tahoma, Arial, “Microsoft YaHei”, “微软雅黑”, sans-serif
-  }
+}
   
 .copyright {
-    line-height: 10px;
-    height: 10px;
-    font-size: 6px;
-    padding-top: 5px;
-    vertical-align: middle;
-    text-align: left;
-  }
-  .copyright img, a, span {
-    line-height: 10px;
-    height: 10px;
-    display: inline-block;
-    vertical-align: middle;
-  }
-  .copyright img {
-    padding-right: 3px;
-  }
-  .copyright a, span {
-    color: #999999;
-    padding-right: 5px;
-  }
-  .copyright a:link {
-    color: #999999;
-    text-decoration: none;
-  }
-  
-  .copyright a:active {
-    color: #999999;
-  }
-  
-  .copyright a:visited {
-    color: #999999;
-    text-decoration: none;
-  }
-  
-  .copyright a:hover {
-    color: #999999;
-    text-decoration: underline;
-  }
+  line-height: 10px;
+  height: 10px;
+  font-size: 6px;
+  padding-top: 5px;
+  vertical-align: middle;
+  text-align: left;
+}
+.copyrightImg {
+  line-height: 10px;
+  height: 10px;
+  display: inline-block;
+  vertical-align: middle;
+  padding-right: 3px;
+}
+.copyrightSpan {
+  line-height: 10px;
+  height: 10px;
+  display: inline-block;
+  vertical-align: middle;
+  padding-right: 3px;
+  color: #999999;
+  padding-right: 5px;
+  font-size: 6px;
+}
+.copyright > a {
+  font-size: 6px;
+  color: #999999;
+  padding-right: 5px;
+  line-height: 10px;
+  height: 10px;
+  display: inline-block;
+  vertical-align: middle;
+}
+.copyright > a {
+  color: #999999;
+  padding-right: 5px;
+}
+.copyright > a:link {
+  color: #999999;
+  text-decoration: none;
+}
+.copyright > a:active {
+  color: #999999;
+}
+.copyright > a:visited {
+  color: #999999;
+  text-decoration: none;
+}
+.copyright > a:hover {
+  color: #999999;
+  text-decoration: underline;
+}

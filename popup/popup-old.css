@@ -1,3 +1,7 @@
+body {
+  Font-family: Helvetica, Tahoma, Arial, “Microsoft YaHei”, “微软雅黑”, sans-serif
+}
+
 .buttonWrapper {
   float: right;
 }
@@ -73,7 +77,7 @@ ol {
   padding: 0;
 }
 
-ol > li {
+ol li {
   color: #b04202;
   background-color: #fcf7f4;
   padding: 5px;
@@ -103,7 +107,7 @@ ol > li {
   }
 }
 
-.outputReadLaters > ol > li > label > a {
+.outputReadLaters a {
   width: 280px;
   display: inline-block;
   line-height: 18px;
@@ -114,21 +118,21 @@ ol > li {
   vertical-align: middle;
 }
 
-.outputReadLaters > ol > li > label > a:link {
+.outputReadLaters a:link {
   color: #b04202;
   text-decoration: none;
 }
 
-.outputReadLaters > ol > li > label > a:active {
+.outputReadLaters a:active {
   color: #8b3604;
 }
 
-.outputReadLaters > ol > li > label > a:visited {
+.outputReadLaters a:visited {
   color: purple;
   text-decoration: none;
 }
 
-.outputReadLaters > ol > li > label > a:hover {
+.outputReadLaters a:hover {
   color: #e35503;
   text-decoration: underline;
 }
@@ -184,7 +188,7 @@ ol > li {
   background-color: #d44c00;
 }
 
-.buttonWithIcon > img {
+.buttonWithIcon img {
   margin-right: 8px;
   height: 16px;
 }
@@ -334,4 +338,44 @@ ol > li {
 }
 
 .noteItem {
+
+}
+
+.copyright {
+  line-height: 10px;
+  height: 10px;
+  padding-top: 5px;
+  vertical-align: middle;
+  text-align: left;
+}
+.copyright img {
+  height: 10px;
+  display: inline-block;
+  vertical-align: middle;
+}
+.copyright a {
+  font-size: 6px;
+  line-height: 10px;
+  height: 10px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.copyright a:link {
+  color: #999999;
+  text-decoration: none;
+}
+
+.copyright a:active {
+  color: #999999;
+}
+
+.copyright a:visited {
+  color: #999999;
+  text-decoration: none;
+}
+
+.copyright a:hover {
+  color: #999999;
+  text-decoration: underline;
 }
