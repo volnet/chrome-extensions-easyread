@@ -1,2 +1,2 @@
-*.psd
-*.png filter=lfs diff=lfs merge=lfs -text -maxsize=10M
+*.psd filter=lfs diff=lfs merge=lfs -text -maxsize=5M
+*.png filter=lfs diff=lfs merge=lfs -text -maxsize=5M
