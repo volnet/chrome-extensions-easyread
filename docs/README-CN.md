@@ -71,8 +71,16 @@
 
 本项目用到第三方JavaScript库，可以通过以下方式获得：
 
-```shell
+```bash
 npm install
+```
+
+## 构建
+
+本项目使用Grunt打包，输出文件是`dist/`。
+
+```bash
+grunt
 ```
 
 ## 参与到项目

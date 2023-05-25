@@ -71,8 +71,16 @@ To install the extension, follow these steps:
 
 This project uses a third-party JavaScript library, which can be obtained in the following ways:
 
-```shell
+```bash
 npm install
+```
+
+## Build
+
+This project uses Grunt to pack, you can find the target dir = `dist/`.
+
+```bash
+grunt
 ```
 
 ## Contributing

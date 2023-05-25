@@ -1,5 +1,28 @@
 {
+  "name": "easyread",
+  "description": "EasyRead: Better browser experence: ReadLater, AutoRecord, AddNote, Save Markdown.",
+  "version": "1.0.2",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "chrome-extensions",
+    "crx"
+  ],
+  "author": "volnet <eeee6688@hotmail.com>",
+  "license": "Apache-2.0",
   "dependencies": {
     "jszip": "^3.10.1"
-  }
+  },
+  "devDependencies": {
+    "grunt": "^1.6.1",
+    "grunt-contrib-clean": "^2.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-crx": "^2.0.0"
+  },
+  "private": true,
+  "homepage": "https://github.com/volnet/chrome-extensions-easyread"
 }
