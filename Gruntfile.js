@@ -27,7 +27,7 @@ module.exports = function (grunt) {
         },
         crx: {
             zip: {
-                src: "src/**/*",
+                src: "dist/**/*",
                 dest: "output/chrome-extensions-<%= pkg.name %>-<%= manifest.version %>.zip",
             },
         }
