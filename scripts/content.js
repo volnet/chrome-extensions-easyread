@@ -45,7 +45,7 @@ function setScrollPostion(postion) {
 // sendMessage from UserPage(content.js) to Extension(background.js)
 async function sendMessagePagePosition(position) {
     const response = await chrome.runtime.sendMessage({ position: position });
-    console.log(response);
+    console.log("sendMessagePagePosition from content.js to background.js", response);
 }
 
 let userHasScrolled = false;
@@ -73,11 +73,11 @@ let scrollTimer;
             // Here can inject a confirm div to user to decide is need to auto set scroll.
         }
         else {*/
-        console.log("chrome.runtime.onMessage.addListener - setScroll - received message:");
-        console.log(message);
-        if (message && message.command == "setScroll") {
-            setScrollPostion(message.position);
+        if(!userHasScrolled) {
+            console.log("chrome.runtime.onMessage.addListener - setScroll - received message:", message);
+            if (message && message.command == "setScroll") {
+                setScrollPostion(message.position);
+            }
         }
-        /*}*/
     });
 })();
