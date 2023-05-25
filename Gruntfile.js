@@ -3,7 +3,7 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
         manifest: require('./src/manifest.json'),
         clean: {
-            build: ['dist/*', 'output/*']
+            build: ['dist/*']
         },
         copy: {
             src: {
