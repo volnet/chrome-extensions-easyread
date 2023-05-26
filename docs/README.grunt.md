@@ -19,6 +19,12 @@ Create a new file: `Gruntfile.js`.
 
 It's a sample code. [Gruntfile.js](/Gruntfile.js).
 
+> Known issue:
+>
+> When using the `files` configuration for the output task, it may not generate correctly.
+>
+> It could be due to this line of code ([`var done = this.async();`](https://github.com/thom4parisot/grunt-crx/blob/bd3389b04edf1b1e47324322a7e6a7e3c66b65e0/tasks/crx.js#LL19C20-L19C20) ) where the objects at the front of the queue are marked as completed and done is called, while the ones at the back are still unfinished.
+
 ```javascript
 module.exports = function (grunt) {
     grunt.initConfig({
