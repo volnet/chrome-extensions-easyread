@@ -25,16 +25,28 @@ module.exports = function (grunt) {
                 ]
             }
         },
-        crx: {
+        "crx": {
+            options: {
+                timeoutMillonseconds : 5000
+            },
             zip: {
                 src: "dist/**/*",
                 dest: "output/chrome-extensions-<%= pkg.name %>-<%= manifest.version %>.zip",
             },
+            crx: {
+                src: "dist/**/*",
+                dest: "output/chrome-extensions-<%= pkg.name %>-<%= manifest.version %>.crx",
+                options: {
+                    privateKey: 'key.pem'
+                }
+            }
         }
     });
 
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-crx');
+    grunt.loadNpmTasks('grunt-crx-new');
+
     grunt.registerTask('default', ['clean','copy', 'crx']);
+    grunt.registerTask('export-crx', ['crx']);
 };
