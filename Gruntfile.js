@@ -41,6 +41,27 @@ module.exports = function (grunt) {
                 ]
             }
         },
+        jshint: {
+            all: ['Gruntfile.js', 'src/**/*.js']
+        },
+        "uglify":{
+            production: {
+                options: {
+                    compress: true,
+                    beautify: true
+                },
+                files: [
+                    { src:["src/scripts/background.js"], dest:"dist/production/scripts/background.js" },
+                    { src:["src/scripts/content.js"], dest:"dist/production/scripts/content.js" },
+                    { src:["src/scripts/copyright.js"], dest:"dist/production/scripts/copyright.js" },
+                    { src:["src/scripts/easyReadTools.js"], dest:"dist/production/scripts/easyReadTools.js" },
+                    { src:["src/records/allRecords.js"], dest:"dist/production/records/allRecords.js" },
+                    { src:["src/popup/popup.js"], dest:"dist/production/popup/popup.js" },
+                    { src:["src/setting/setting.js"], dest:"dist/production/setting/setting.js" },
+                    { src:["src/debug/testStorage.js"], dest:"dist/production/debug/testStorage.js" },
+                ]
+            }
+        },
         "crx": {
             options: {
                 timeoutMillonsecondes: 5000
@@ -80,8 +101,11 @@ module.exports = function (grunt) {
 
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-crx-new');
 
-    grunt.registerTask('default', ['clean', 'copy', 'crx']);
+    grunt.registerTask('default', ['clean', 'copy', 'uglify', 'crx']);
+    grunt.registerTask('do-jshint', ['jshint']);
     grunt.registerTask('export-crx', ['crx']);
 };

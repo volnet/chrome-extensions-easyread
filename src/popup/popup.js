@@ -322,9 +322,9 @@ btnDownloadNotes.addEventListener('click', async () => {
       var txtMarkdownTemplate = `  
 # $title$
 
-- Link: [$title$]($url$)
-- CreateDateTime: $createDateTime$
 - Tags: #EasyRead
+- CreateDateTime: $createDateTime$
+- Link: [$title$]($url$)
 
 ---
 
