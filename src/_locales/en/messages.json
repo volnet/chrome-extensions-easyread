@@ -7,9 +7,21 @@
         "message": "EasyRead: Better browser experence: ReadLater, AutoRecord, AddNote, Save Markdown.",
         "description": "The manifest field."
     },
+    "popup_page_title": {
+        "message": "EasyRead: empower your time!",
+        "description": "The popup page's title."
+    },
+    "popup_page_top_menu_bar_all_records_title": {
+        "message": "All Records",
+        "description": "The top menu bar."
+    },
+    "popup_page_top_menu_bar_setting_title": {
+        "message": "Settings & Backup",
+        "description": "The top menu bar."
+    },
     "popup_page_read_times": {
         "message": "Read Times: $READ_TIMES$",
-        "description": "The manifest field.",
+        "description": "The page read times.",
         "placeholders": {
             "read_times": {
                 "content": "$1",
@@ -17,17 +29,87 @@
             }
         }
     },
+    "popup_page_total_pages": {
+        "message": "Total Pages: $total_pages$",
+        "description": "The total pages title.",
+        "placeholders": {
+            "total_pages": {
+                "content": "$1",
+                "example": "3"
+            }
+        }
+    },
+    "popup_btn_read_later_text": {
+        "message": "Read Later",
+        "description": "The read later button text."
+    },
+    "popup_page_notes_title": {
+        "message": "Notes",
+        "description": "The note block title."
+    },
+    "popup_page_message_no_readlaters": {
+        "message": "No readlaters, Is this your first time here?",
+        "description": "The message: no readlater records."
+    },
+    "popup_page_message_duplicate_readlaters": {
+        "message": "It has in your list yet.",
+        "description": "The message: dupulicate readlater records."
+    },
+    "popup_page_message_readlaters_added": {
+        "message": "Added successfully!",
+        "description": "The message: add readlater records successfully."
+    },
+    "popup_page_message_readlaters_firsttime": {
+        "message": "Well done!",
+        "description": "The message: first time to insert a readlater records."
+    },
+    "popup_page_message_readlaters_remove_null": {
+        "message": "Nothing be removed!",
+        "description": "The message: remove a readlater records not exists."
+    },
+    "popup_page_message_notes_downloaded": {
+        "message": "The notes of the page is downloaded.",
+        "description": "The message: download the page note successfully."
+    },
+    "popup_page_message_notes_removed": {
+        "message": "The notes of the page is removed.",
+        "description": "The message: remove the page note successfully."
+    },
+    "popup_page_message_no_notes": {
+        "message": "No notes found.",
+        "description": "The message: no notes found."
+    },
+    "popup_page_message_no_records_no_datetimes": {
+        "message": "No records",
+        "description": "The message: not found the allrecords."
+    },
+    "popup_page_message_no_records_text": {
+        "message": "No records",
+        "description": "The message: not found the allrecords."
+    },
+    "popup_page_message_no_records_firsttime": {
+        "message": "No records",
+        "description": "The message: not found the allrecords, Is this your first time here?"
+    },
+    "popup_page_message_records_removed": {
+        "message": "The records of the page is removed.",
+        "description": "The message: the page's records is removed."
+    },
+    "popup_page_message_records_not_supported": {
+        "message": "This page not supported.",
+        "description": "The message: the page's url is not supported."
+    },
     "allrecords_page_title": {
-        "message": "EasyRead: enjoy your reading!",
-        "description": "The all records display list.(en)"
+        "message": "EasyRead: empower your time!",
+        "description": "The all records display list."
     },
     "allrecords_page_notice": {
         "message": "This is all your readed history:",
         "description": "Notice the user what's next."
     },
     "setting_page_title": {
-        "message": "EasyRead: enjoy your read!",
-        "description": "The all records display list.(en)"
+        "message": "EasyRead: empower your time!",
+        "description": "The setting page display list."
     },
     "setting_page_notice": {
         "message": "Setting Page, manage the EasyRead better.",

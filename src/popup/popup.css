@@ -189,6 +189,11 @@ ol > li {
   height: 16px;
 }
 
+.buttonWithIcon > span {
+  height: 16px;
+  line-height: 16px;
+}
+
 @supports (-webkit-appearance: none) or (-moz-appearance: none) {
 
   input[type=checkbox],

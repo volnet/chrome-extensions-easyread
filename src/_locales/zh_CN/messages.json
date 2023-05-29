@@ -7,9 +7,21 @@
         "message": "轻松阅读: 稍后阅读, 自动记录, 添加笔记, 保存Markdown. https://github.com/volnet/chrome-extensions-easyread",
         "description": "The manifest field."
     },
+    "popup_page_title": {
+        "message": "EasyRead：让时间倍增魔力！",
+        "description": "The popup page's title."
+    },
+    "popup_page_top_menu_bar_all_records_title": {
+        "message": "所有记录",
+        "description": "The top menu bar."
+    },
+    "popup_page_top_menu_bar_setting_title": {
+        "message": "设置和备份",
+        "description": "The top menu bar."
+    },
     "popup_page_read_times": {
         "message": "已读：$READ_TIMES$次",
-        "description": "The manifest field.",
+        "description": "The page read times.",
         "placeholders": {
             "read_times": {
                 "content": "$1",
@@ -17,17 +29,87 @@
             }
         }
     },
+    "popup_page_total_pages": {
+        "message": "总计：$total_pages$页",
+        "description": "The total pages title.",
+        "placeholders": {
+            "total_pages": {
+                "content": "$1",
+                "example": "3"
+            }
+        }
+    },
+    "popup_btn_read_later_text": {
+        "message": "稍后阅读",
+        "description": "The read later button text."
+    },
+    "popup_page_notes_title": {
+        "message": "笔记",
+        "description": "The note block title."
+    },
+    "popup_page_message_no_readlaters": {
+        "message": "未曾记录，是否初次到访该页？",
+        "description": "The message: no readlater records."
+    },
+    "popup_page_message_duplicate_readlaters": {
+        "message": "不能重复添加哟！",
+        "description": "The message: dupulicate readlater records."
+    },
+    "popup_page_message_readlaters_added": {
+        "message": "添加成功！",
+        "description": "The message: add readlater records successfully."
+    },
+    "popup_page_message_readlaters_firsttime": {
+        "message": "干得漂亮，就是这样！",
+        "description": "The message: first time to insert a records."
+    },
+    "popup_page_message_readlaters_remove_null": {
+        "message": "什么都没删除！",
+        "description": "The message: remove a readlater records not exists."
+    },
+    "popup_page_message_notes_downloaded": {
+        "message": "成功下载！",
+        "description": "The message: download the page note successfully."
+    },
+    "popup_page_message_notes_removed": {
+        "message": "成功删除！",
+        "description": "The message: remove the page note successfully."
+    },
+    "popup_page_message_no_notes": {
+        "message": "未找到笔记",
+        "description": "The message: no notes found."
+    },
+    "popup_page_message_no_records_no_datetimes": {
+        "message": "没有记录",
+        "description": "The message: not found the allrecords."
+    },
+    "popup_page_message_no_records_text": {
+        "message": "没有记录",
+        "description": "The message: not found the allrecords."
+    },
+    "popup_page_message_no_records_firsttime": {
+        "message": "没有记录",
+        "description": "The message: not found the allrecords, Is this your first time here?"
+    },
+    "popup_page_message_records_removed": {
+        "message": "记录已删除",
+        "description": "The message: the page's records is removed."
+    },
+    "popup_page_message_records_not_supported": {
+        "message": "当前页面URL类型不支持。",
+        "description": "The message: the page's url is not supported."
+    },
     "allrecords_page_title": {
-        "message": "EasyRead：让阅读更美好！",
-        "description": "The all records display list.(en)"
+        "message": "EasyRead：让时间倍增魔力！",
+        "description": "The all records display list."
     },
     "allrecords_page_notice": {
         "message": "这是您的所有阅读历史记录：",
         "description": "Notice the user what's next."
     },
     "setting_page_title": {
-        "message": "EasyRead：让阅读更美好！",
-        "description": "The all records display list.(en)"
+        "message": "EasyRead：让时间倍增魔力！",
+        "description": "The setting page display list."
     },
     "setting_page_notice": {
         "message": "设置页面，将帮助你更好地管理EasyRead。",

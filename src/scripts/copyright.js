@@ -7,7 +7,7 @@ function addCopyrightInfo() {
         const manifest = chrome.runtime.getManifest();
 
         var imgElement1 = document.createElement('img');
-        imgElement1.src = '../images/github-favicon.svg';
+        imgElement1.src = '../assets/github-favicon.svg';
         imgElement1.alt = 'GitHub:';
         imgElement1.classList.add("copyrightImg");
         
@@ -18,7 +18,7 @@ function addCopyrightInfo() {
         linkElement1.textContent = 'GitHub';
         
         var imgElement2 = document.createElement('img');
-        imgElement2.src = '../images/email.png';
+        imgElement2.src = '../assets/email.png';
         imgElement2.alt = 'Email:';
         imgElement2.classList.add("copyrightImg");
         

@@ -8,15 +8,23 @@ function showMessages(message) {
   }, 3000);
 }
 
+/* -------- Popup Title -------- */
+
+function onPageLoad_InitTitle() {
+  document.getElementById("popupTitle").textContent = easyReadTools.getMessageForLocales("popup_page_title");
+}
+
 /* -------- Top Menu bar -------- */
 
 function onPageLoad_InitTopMenuBar() {
   const btnAllRecords = document.getElementById("btnAllRecords");
+  btnAllRecords.setAttribute("title", easyReadTools.getMessageForLocales("popup_page_top_menu_bar_all_records_title"));
   btnAllRecords.addEventListener('click', async () => {
     chrome.tabs.create({ active: true, url: '/records/allRecords.html' });
   });
 
   const btnSetting = document.getElementById("btnSetting");
+  btnSetting.setAttribute("title", easyReadTools.getMessageForLocales("popup_page_top_menu_bar_setting_title"));
   btnSetting.addEventListener('click', async () => {
     chrome.tabs.create({ active: true, url: '/setting/setting.html' });
   });
@@ -86,10 +94,9 @@ async function renderReadLaters(queryValue, context) {
     olElement.append(...elements);
   }
   else {
-    // console.log("Because no record to found, so it may be your first time to reach the page!");
-    showMessages("Because no record to found, so it may be your first time to reach the page!");
+    showMessages(easyReadTools.getMessageForLocales("popup_page_message_no_readlaters"));
   }
-  document.getElementById("titleReadLaters").innerHTML = "Total Page: " + (unreadCount) + "";
+  document.getElementById("titleReadLaters").textContent = easyReadTools.getMessageForLocales("popup_page_total_pages", [unreadCount]);
   easyReadTools.updateBudgeText();
 }
 
@@ -106,7 +113,7 @@ function removeReadLatersStorageUpdated(updateStatus, updateData, context) {
       if (liElement) {
         const olElement = liElement.parentElement;
         olElement.removeChild(liElement);
-        document.getElementById("titleReadLaters").innerHTML = "Total Page: " + (olElement.childNodes.length) + "";
+        document.getElementById("titleReadLaters").textContent = easyReadTools.getMessageForLocales("popup_page_total_pages", [olElement.childNodes.length]);
       }
     }, 500);
   }
@@ -130,8 +137,7 @@ function updateStorageCallback_ReadLaterAdd(queryValue, context) {
     newValue.push({ key: key, url: context.tab.url, title: context.tab.title, createDateTime: Date.now(), status: easyReadTools.READ_STATUS_UNREAD });
     result.value = newValue;
     result.status = easyReadTools.UPDATE_STATUS_YES;
-    showMessages("Add a new page to the read later list.");
-    // console.log("create readLaters json object. add new page.");
+    showMessages(easyReadTools.getMessageForLocales("popup_page_message_readlaters_firsttime"));
   } else {
     // exists "readLaters json object"
 
@@ -141,18 +147,19 @@ function updateStorageCallback_ReadLaterAdd(queryValue, context) {
     let isFound = false;
     for (let i = 0; i < oldValue.length; ++i) {
       if (key === oldValue[i].key && oldValue[i].status === easyReadTools.READ_STATUS_UNREAD) {
-        result.message = "The page is in your read later list yet.";
+        const msg = easyReadTools.getMessageForLocales("popup_page_message_duplicate_readlaters")
+        result.message = msg;
         isFound = true;
-        showMessages("The page is in your read later list yet.");
+        showMessages(msg);
       }
     }
 
     if (!isFound) {
       result.value = [...oldValue, { key: key, url: context.tab.url, title: context.tab.title, createDateTime: Date.now(), status: easyReadTools.READ_STATUS_UNREAD }];
       result.status = easyReadTools.UPDATE_STATUS_YES;
-      result.message = "Add a new page to the read later list.";
-      showMessages("Add a new page to the read later list.");
-      // console.log("no found it. add new page.");
+      const msg = easyReadTools.getMessageForLocales("popup_page_message_readlaters_added");
+      result.message = msg;
+      showMessages(msg);
     }
   }
   return result;
@@ -167,7 +174,7 @@ function updateStorageCallback_ReadLaterRemove(queryValue, context) {
   // console.log(oldValue);
 
   if (!oldValue) {
-    showMessages("Nothing be removed.");
+    showMessages(easyReadTools.getMessageForLocales("popup_page_message_readlaters_remove_null"));
     console.log("the readLaters json object is not exists, may be delete by other thread.");
   } else {
     // exists "readLaters json object"
@@ -189,10 +196,8 @@ function updateStorageCallback_ReadLaterRemove(queryValue, context) {
     }
 
     if (!isFound) {
-      // console.log("!Found");
-      result.message = "Nothing be removed.";
-      showMessages("Nothing be removed.");
-      // console.log("Nothing be removed.");
+      result.message = easyReadTools.getMessageForLocales("popup_page_message_readlaters_remove_null");
+      showMessages(easyReadTools.getMessageForLocales("popup_page_message_readlaters_remove_null"));
     }
 
     return result;
@@ -212,6 +217,8 @@ async function isNeedHighlightCurrentPageInReadLaters(key) {
 }
 
 function onPageLoad_InitReadLaters() {
+  document.getElementById("btnReadLaterText").textContent = easyReadTools.getMessageForLocales("popup_btn_read_later_text");
+
   const btnReadLater = document.getElementById("btnReadLater");
   btnReadLater.addEventListener('click', async () => {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -236,7 +243,7 @@ function onPageLoad_InitReadLaters() {
       const tab = tabs[0];
       const pageUrl = easyReadTools.getKey(tab.url);
       easyReadTools.removeStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME, pageUrl]), () => {
-        document.getElementById("outputAllRecords").innerHTML = "The records of the page is removed.";
+        document.getElementById("outputAllRecords").innerHTML = easyReadTools.getMessageForLocales("popup_page_message_records_removed");
       });
     }
   });
@@ -285,12 +292,11 @@ function renderPageNotes(queryValue, context) {
 
         elements.add(element);
       }
-      document.getElementById("titleNotes").textContent = "Notes";
+      document.getElementById("titleNotes").textContent = easyReadTools.getMessageForLocales("popup_page_notes_title");
       document.getElementById('outputNotes').querySelector("ol").append(...elements);
     }
     else {
-      // console.log("It's your first time to reach the page!");
-      showMessages("It's your first time to reach the page!");
+      showMessages(easyReadTools.getMessageForLocales("popup_page_message_no_notes"));
     }
   }
   else {
@@ -303,7 +309,6 @@ function renderPageNotes(queryValue, context) {
 
     outputNotes.classList.remove("outputNotes");
     outputNotes.classList.add("outputNotesDefault");
-    // showMessages("Because no notes to found, you can use the contextMenus to add notes!");
   }
 }
 
@@ -327,14 +332,14 @@ btnDownloadNotes.addEventListener('click', async () => {
 {notes_section}`;
       var txtMarkdownNotesSectionTemplate = `
 ### $createDateTime$
-      
+
 $selectionText$
 `;
       const files = easyReadTools.convertNotesToMarkdownFiles(result, txtMarkdownTemplate, txtMarkdownNotesSectionTemplate);
       if(files && files.length > 0) {
         easyReadTools.exportToMarkdownFile(files[0].content, files[0].name);
       }
-      showMessages("The notes of the page is removed.");
+      showMessages(easyReadTools.getMessageForLocales("popup_page_message_notes_downloaded"));
     });
   }
 });
@@ -347,7 +352,7 @@ btnRemoveNotes.addEventListener('click', async () => {
     const pageUrl = easyReadTools.getKey(tab.url);
     easyReadTools.removeStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.NOTES_NAME, pageUrl]), () => {
       onPageLoad_InitNotes();
-      showMessages("The notes of the page is removed.");
+      showMessages(easyReadTools.getMessageForLocales("popup_page_message_notes_removed"));
     });
   }
 });
@@ -375,14 +380,12 @@ function renderPageRecords(queryValue, context) {
       document.getElementById('outputAllRecords').append(...elements);
     }
     else {
-      // console.log("It's your first time to reach the page!");
-      showMessages("It's your first time to reach the page!");
+      showMessages(easyReadTools.getMessageForLocales("popup_page_message_no_records_no_datetimes"));
     }
   }
   else {
-    document.getElementById('outputAllRecords').innerHTML = "No records.";
-    // console.log("Because no record to found, so it may be your first time to reach the page!");
-    showMessages("Because no record to found, so it may be your first time to reach the page!");
+    document.getElementById('outputAllRecords').innerHTML = easyReadTools.getMessageForLocales("popup_page_message_no_records_text");
+    showMessages(easyReadTools.getMessageForLocales("popup_page_message_no_records_firsttime"));
   }
 }
 
@@ -399,13 +402,13 @@ async function onPageLoad_InitAllRecords() {
         { key: pageUrl });
     }
     else {
-      // console.log("This page not supported.");
-      document.getElementById("outputAllRecords").innerHTML = "This page not supported.";
+      document.getElementById("outputAllRecords").textContent = easyReadTools.getMessageForLocales("popup_page_message_records_not_supported");
     }
   }
 }
 
 (function onPageLoad() {
+  onPageLoad_InitTitle();
   onPageLoad_InitTopMenuBar();
   onPageLoad_InitReadLaters();
   onPageLoad_InitNotes();

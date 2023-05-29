@@ -234,8 +234,7 @@ function updateStorageCallback_ReadLaterAdd(queryValue, context) {
     newValue.push({ key: key, url: context.tab.url, title: context.tab.title, createDateTime: Date.now(), status: easyReadTools.READ_STATUS_UNREAD });
     result.value = newValue;
     result.status = easyReadTools.UPDATE_STATUS_YES;
-    showMessages("Add a new page to the read later list.");
-    // console.log("create readLaters json object. add new page.");
+    showMessages(easyReadTools.getMessageForLocales("popup_page_message_readlaters_firsttime"));
   } else {
     // exists "readLaters json object"
 
@@ -245,18 +244,19 @@ function updateStorageCallback_ReadLaterAdd(queryValue, context) {
     let isFound = false;
     for (let i = 0; i < oldValue.length; ++i) {
       if (key === oldValue[i].key && oldValue[i].status === easyReadTools.READ_STATUS_UNREAD) {
-        result.message = "The page is in your read later list yet.";
+        const msg = easyReadTools.getMessageForLocales("popup_page_message_duplicate_readlaters")
+        result.message = msg;
         isFound = true;
-        showMessages("The page is in your read later list yet.");
+        showMessages(msg);
       }
     }
 
     if (!isFound) {
       result.value = [...oldValue, { key: key, url: context.tab.url, title: context.tab.title, createDateTime: Date.now(), status: easyReadTools.READ_STATUS_UNREAD }];
       result.status = easyReadTools.UPDATE_STATUS_YES;
-      result.message = "Add a new page to the read later list.";
-      showMessages("Add a new page to the read later list.");
-      // console.log("no found it. add new page.");
+      const msg = easyReadTools.getMessageForLocales("popup_page_message_readlaters_added");
+      result.message = msg;
+      showMessages(msg);
     }
   }
   return result;

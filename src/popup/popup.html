@@ -32,17 +32,17 @@
 	</template>
 	<div>
 		<div class="buttonLineWrapper">
-			<div class="buttonLineDivLeft extensionTitle">EasyRead: enjoy your reading</div>
+			<div id="popupTitle" class="buttonLineDivLeft extensionTitle">EasyRead: enjoy your reading</div>
 			<div class="buttonLineDivRight extensionButtons">
-				<img src="../images/allRecords.png" id="btnAllRecords" class="buttonImg" alt="View all records">
-				<img src="../images/setting.png" id="btnSetting" class="buttonImg" alt="Setting">
+				<img src="../assets/allRecords.png" id="btnAllRecords" class="buttonImg" alt="View all records">
+				<img src="../assets/setting.png" id="btnSetting" class="buttonImg" alt="Setting">
 			</div>
 		</div>
 		<div id="outputMesssages" class="outputMesssages"></div>
 		<div id="outputReadLaters" class="outputReadLaters">
 			<div class="buttonWrapper">
 				<button id="btnReadLater" class="buttonWithIcon">
-					<img src="../images/icon-48.png" />Read Later
+					<img src="../assets/readlater-icon.png" /><span id="btnReadLaterText">Read Later</span>
 				</button>
 			</div>
 			<span id="titleReadLaters" class="titleReadLaters"></span>
@@ -53,8 +53,8 @@
 		</div>
 		<div id="outputNotes" class="outputNotesDefault">
 			<div class="buttonWrapper">
-				<img src="../images/download-file.png" id="btnDownloadNotes" class="buttonImg" alt="Download the page's notes">
-				<img src="../images/delete.png" id="btnRemoveNotes" class="buttonImg" alt="Delete the page's notes">
+				<img src="../assets/download-file.png" id="btnDownloadNotes" class="buttonImg" alt="Download the page's notes">
+				<img src="../assets/delete.png" id="btnRemoveNotes" class="buttonImg" alt="Delete the page's notes">
 			</div>
 			<span id="titleNotes" class="titleNotes"></span>
 			<ol></ol>
@@ -64,7 +64,7 @@
 		</div>
 		<div id="outputAllRecords" class="outputAllRecords">
 			<div class="buttonWrapper">
-				<img src="../images/delete.png" id="btnReadedAndRemove" class="buttonImg"
+				<img src="../assets/delete.png" id="btnReadedAndRemove" class="buttonImg"
 					alt="Delete the page's records">
 			</div>
 		</div>
