@@ -35,10 +35,10 @@ function addCopyrightInfo() {
         imgElement3.alt = 'Twitter:';
         imgElement3.classList.add("copyrightImg");
 
-        const text = "#EasyRead @GongCen I want ";
+        const text = "#EasyRead @GongCen 👍👍👍";
         const encodedText = encodeURIComponent(text);
         const twitterUrl = "https://twitter.com/intent/tweet?text=" + encodedText + "&src=share_button";
-
+        
         let linkElement3 = document.createElement('a');
         linkElement3.href = twitterUrl;
         linkElement3.title = "Twitter";
