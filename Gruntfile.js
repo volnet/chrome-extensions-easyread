@@ -66,7 +66,7 @@ module.exports = function (grunt) {
             production: {
                 files: [
                     {
-                        src: "dist/development/**/*",
+                        src: "dist/production/**/*",
                         dest: "output/chrome-extensions-<%= pkg.name %>-<%= manifest.version %>-prod.zip",
                     },
                     {
