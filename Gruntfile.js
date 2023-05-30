@@ -63,9 +63,6 @@ module.exports = function (grunt) {
             }
         },
         "crx": {
-            options: {
-                timeoutMillonsecondes: 5000
-            },
             production: {
                 files: [
                     {
