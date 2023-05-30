@@ -1,7 +1,7 @@
 {
   "name": "easyread",
   "description": "EasyRead: Better browser experence: ReadLater, AutoRecord, AddNote, Save Markdown.",
-  "version": "1.0.2",
+  "version": "1.0.1",
   "directories": {
     "doc": "docs"
   },
