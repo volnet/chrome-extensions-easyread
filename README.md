@@ -52,7 +52,16 @@ We recommend you keep the EasyRead extension always displayed in the toolbar, yo
 
 ## Installation
 
-### Manual
+### 01 Add-ons Store(Recommend)
+
+1. [Google Chrome Web Store](https://chrome.google.com/webstore/detail/easyread/lpopnmoejimlifiejilnpneckijlgodg)
+2. [Microsoft Edge Store](https://microsoftedge.microsoft.com/addons/detail/hcebppkpnooppfiigihimjnahoknakdp)
+
+### 02 Manual(Releases)
+
+[Download the release for your browser, signatured by online-web-store.](releases)
+
+### 03 Manual(Source Code, Developer)
 
 To install the extension, follow these steps:
 

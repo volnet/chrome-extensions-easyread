@@ -52,7 +52,16 @@
 
 ## 如何安装
 
-### 手动模式
+### 01 在线安装（推荐）
+
+1. [Google Chrome Web Store](https://chrome.google.com/webstore/detail/easyread/lpopnmoejimlifiejilnpneckijlgodg)
+2. [Microsoft Edge Store](https://microsoftedge.microsoft.com/addons/detail/hcebppkpnooppfiigihimjnahoknakdp)
+
+### 02 手动模式（安装包）
+
+[下载由浏览器插件市场提供签名的版本](releases)
+
+### 02 手动模式（源码模式，仅适用于开发者）
 
 要安装扩展，请按照下列步骤操作：
 
