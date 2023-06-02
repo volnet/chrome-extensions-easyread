@@ -65,10 +65,10 @@ We recommend you keep the EasyRead extension always displayed in the toolbar, yo
 
 To install the extension, follow these steps:
 
-1. Clone or download this repository.
+1. Clone or download this repository. Follow the step [#Develop](#develop) & [#Build](#build), you can found the `/dist/` directory.
 2. Open Google Chrome and go to `chrome://extensions`(Open Microsoft Edge and go to `edge://extensions`).
 3. Enable "Developer mode" by toggling the switch in the top right corner.
-4. Click "Load unpacked" and select the directory where you cloned/downloaded this repository.
+4. Click "Load unpacked" and select the directory where you cloned/downloaded this repository, location to `/dist/<developMode>` directory.
 
 ## Usage
 
