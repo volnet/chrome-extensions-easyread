@@ -59,7 +59,7 @@
 
 ### 02 手动模式（安装包）
 
-[下载由浏览器插件市场提供签名的版本](releases)
+[下载由浏览器插件市场提供签名的版本](https://github.com/volnet/chrome-extensions-easyread/releases)
 
 ### 02 手动模式（源码模式，仅适用于开发者）
 

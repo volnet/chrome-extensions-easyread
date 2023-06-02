@@ -59,7 +59,7 @@ We recommend you keep the EasyRead extension always displayed in the toolbar, yo
 
 ### 02 Manual(Releases)
 
-[Download the release for your browser, signatured by online-web-store.](releases)
+[Download the release for your browser, signatured by online-web-store.](https://github.com/volnet/chrome-extensions-easyread/releases)
 
 ### 03 Manual(Source Code, Developer)
 
