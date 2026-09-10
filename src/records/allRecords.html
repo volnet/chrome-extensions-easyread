@@ -17,18 +17,33 @@
 			<td><span class="seq">Line Seq</span></td>
 			<td><a href="" target="_blank"><span class="title">Page Title</span></a></td>
 			<td><span class="readedTimes">Read Times</span></td>
+			<td><span class="lastReadTime"></span></td>
 			<td><span class="readProgress"></span></td>
+			<td><span class="videoProgress"></span></td>
+			<td><span class="artifacts"></span></td>
 		</tr>
 	</template>
-	<h1 id="allrecords_page_title">EasyRead</h1>
-	<h2 id="allrecords_page_notice">This is all your readed history:</h2>
-	<br /><br />
+	<header class="pageHeader"><div><h1 id="allrecords_page_title">EasyRead</h1><p id="allrecords_page_notice">This is all your reading history:</p></div><button id="exportRecords" class="primaryButton" type="button">Export records</button></header>
+	<div class="recordsToolbar">
+		<span id="recordSummary"></span>
+		<nav class="pagination" aria-label="Records pagination">
+			<button id="previousPage" type="button">Previous</button>
+			<span id="pageIndicator"></span>
+			<button id="nextPage" type="button">Next</button>
+		</nav>
+	</div>
 	<div id="output" class="output">
 		<table id="outputTable">
-			<th class="col-01">No.</th>
-			<th class="col-02">Title(Url)</th>
-			<th class="col-03">Read Times</th>
-			<th class="col-04">Read Progress</th>
+			<thead><tr>
+				<th id="recordsHeaderNumber" class="col-01">No.</th>
+				<th id="recordsHeaderTitle" class="col-02">Title(Url)</th>
+				<th id="recordsHeaderReadTimes" class="col-03">Read Times</th>
+				<th id="recordsHeaderLastReadTime">Last read</th>
+				<th id="recordsHeaderReadProgress" class="col-04">Read Progress</th>
+				<th id="recordsHeaderVideoProgress" class="col-05">Video Progress</th>
+				<th id="recordsHeaderArtifacts" class="col-06">Saved copies</th>
+			</tr></thead>
+			<tbody id="recordsBody"></tbody>
 		</table>
 		<div>Created Time: <span id="createdTime"></span></div>
 	</div>

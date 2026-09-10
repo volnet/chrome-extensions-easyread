@@ -1,12 +1,17 @@
 {
   "name": "easyread",
   "description": "EasyRead: Better browser experence: ReadLater, AutoRecord, AddNote, Save Markdown.",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node scripts/build.mjs",
+    "build:unpacked": "npm run build",
+    "check": "node scripts/verify-baseline.mjs",
+    "lint": "eslint src scripts test",
+    "test:unit": "node --test",
+    "test": "npm run check && npm run lint && npm run test:unit"
   },
   "keywords": [
     "chrome-extensions",
@@ -15,15 +20,14 @@
   "author": "volnet <eeee6688@hotmail.com>",
   "license": "Apache-2.0",
   "dependencies": {
-    "jszip": "^3.10.1"
+    "hls.js": "1.6.13",
+    "jszip": "^3.10.1",
+    "mp4box": "2.4.1",
+    "mux.js": "6.3.0"
   },
   "devDependencies": {
-    "grunt": "^1.6.1",
-    "grunt-contrib-clean": "^2.0.1",
-    "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-jshint": "^3.2.0",
-    "grunt-contrib-uglify": "^5.2.2",
-    "grunt-crx-new": "^2.2.0"
+    "esbuild": "^0.28.2",
+    "eslint": "^10.8.1"
   },
   "private": true,
   "homepage": "https://github.com/volnet/chrome-extensions-easyread"

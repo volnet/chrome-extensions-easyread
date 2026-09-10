@@ -1,0 +1,51 @@
+#easyread-capture-dialog[data-easyread-ui] {
+  background: rgba(255, 253, 250, .98);
+  border: 1px solid rgba(31, 31, 31, .14);
+  border-radius: 18px;
+  box-shadow: 0 18px 60px rgba(38, 25, 17, .22);
+  box-sizing: border-box;
+  color: #1f1f1f;
+  font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif;
+  left: 50%;
+  margin: 0;
+  max-height: min(720px, calc(100vh - 32px));
+  max-width: calc(100vw - 32px);
+  overflow: auto;
+  padding: 0;
+  position: fixed;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 520px;
+  z-index: 2147483647;
+}
+#easyread-capture-dialog::backdrop { background: rgba(20, 15, 12, .28); backdrop-filter: blur(2px); }
+.easyread-capture-header { align-items: center; border-bottom: 1px solid rgba(31,31,31,.1); display: flex; justify-content: space-between; padding: 16px 18px; }
+.easyread-capture-header strong { font-size: 17px; }
+.easyread-capture-close { background: transparent; border: 0; border-radius: 7px; color: #1f1f1f; cursor: pointer; display: grid; height: 30px; place-items: center; width: 30px; }
+.easyread-capture-close svg { fill: none; height: 18px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; width: 18px; }
+.easyread-capture-grid { display: grid; gap: 10px; grid-template-columns: 1fr 1fr; padding: 16px 18px 10px; }
+.easyread-capture-option { align-items: flex-start; background: #fff; border: 1px solid rgba(31,31,31,.13); border-radius: 13px; color: #1f1f1f; cursor: pointer; display: flex; gap: 11px; min-height: 88px; padding: 13px; text-align: left; transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms cubic-bezier(.23,1,.32,1); }
+.easyread-capture-option svg { fill: none; flex: 0 0 auto; height: 22px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; width: 22px; }
+.easyread-capture-option strong, .easyread-capture-option span { display: block; }
+.easyread-capture-option span { color: #67615d; font-size: 12px; margin-top: 3px; }
+.easyread-capture-option:active, .easyread-capture-close:active, .easyread-media-download:active { transform: scale(.97); }
+.easyread-capture-status { background: #f5f3f1; border-radius: 10px; margin: 4px 18px 18px; min-height: 20px; padding: 10px 12px; }
+.easyread-capture-status[data-state="error"] { color: #a12618; }
+.easyread-capture-status[data-state="success"] { color: #236b32; }
+.easyread-media-list { display: grid; gap: 8px; padding: 0 18px 18px; }
+.easyread-media-item { align-items: center; background: #fff; border: 1px solid rgba(31,31,31,.12); border-radius: 10px; display: grid; gap: 8px; grid-template-columns: minmax(0,1fr) auto; padding: 10px 12px; }
+.easyread-media-copy { min-width: 0; }
+.easyread-media-copy strong, .easyread-media-copy span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.easyread-media-copy span { color: #67615d; font-size: 11px; }
+.easyread-media-download { background: #1f1f1f; border: 0; border-radius: 8px; color: #fff; cursor: pointer; padding: 7px 10px; transition: transform 140ms cubic-bezier(.23,1,.32,1); }
+.easyread-media-error { align-items: flex-start; background: #fff4f2; border-radius: 8px; color: #a12618; display: flex; flex-wrap: wrap; font-size: 11px; gap: 7px 10px; grid-column: 1 / -1; line-height: 1.45; padding: 8px 9px; }
+.easyread-media-error[hidden] { display: none; }
+.easyread-media-error span { flex: 1 1 100%; overflow-wrap: anywhere; }
+.easyread-media-debug-download { background: #fff; border: 1px solid rgba(161,38,24,.25); border-radius: 7px; color: #7d2117; cursor: pointer; padding: 5px 8px; transition: background-color 140ms ease, transform 140ms cubic-bezier(.23,1,.32,1); }
+.easyread-media-debug-download:active { transform: scale(.97); }
+@media (hover:hover) and (pointer:fine) {
+  .easyread-capture-option:hover { border-color: rgba(31,31,31,.3); box-shadow: 0 5px 18px rgba(38,25,17,.08); transform: translateY(-1px); }
+  .easyread-capture-close:hover { background: rgba(31,31,31,.07); }
+}
+@media (max-width: 560px) { .easyread-capture-grid { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { .easyread-capture-option, .easyread-capture-close, .easyread-media-download { transition: none; } .easyread-capture-option:hover { transform: none; } }

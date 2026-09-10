@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "__MSG_manifest_name__",
   "description": "__MSG_manifest_description__",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "icons": {
     "16": "assets/logo/icon-16.png",
     "32": "assets/logo/icon-32.png",
@@ -26,7 +26,28 @@
   },
   "content_scripts": [
     {
-      "js": ["scripts/content.js"],
+      "js": ["scripts/snapshotHook.js"],
+      "matches": ["http://*/*", "https://*/*"],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": true,
+      "match_about_blank": true
+    },
+    {
+      "js": ["scripts/diagnostics.js", "scripts/youtubeMedia.js", "scripts/snapshotEngine.js", "scripts/content.js"],
+      "css": ["styles/highlights.css", "styles/annotations.css", "styles/capture.css"],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/download-file.png",
+        "assets/logo/icon-32.png"
+      ],
       "matches": [
         "http://*/*",
         "https://*/*"
@@ -37,7 +58,8 @@
     "page": "setting/setting.html",
     "open_in_tab": true
   },
-  "permissions": ["activeTab", "tabs", "storage", "unlimitedStorage", "contextMenus"],
+  "permissions": ["activeTab", "tabs", "storage", "unlimitedStorage", "contextMenus", "clipboardWrite", "downloads", "scripting", "webNavigation", "declarativeNetRequestWithHostAccess"],
+  "optional_host_permissions": ["http://*/*", "https://*/*"],
   "default_locale": "en",
   "author": {
     "email": "eeee6688@hotmail.com"

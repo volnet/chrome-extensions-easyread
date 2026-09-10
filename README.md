@@ -37,11 +37,21 @@ We recommend you keep the EasyRead extension always displayed in the toolbar, yo
 2. Select the text on the page and add it to the note.
 3. View notes by page, multi-paragraph notes are presented in the order they were added.
 4. Support exporting to Markdown format.
+5. Restore saved note text as EasyRead orange highlights when the page text can be found.
+6. Turn page highlights off from the popup without deleting notes.
+7. Right-click an existing orange highlight to remove that exact saved note.
 
 ### Auto Record
 
 1. Log all visited web pages.
 2. Track the number of visits, time, etc.
+3. Record HTML video playback progress without changing or restoring playback.
+
+### Annotations
+
+1. Select text and use the context menu to add an annotation.
+2. Review annotations in a hideable sidebar on the right side of the page.
+3. Set the annotation author in Settings.
 
 ### Export & Import
 
@@ -86,10 +96,10 @@ npm install
 
 ## Build
 
-This project uses Grunt to pack, you can find the target dir = `dist/`.
+The build creates unpacked development and production extensions under `dist/`.
 
 ```bash
-grunt
+npm run build
 ```
 
 ## Contributing

@@ -31,15 +31,137 @@
   height: 18px;
 }
 
+.extensionButtons { align-items: center; display: flex; gap: 5px; }
+
+body { background: #fff; box-sizing: border-box; margin: 10px; min-width: 430px; overflow-x: hidden; }
+
+.popupTabs { background: #f3f4f6; border-radius: 10px; display: grid; gap: 3px; grid-template-columns: repeat(3, 1fr); margin: 10px 0 8px; padding: 3px; }
+.popupTab { align-items: center; background: transparent; border: 0; border-radius: 8px; color: #666; cursor: pointer; display: inline-flex; font-size: 12px; font-weight: 600; gap: 6px; justify-content: center; min-height: 30px; padding: 6px 10px; transition: background-color 160ms ease, color 160ms ease, transform 140ms cubic-bezier(.23,1,.32,1); }
+.popupTab.isActive { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.08); color: #171717; }
+.popupTab:active { transform: scale(.97); }
+.popupTab:focus-visible { outline: 3px solid rgba(255,138,0,.28); outline-offset: 1px; }
+.tabBadge { align-items: center; background: #e35503; border-radius: 999px; color: #fff; display: inline-flex; font-size: 10px; height: 16px; justify-content: center; min-width: 16px; padding: 0 4px; }
+.tabBadge[hidden] { display: none; }
+.popupPanel { min-height: 310px; }
+#panelMedia { display: flex; min-height: 0; width: 100%; }
+#panelMedia[hidden] { display: none; }
+.saveIntro { color: #666; font-size: 12px; line-height: 1.5; margin: 10px 2px; }
+.saveOptions { display: grid; gap: 8px; }
+.saveOption, .saveOptionGroup { align-items: center; background: #fff; border: 1px solid #e5e7eb; border-radius: 11px; display: flex; gap: 10px; padding: 10px; text-align: left; }
+.saveOption > span:nth-child(2) { display: grid; flex: 1; gap: 3px; min-width: 0; }
+.primarySave:active, .secondarySave:active, .mediaDownload:active { transform: scale(.98); }
+.saveIcon { align-items: center; background: #f3f4f6; border-radius: 8px; color: #262626; display: inline-flex; flex: 0 0 38px; font-size: 10px; font-weight: 800; height: 38px; justify-content: center; letter-spacing: .03em; }
+.saveOptionHeading > span:last-child { display: grid; gap: 3px; }
+.saveOption strong, .saveOptionHeading strong { color: #222; font-size: 13px; }
+.saveOption small, .saveOptionHeading small { color: #737373; font-size: 11px; line-height: 1.35; }
+.saveOptionGroup { align-items: stretch; display: grid; grid-template-columns: 1fr auto auto auto; }
+.saveOptionHeading { align-items: center; display: flex; gap: 10px; }
+.segmentedControl { align-self: center; background: #f3f4f6; border-radius: 7px; display: flex; padding: 2px; }
+.segmentedControl button { background: transparent; border: 0; border-radius: 5px; color: #666; cursor: pointer; font-size: 10px; padding: 5px 7px; }
+.segmentedControl button.isActive { background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.08); color: #111; }
+.saveActions { align-items: center; display: flex; gap: 5px; justify-content: flex-end; }
+.primarySave, .secondarySave, .mediaDownload { align-self: center; border: 0; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 650; padding: 7px 10px; transition: background-color 140ms ease, transform 140ms cubic-bezier(.23,1,.32,1); white-space: nowrap; }
+.primarySave, .mediaDownload { background: #262626; color: #fff; }
+.secondarySave { background: #f3f4f6; color: #333; }
+.captureCheck { align-items: center; color: #666; display: flex; font-size: 11px; gap: 6px; margin: 10px 2px; }
+.taskFeedback { background: #fafafa; border: 1px solid #e5e7eb; border-radius: 10px; margin-top: 10px; padding: 10px; }
+.taskMeta { display: flex; font-size: 11px; justify-content: space-between; }
+.taskFeedback progress { accent-color: #e35503; height: 7px; margin-top: 7px; width: 100%; }
+.taskFeedback p { color: #666; font-size: 11px; margin: 5px 0 0; }
+.popupMediaList { align-content: start; box-sizing: border-box; display: grid; flex: 1 1 100%; gap: 10px; max-height: 480px; min-width: 0; overflow-x: hidden; overflow-y: auto; padding: 1px; width: 100%; }
+.popupMediaList[hidden] { display: none; }
+.mediaEmptyState { align-items: center; background: linear-gradient(145deg, #fafafa 0%, #fff 52%, #fff8f3 100%); border: 1px solid #ececec; border-radius: 14px; box-sizing: border-box; display: flex; flex: 1; flex-direction: column; justify-content: center; min-height: 360px; overflow: hidden; padding: 34px 48px 40px; position: relative; text-align: center; }
+.mediaEmptyState[hidden] { display: none; }
+.mediaEmptyState::before, .mediaEmptyState::after { border: 1px solid rgba(227,85,3,.09); border-radius: 50%; content: ""; height: 190px; position: absolute; width: 190px; }
+.mediaEmptyState::before { left: -112px; top: -94px; }
+.mediaEmptyState::after { bottom: -130px; right: -88px; }
+.mediaEmptyArtwork { height: 142px; margin-bottom: 22px; position: relative; width: 210px; }
+.mediaArtworkWindow { background: rgba(255,255,255,.9); border: 1px solid #dedede; border-radius: 14px; box-shadow: 0 16px 34px rgba(30,30,30,.1), inset 0 1px 0 #fff; left: 27px; padding: 9px; position: absolute; top: 8px; width: 138px; }
+.mediaArtworkBar { display: flex; gap: 4px; height: 10px; }
+.mediaArtworkBar i { background: #d4d4d4; border-radius: 50%; height: 4px; width: 4px; }
+.mediaArtworkScreen { align-items: center; background: linear-gradient(145deg, #222, #3b3b3b); border-radius: 8px; display: flex; height: 76px; justify-content: center; }
+.mediaArtworkScreen svg { fill: #fff; height: 34px; width: 34px; }
+.mediaArtworkTrack { background: #ededed; border-radius: 999px; height: 4px; margin: 10px 3px 2px; overflow: hidden; }
+.mediaArtworkTrack span { background: #e35503; border-radius: inherit; display: block; height: 100%; width: 38%; }
+.mediaFormatChip { align-items: center; backdrop-filter: blur(8px); background: rgba(255,255,255,.88); border: 1px solid #dedede; border-radius: 999px; box-shadow: 0 7px 18px rgba(0,0,0,.08); color: #333; display: flex; font-size: 10px; font-weight: 750; height: 28px; justify-content: center; letter-spacing: .02em; padding: 0 10px; position: absolute; z-index: 1; }
+.mediaFormatChipVideo { left: 0; top: 34px; }
+.mediaFormatChipAudio { bottom: 17px; right: 0; }
+.mediaEmptyState strong { color: #202020; font-size: 15px; line-height: 1.4; position: relative; }
+.mediaEmptyState p { color: #737373; font-size: 11px; line-height: 1.65; margin: 7px auto 0; max-width: 260px; position: relative; }
+.popupMediaItem { align-items: stretch; background: rgba(255,255,255,.94); border: 1px solid #e3e5e8; border-radius: 13px; box-shadow: 0 3px 12px rgba(25,25,25,.04); display: grid; gap: 10px; grid-template-columns: minmax(142px, 1fr) minmax(0, 2fr); overflow: hidden; padding: 11px; }
+.mediaPlayer { align-self: start; aspect-ratio: 16 / 9; background: #141414; border-radius: 9px; min-height: 0; overflow: hidden; position: relative; width: 100%; }
+.mediaPlayer video, .mediaPlayer iframe { background: #141414; border: 0; display: block; height: 100%; object-fit: contain; width: 100%; }
+.mediaPlayerPoster { display: block; height: 100%; object-fit: cover; opacity: .82; width: 100%; }
+.mediaPlayer.isAudio { align-items: center; aspect-ratio: auto; background: linear-gradient(135deg, #f5f5f5, #eceff2); display: flex; height: 64px; padding: 0 8px; }
+.mediaPlayer.isAudio audio { height: 38px; width: 100%; }
+.mediaPreviewPlay { align-items: center; backdrop-filter: blur(12px); background: rgba(255,255,255,.92); border: 1px solid rgba(255,255,255,.76); border-radius: 50%; box-shadow: 0 6px 18px rgba(0,0,0,.22); color: #181818; cursor: pointer; display: flex; height: 34px; justify-content: center; left: 50%; padding: 0; position: absolute; top: 50%; transform: translate(-50%, -50%); transition: background-color 140ms ease, transform 140ms cubic-bezier(.23,1,.32,1); width: 34px; }
+.mediaPreviewPlay svg { fill: currentColor; height: 19px; width: 19px; }
+.mediaPreviewPlay:active { transform: translate(-50%, -50%) scale(.96); }
+.mediaPreviewPlay:disabled { cursor: wait; opacity: .62; }
+.mediaPlayer[data-error]::after { background: rgba(20,20,20,.82); bottom: 8px; color: #fff; content: attr(data-error); font-size: 10px; left: 8px; line-height: 1.4; padding: 5px 8px; position: absolute; right: 8px; text-align: center; }
+.mediaDetails { align-content: space-between; display: grid; gap: 8px; min-width: 0; }
+.mediaCopy { min-width: 0; }
+.mediaCopy strong, .mediaCopy small { display: -webkit-box; overflow: hidden; text-overflow: ellipsis; -webkit-box-orient: vertical; }
+.mediaCopy strong { -webkit-line-clamp: 2; color: #222; font-size: 12px; line-height: 1.35; }
+.mediaCopy small { -webkit-line-clamp: 2; color: #777; font-size: 10px; line-height: 1.45; margin-top: 4px; overflow-wrap: anywhere; }
+.mediaMetadata { align-items: center; display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.mediaMetadata span { background: #f1f2f4; border-radius: 999px; color: #565a60; font-size: 9px; font-variant-numeric: tabular-nums; line-height: 20px; padding: 0 7px; white-space: nowrap; }
+.mediaActions { align-items: center; display: flex; flex-wrap: wrap; gap: 7px; justify-content: flex-start; }
+.mediaSource { background: #fff; border: 1px solid #d9dce0; border-radius: 9px; color: #303236; cursor: pointer; font-size: 11px; font-weight: 650; min-height: 32px; padding: 0 13px; transition: background-color 140ms ease, border-color 140ms ease, transform 140ms cubic-bezier(.23,1,.32,1); }
+.mediaDownload { min-height: 32px; width: auto; }
+.mediaSource:active { transform: scale(.97); }
+.mediaSource:disabled { cursor: wait; opacity: .62; }
+.mediaSourcePanel { background: #f7f8f9; border: 1px solid #e2e4e7; border-radius: 10px; grid-column: 1 / -1; max-height: 190px; overflow: auto; padding: 8px; }
+.mediaSourceToolbar { align-items: center; display: flex; justify-content: space-between; margin-bottom: 6px; }
+.mediaSourceToolbar strong { color: #44484e; font-size: 10px; }
+.mediaSourceToolbar button { background: #fff; border: 1px solid #d9dce0; border-radius: 7px; color: #333; cursor: pointer; font-size: 9px; padding: 4px 7px; }
+.mediaSourcePanel ol { display: grid; gap: 4px; list-style: none; margin: 0; padding: 0; }
+.mediaSourcePanel li { align-items: center; display: grid; gap: 7px; grid-template-columns: 54px minmax(0,1fr); }
+.mediaSourcePanel li span { color: #70747a; font-size: 9px; text-transform: uppercase; }
+.mediaSourcePanel li a { color: #333; direction: ltr; font-size: 9px; overflow: hidden; text-decoration: none; text-overflow: ellipsis; white-space: nowrap; }
+.mediaSourcePanel li a:hover { text-decoration: underline; }
+.mediaTask { grid-column: 1 / -1; }
+.mediaTask progress { accent-color: #e35503; height: 6px; width: 100%; }
+.mediaTask small { color: #a12618; display: block; line-height: 1.45; overflow-wrap: anywhere; }
+.mediaDebugDownload { background: #fff; border: 1px solid #d7d7d7; border-radius: 7px; color: #333; cursor: pointer; font-size: 10px; margin-top: 6px; padding: 5px 8px; transition: background-color 140ms ease, transform 140ms cubic-bezier(.23, 1, .32, 1); }
+.mediaDebugDownload:hover { background: #f3f3f3; }
+.mediaDebugDownload:active { transform: scale(.97); }
+
+@media (hover: hover) and (pointer: fine) {
+  .mediaPreviewPlay:hover { background: #fff; transform: translate(-50%, -50%) scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mediaPreviewPlay { transition: background-color 140ms ease; }
+}
+
+.topIconButton {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  color: #1f1f1f;
+  cursor: pointer;
+  display: inline-flex;
+  height: 22px;
+  justify-content: center;
+  padding: 2px;
+  transition: background-color 140ms ease, transform 140ms cubic-bezier(.23, 1, .32, 1);
+  width: 22px;
+}
+.topIconButton svg { fill: none; height: 18px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; width: 18px; }
+.topIconButton[aria-pressed="true"] { background: rgba(255, 138, 0, .14); color: #1f1f1f; }
+.topIconButton:disabled { cursor: default; opacity: .35; }
+.topIconButton:active:not(:disabled) { transform: scale(.96); }
+.topIconButton:focus-visible { outline: 3px solid rgba(255, 138, 0, .3); outline-offset: 1px; }
+
 .buttonImg {
   height: 18px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: transform 140ms cubic-bezier(.23, 1, .32, 1), opacity 140ms ease;
 }
 
-.buttonImg:hover {
-  transform: scale(1.1);
-}
+.buttonImg:active { transform: scale(.96); }
 
 .buttonImg::after {
   font-size: 12px;
@@ -51,17 +173,22 @@
   transition: all 0.2s ease-in-out;
 }
 
-.buttonImg:hover::after {
-  opacity: 1;
+@media (hover: hover) and (pointer: fine) {
+  .buttonImg:hover { transform: scale(1.08); }
+  .topIconButton:hover:not(:disabled) { background: rgba(255, 138, 0, .09); transform: scale(1.06); }
+  .primarySave:hover, .mediaDownload:hover { background: #000; }
+  .secondarySave:hover { background: #e5e7eb; }
 }
 
 .outputAllRecords,
 .outputReadLaters,
 .outputNotes {
-  width: 400px;
-  padding: 10px 10px;
-  border: 1px solid #d9d9d9;
-  border-radius: 4px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fff;
 }
 
 .outputReadLaters {
@@ -74,12 +201,12 @@ ol {
 }
 
 ol > li {
-  color: #b04202;
-  background-color: #fcf7f4;
-  padding: 5px;
-  margin-top: 1px;
-  border-radius: 5px;
-  border: 1px #fbe0ce solid;
+  color: #262626;
+  background-color: #f8f8f8;
+  padding: 8px 10px;
+  margin-top: 6px;
+  border-radius: 9px;
+  border: 1px solid #ececec;
   text-align: left;
   vertical-align: middle;
   line-height: 18px;
@@ -115,21 +242,21 @@ ol > li {
 }
 
 .outputReadLaters > ol > li > label > a:link {
-  color: #b04202;
+  color: #262626;
   text-decoration: none;
 }
 
 .outputReadLaters > ol > li > label > a:active {
-  color: #8b3604;
+  color: #111;
 }
 
 .outputReadLaters > ol > li > label > a:visited {
-  color: purple;
+  color: #555;
   text-decoration: none;
 }
 
 .outputReadLaters > ol > li > label > a:hover {
-  color: #e35503;
+  color: #111;
   text-decoration: underline;
 }
 
@@ -138,7 +265,7 @@ ol > li {
 .titleNotes {
   font-size: 16px;
   font-weight: bold;
-  color: #e35503;
+  color: #222;
   white-space:nowrap; 
   overflow:hidden;
   text-overflow: ellipsis;
@@ -158,7 +285,7 @@ ol > li {
 
 .progress {
   padding-left: 3px;
-  color:rgb(203, 146, 95);
+  color: #777;
 }
 
 .url {}
@@ -171,27 +298,76 @@ ol > li {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px;
-  border-radius: 4px;
-  background-color: #e35503;
-  color: #fff;
-  font-size: 10px;
-  font-weight: bold;
+  gap: 6px;
+  height: 28px;
+  padding: 5px 10px;
+  border: 1px solid #dedede;
+  border-radius: 999px;
+  background: rgba(255,255,255,.78);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 3px 10px rgba(0,0,0,.08);
+  color: #222;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
   cursor: pointer;
+  -webkit-backdrop-filter: blur(10px) saturate(135%);
+  backdrop-filter: blur(10px) saturate(135%);
+  transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.buttonWithIcon:hover {
-  background-color: #d44c00;
+.buttonWithIcon:active {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), 0 1px 3px rgba(157, 55, 0, 0.14);
+  transform: scale(0.97);
+}
+
+.buttonWithIcon:focus-visible {
+  outline: 3px solid rgba(255, 138, 0, 0.3);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .buttonWithIcon:hover {
+    background: #f6f6f6;
+    border-color: #cfcfcf;
+    box-shadow: inset 0 1px 0 #fff, 0 4px 12px rgba(0,0,0,.1);
+  }
 }
 
 .buttonWithIcon > img {
-  margin-right: 8px;
-  height: 16px;
+  display: block;
+  height: 14px;
+  width: 14px;
 }
 
 .buttonWithIcon > span {
-  height: 16px;
-  line-height: 16px;
+  display: inline-flex;
+  align-items: center;
+  height: 14px;
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .buttonImg,
+  .topIconButton {
+    transition: opacity 140ms ease, background-color 140ms ease;
+  }
+
+  .buttonImg:hover,
+  .buttonImg:active,
+  .topIconButton:hover,
+  .topIconButton:active {
+    transform: none;
+  }
+
+  .buttonWithIcon {
+    transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+  }
+
+  .buttonWithIcon:active {
+    transform: none;
+  }
+  .popupTab, .primarySave, .secondarySave, .mediaDownload { transition: background-color 140ms ease, border-color 140ms ease; }
+  .popupTab:active, .primarySave:active, .secondarySave:active, .mediaDownload:active { transform: none; }
 }
 
 @supports (-webkit-appearance: none) or (-moz-appearance: none) {

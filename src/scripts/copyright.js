@@ -29,21 +29,21 @@ function addCopyrightInfo() {
         linkElement2.title = manifest["author"]["email"];
         linkElement2.textContent = 'Email';
 
-        // Twitter Link
+        // X Link
         let imgElement3 = document.createElement('img');
-        imgElement3.src = '../assets/twitter-64.png';
-        imgElement3.alt = 'Twitter:';
+        imgElement3.src = '../assets/x-logo.svg';
+        imgElement3.alt = 'X:';
         imgElement3.classList.add("copyrightImg");
 
         const text = "#EasyRead @GongCen 👍👍👍";
         const encodedText = encodeURIComponent(text);
-        const twitterUrl = "https://twitter.com/intent/tweet?text=" + encodedText + "&src=share_button";
+        const twitterUrl = "https://x.com/intent/post?text=" + encodedText;
         
         let linkElement3 = document.createElement('a');
         linkElement3.href = twitterUrl;
-        linkElement3.title = "Twitter";
+        linkElement3.title = "X";
         linkElement3.target = '_blank';
-        linkElement3.textContent = 'Twitter';
+        linkElement3.textContent = 'X';
 
         // Version
         let spanElement1 = document.createElement('span');

@@ -1,20 +1,55 @@
-export const ALL_RECORDS_NAME = "allRecords";
-export const READ_LATERS_NAME = "readLaters";
-export const READ_STATUS_UNREAD = 0;
-export const READ_STATUS_READING = 1;
-export const READ_STATUS_READED = 2;
-export const NOTES_NAME = "notes";
+import {
+  ALL_RECORDS_NAME,
+  ANNOTATIONS_NAME,
+  ANNOTATION_AUTHOR_NAME,
+  ARTIFACTS_NAME,
+  HIGHLIGHTS_ENABLED_NAME,
+  KEYCHAIN_SEPARATOR,
+  NOTES_NAME,
+  READ_LATERS_NAME,
+  READ_STATUS_READED,
+  READ_STATUS_READING,
+  READ_STATUS_UNREAD,
+  UPDATE_STATUS_NO,
+  UPDATE_STATUS_YES,
+  createReadLaterUpdate,
+  normalizePageUrl
+} from "./easyReadData.mjs";
 
-// storage.
-export const UPDATE_STATUS_YES = 0;
-export const UPDATE_STATUS_NO = 1;
-export const KEYCHAIN_SEPARATOR = "__EasyReadSeparator__";
+export {
+  ALL_RECORDS_NAME,
+  ANNOTATIONS_NAME,
+  ANNOTATION_AUTHOR_NAME,
+  ARTIFACTS_NAME,
+  HIGHLIGHTS_ENABLED_NAME,
+  KEYCHAIN_SEPARATOR,
+  NOTES_NAME,
+  READ_LATERS_NAME,
+  READ_STATUS_READED,
+  READ_STATUS_READING,
+  READ_STATUS_UNREAD,
+  UPDATE_STATUS_NO,
+  UPDATE_STATUS_YES
+};
 
 export function getKey(url) {
-  if (!url || typeof url !== 'string')
-    return '';
-  else
-    return url.split('#')[0].toLowerCase().trim();
+  return normalizePageUrl(url);
+}
+
+export function updateStorageCallbackReadLaterAdd(queryValue, context) {
+  const result = createReadLaterUpdate(queryValue, {
+    storageKey: READ_LATERS_NAME,
+    tab: context.tab,
+    now: context.now ?? Date.now,
+    callbackOnUpdated: context.callbackOnUpdated,
+    messages: {
+      first: getMessageForLocales("popup_page_message_readlaters_firsttime"),
+      duplicate: getMessageForLocales("popup_page_message_duplicate_readlaters"),
+      added: getMessageForLocales("popup_page_message_readlaters_added")
+    }
+  });
+  context.onMessage?.(result.message);
+  return result;
 }
 
 export function hasAnchor(url) {
@@ -209,7 +244,7 @@ export async function updateStorageJsonData(keyChain, callback, context) {
         // console.log(getValue(keyArray));
         updateBlock = callback(getValue(keyArray), context);
       };
-      if (updateBlock && updateBlock.status == UPDATE_STATUS_YES) {
+      if (updateBlock && updateBlock.status === UPDATE_STATUS_YES) {
         setValue(keyArray, updateBlock.value);
         _storage.set(obj, () => {
           // console.log("['" + key0 + "']:Updated:");
@@ -219,11 +254,6 @@ export async function updateStorageJsonData(keyChain, callback, context) {
           }
         });
       } else {
-        let msg = "";
-        if (updateBlock && updateBlock["message"]) {
-          msg = updateBlock["message"];
-        }
-        // console.log("Nothing updated. Message: " + msg);
         if (updateBlock && updateBlock.callback_onUpdated) {
           updateBlock.callback_onUpdated(false, null, context);
         }
@@ -237,7 +267,7 @@ export function removeStorageJsonData(keyChain, callback) {
   const keyArray = keyChainSplit(keyChain);
   if (keyArray) {
     const key0 = keyArray[0];
-    if (keyArray.length == 1) {
+    if (keyArray.length === 1) {
       _storage.remove(key0, () => {
         if (callback) { callback(); }
         console.log("Removed: key:" + key0 + " removed from the storage.");
@@ -292,7 +322,7 @@ export async function getStorageJsonData(keyChain, callback, context) {
     if (keyArray) {
       const key0 = keyArray[0];
       await _storage.get([key0], (result) => {
-        if (keyArray.length == 1) {
+        if (keyArray.length === 1) {
           if (callback) { callback(result, context); }
         } else {
           function getValue(keys) {
@@ -330,10 +360,14 @@ export async function mergeStorageJsonData(data, callback) {
     var counterReadLatersMergeItems = 0;
     var counterNotesDuplicateItems = 0;
     var counterNotesMergeItems = 0;
+    var counterAnnotationsMergeItems = 0;
+    var counterArtifactsMergeItems = 0;
 
     var newAllRecords = data[ALL_RECORDS_NAME];
     var newReadLaters = data[READ_LATERS_NAME];
     var newNotes = data[NOTES_NAME];
+    var newAnnotations = data[ANNOTATIONS_NAME];
+    var newArtifacts = data[ARTIFACTS_NAME];
     _storage.get(null).then((result) => {
       // merge all records.
       if (newAllRecords) {
@@ -424,6 +458,57 @@ export async function mergeStorageJsonData(data, callback) {
         }
       }
 
+      if (newAnnotations) {
+        if (!result[ANNOTATIONS_NAME] || Array.isArray(result[ANNOTATIONS_NAME])) {
+          result[ANNOTATIONS_NAME] = {};
+        }
+        for (const rawKey in newAnnotations) {
+          const key = getKey(rawKey);
+          const incomingPage = newAnnotations[rawKey];
+          const existingPage = result[ANNOTATIONS_NAME][key];
+          if (!existingPage) {
+            result[ANNOTATIONS_NAME][key] = incomingPage;
+            counterAnnotationsMergeItems += incomingPage.annotations?.length ?? 0;
+            continue;
+          }
+          existingPage.annotations = existingPage.annotations ?? [];
+          const existingIds = new Set((existingPage.annotations ?? []).map((annotation) => String(annotation.id)));
+          for (const annotation of incomingPage.annotations ?? []) {
+            if (!existingIds.has(String(annotation.id))) {
+              existingPage.annotations.push(annotation);
+              existingIds.add(String(annotation.id));
+              counterAnnotationsMergeItems += 1;
+            }
+          }
+          existingPage.annotations.sort((left, right) => left.createDateTime - right.createDateTime);
+        }
+      }
+      if (!result[ANNOTATION_AUTHOR_NAME] && data[ANNOTATION_AUTHOR_NAME]) {
+        result[ANNOTATION_AUTHOR_NAME] = data[ANNOTATION_AUTHOR_NAME];
+      }
+      if (newArtifacts) {
+        result[ARTIFACTS_NAME] = result[ARTIFACTS_NAME] ?? {};
+        for (const rawKey in newArtifacts) {
+          const key = getKey(rawKey);
+          const incomingPage = newArtifacts[rawKey];
+          const existingPage = result[ARTIFACTS_NAME][key] ?? {
+            title: incomingPage.title,
+            url: incomingPage.url,
+            artifacts: []
+          };
+          const existingIds = new Set((existingPage.artifacts ?? []).map((artifact) => String(artifact.id)));
+          for (const artifact of incomingPage.artifacts ?? []) {
+            if (!existingIds.has(String(artifact.id))) {
+              existingPage.artifacts.push(artifact);
+              existingIds.add(String(artifact.id));
+              counterArtifactsMergeItems += 1;
+            }
+          }
+          existingPage.artifacts.sort((left, right) => left.createdAt - right.createdAt);
+          result[ARTIFACTS_NAME][key] = existingPage;
+        }
+      }
+
       _storage.set(result).then(() => {
         if(callback) {
           callback({
@@ -434,12 +519,14 @@ export async function mergeStorageJsonData(data, callback) {
             "counterReadLatersMergeItems": counterReadLatersMergeItems,
             "counterNotesDuplicateItems": counterNotesDuplicateItems,
             "counterNotesMergeItems": counterNotesMergeItems,
+            "counterAnnotationsMergeItems": counterAnnotationsMergeItems,
+            "counterArtifactsMergeItems": counterArtifactsMergeItems,
             "takeMilliseconds": (new Date() - startDateTime)
           });
         }
       });
     });
-  } catch(e) {
+  } catch(e) { globalThis.EasyReadDiagnostics?.record(e, { source: "src/scripts/easyReadTools.js" }, false);
     if(callback) {
       callback({
         "status": false,
@@ -471,7 +558,7 @@ export async function replaceStorageJsonData(data, callback) {
         }
       });
     });
-  } catch(e) {
+  } catch(e) { globalThis.EasyReadDiagnostics?.record(e, { source: "src/scripts/easyReadTools.js" }, false);
     if(callback) {
       callback({
         "status": false,
@@ -495,7 +582,7 @@ export async function updateBudgeText() {
     const list = queryValue[key];
     if (list) {
       for (let i = 0; i < list.length; ++i) {
-        if (!list[i].status || list[i].status == READ_STATUS_UNREAD) {
+        if (!list[i].status || list[i].status === READ_STATUS_UNREAD) {
           ++unreadCount;
         }
       }

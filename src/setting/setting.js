@@ -1,4 +1,36 @@
+import '../scripts/diagnostics.js';
 import * as easyReadTools from '../scripts/easyReadTools.js';
+
+document.querySelectorAll(".settingsTab").forEach((tab) => tab.addEventListener("click", () => {
+  document.querySelectorAll(".settingsTab").forEach((item) => item.classList.toggle("isActive", item === tab));
+  document.querySelectorAll(".settingsPanel").forEach((panel) => {
+    const active = panel.id === tab.dataset.panel;
+    panel.hidden = !active;
+    panel.classList.toggle("isActive", active);
+  });
+}));
+
+const highlightsToggle = document.getElementById("settingHighlightsEnabled");
+chrome.storage.local.get([easyReadTools.HIGHLIGHTS_ENABLED_NAME]).then((stored) => {
+  highlightsToggle.checked = stored[easyReadTools.HIGHLIGHTS_ENABLED_NAME] !== false;
+});
+highlightsToggle.addEventListener("change", async () => {
+  await chrome.storage.local.set({ [easyReadTools.HIGHLIGHTS_ENABLED_NAME]: highlightsToggle.checked });
+  document.getElementById("output").textContent = easyReadTools.getMessageForLocales(
+    highlightsToggle.checked ? "popup_page_highlights_enabled" : "popup_page_highlights_disabled"
+  );
+});
+
+const annotationAuthorInput = document.getElementById("annotationAuthor");
+chrome.storage.local.get([easyReadTools.ANNOTATION_AUTHOR_NAME]).then((stored) => {
+  annotationAuthorInput.value = stored[easyReadTools.ANNOTATION_AUTHOR_NAME] ?? "";
+});
+document.getElementById("btnSaveAnnotationAuthor").addEventListener("click", async () => {
+  await chrome.storage.local.set({
+    [easyReadTools.ANNOTATION_AUTHOR_NAME]: annotationAuthorInput.value.trim()
+  });
+  document.getElementById("output").textContent = easyReadTools.getMessageForLocales("setting_page_annotationAuthorSaved");
+});
 
 const btnDownloadAllRecordsAsJson = document.getElementById("btnDownloadAllRecordsAsJson");
 btnDownloadAllRecordsAsJson.addEventListener('click', async () => {
@@ -107,6 +139,7 @@ btnMergeStorageJson.addEventListener('click', async () => {
           + "counterReadLatersMergeItems=" + e["counterReadLatersMergeItems"] + "<br />"
           + "counterNotesDuplicateItems=" + e["counterNotesDuplicateItems"] + "<br />"
           + "counterNotesMergeItems=" + e["counterNotesMergeItems"] + "<br />"
+          + "counterAnnotationsMergeItems=" + e["counterAnnotationsMergeItems"] + "<br />"
           + "takeMilliseconds=" + e["takeMilliseconds"] + "<br />";
           document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("setting_page_storageMergedSuccessfully")
             + "<br />" + result;
@@ -117,9 +150,9 @@ btnMergeStorageJson.addEventListener('click', async () => {
           console.log("easyReadTools.mergeStorageJsonData - error:", e);
         }
       });
-    } catch(err) {
+    } catch(err) { globalThis.EasyReadDiagnostics?.record(err, { source: "src/setting/setting.js" }, false);
       document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("setting_page_storageMergedFailed") + err.toString();
-      console.error("parse " + file.name + " failed: " + err);
+      console.error("parse " + file.name + " failed:", err);
     }
   };
   if(file) {
@@ -153,9 +186,9 @@ btnReplaceStorageJson.addEventListener('click', async () => {
           console.log("easyReadTools.relaceStorageJsonData - error:", e);
         }
       });
-    } catch(err) {
+    } catch(err) { globalThis.EasyReadDiagnostics?.record(err, { source: "src/setting/setting.js" }, false);
       document.getElementById("output").innerHTML = easyReadTools.getMessageForLocales("setting_page_storageReplacedFailed") + err.toString();
-      console.error("parse " + file.name + " failed: " + err);
+      console.error("parse " + file.name + " failed:", err);
     }
   };
   if(file) {
@@ -177,6 +210,15 @@ btnDropStorage.addEventListener('click', async () => {
 window.addEventListener('load', function() {
   document.getElementById("setting_page_title").textContent = easyReadTools.getMessageForLocales("setting_page_title");
   document.getElementById("setting_page_notice").textContent = easyReadTools.getMessageForLocales("setting_page_notice");
+  document.getElementById("setting_tab_general").textContent = easyReadTools.getMessageForLocales("setting_tab_general");
+  document.getElementById("setting_tab_data").textContent = easyReadTools.getMessageForLocales("setting_tab_data");
+  document.getElementById("setting_tab_backup").textContent = easyReadTools.getMessageForLocales("setting_tab_backup");
+  document.getElementById("settingHighlightsTitle").textContent = easyReadTools.getMessageForLocales("popup_page_show_highlights");
+  document.getElementById("settingHighlightsDescription").textContent = easyReadTools.getMessageForLocales("setting_page_highlights_description");
+
+  document.getElementById("setting_page_notice_annotationAuthor").textContent = easyReadTools.getMessageForLocales("setting_page_notice_annotationAuthor");
+  document.getElementById("annotationAuthorLabel").textContent = easyReadTools.getMessageForLocales("setting_page_annotationAuthorLabel");
+  document.getElementById("btnSaveAnnotationAuthor").textContent = easyReadTools.getMessageForLocales("setting_page_btnSaveAnnotationAuthor");
 
   document.getElementById("setting_page_notice_allRecords").textContent = easyReadTools.getMessageForLocales("setting_page_notice_allRecords");
   document.getElementById("btnDownloadAllRecordsAsJson").textContent = easyReadTools.getMessageForLocales("setting_page_btnDownloadAllRecordsAsJson");

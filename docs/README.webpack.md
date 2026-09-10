@@ -1,3 +1,5 @@
+> Archived documentation: the active build uses `npm run build`.
+
 npm init
 npm install
 npm install webpack webpack-cli --save-dev

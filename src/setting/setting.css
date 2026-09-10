@@ -1,15 +1,44 @@
-.settingBlock {
-    padding: 10px;
-    border: 1px solid #e35503;
-    border-radius: 8px;
-    background-color: #fbe0ce;
-    margin-bottom: 20px;
-}
+* { box-sizing: border-box; }
+body { background: #f5f6f8; color: #202124; margin: 0; }
+.settingsShell { margin: 0 auto; max-width: 920px; padding: 38px 24px 56px; }
+.settingsHeader h1 { font-size: 30px; margin: 0 0 7px; }
+.settingsHeader p { color: #6b7280; margin: 0; }
+.settingsTabs { background: #e9ebee; border-radius: 12px; display: grid; gap: 4px; grid-template-columns: repeat(3, 1fr); margin: 26px 0 20px; padding: 4px; }
+.settingsTab { background: transparent; border: 0; border-radius: 9px; color: #62666d; cursor: pointer; font-size: 14px; font-weight: 650; padding: 10px; }
+.settingsTab.isActive { background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,.08); color: #171717; }
+.settingsPanel h2 { font-size: 16px; margin: 22px 0 9px; }
+.settingBlock { background: #fff; border: 1px solid #e2e4e7; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,.035); margin-bottom: 18px; padding: 18px; }
+.settingToggleBlock { align-items: center; display: flex; justify-content: space-between; }
+.settingToggleBlock strong { display: block; font-size: 15px; }
+.settingToggleBlock p { color: #73777f; font-size: 13px; margin: 5px 24px 0 0; }
+.modernSwitch { cursor: pointer; flex: 0 0 auto; }
+.modernSwitch input { height: 1px; opacity: 0; position: absolute; width: 1px; }
+.modernSwitch span { background: #d6d8dc; border-radius: 999px; display: block; height: 28px; padding: 3px; transition: background-color 160ms ease; width: 48px; }
+.modernSwitch span::after { background: #fff; border-radius: 50%; box-shadow: 0 2px 7px rgba(0,0,0,.22); content: ""; display: block; height: 22px; transition: transform 180ms cubic-bezier(.23,1,.32,1); width: 22px; }
+.modernSwitch input:checked + span { background: #272727; }
+.modernSwitch input:checked + span::after { transform: translateX(20px); }
+.modernSwitch input:focus-visible + span { outline: 3px solid rgba(227,85,3,.25); outline-offset: 2px; }
+.settingBlock button { background: #262626; border: 0; border-radius: 9px; color: #fff; cursor: pointer; font-weight: 650; padding: 9px 13px; }
 .output {
-    color:red;
+    background: #fff; border-radius: 10px; color: #333; margin-top: 16px; min-height: 20px; padding: 10px 12px;
+}
+.inlineSetting {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+.inlineSetting input {
+    border: 1px solid #d7d9dd;
+    border-radius: 8px;
+    box-sizing: border-box;
+    max-width: 420px;
+    padding: 8px 10px;
+    width: 100%;
 }
 .btnWarning {
-    background-color: red;
+    background: #fff1f1 !important;
+    color: #a51d1d !important;
 }
 .txtMarkdownTemplate {
     width: 100%;
@@ -20,3 +49,6 @@
     width: 100%;
     height: 70px;
 }
+textarea { background: #fafafa; border: 1px solid #d7d9dd; border-radius: 9px; font: 13px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; margin: 8px 0; padding: 10px; resize: vertical; }
+input[type=file], input[type=text] { background: #fff; }
+@media (max-width: 620px) { .settingsShell { padding: 24px 14px; } .inlineSetting { align-items: stretch; flex-direction: column; } }

@@ -1,0 +1,29 @@
+::highlight(easyread-notes) {
+  background-color: #ff8a00;
+  color: #1f1f1f;
+}
+
+::highlight(easyread-annotations) {
+  background-color: #ffd29c;
+  color: #1f1f1f;
+  text-decoration: underline solid #e35503 2px;
+}
+
+.easyread-annotation-marker[data-easyread-ui] {
+  align-items: center;
+  background: #e35503;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  box-shadow: 0 2px 7px rgba(80, 35, 8, .25);
+  box-sizing: border-box;
+  color: #fff;
+  display: inline-flex;
+  font: 700 10px/1 system-ui, sans-serif;
+  height: 18px;
+  justify-content: center;
+  min-width: 18px;
+  padding: 0 4px;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2147483644;
+}

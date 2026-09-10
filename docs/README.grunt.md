@@ -1,4 +1,6 @@
-# Use grunt to pack the source code to zip
+# Legacy Grunt packaging notes
+
+> Archived documentation: the active build uses `npm run build`. Grunt and in-repository CRX signing were removed from the maintained toolchain.
 
 ## Install and config Grunt
 
