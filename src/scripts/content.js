@@ -1,20 +1,24 @@
-const EASYREAD_HIGHLIGHT_NAME = "easyread-notes";
+(async () => {
+await globalThis.EasyReadLocale?.ready;
+if (globalThis.__easyreadContentReady) return;
+
 const EASYREAD_ANNOTATION_HIGHLIGHT_NAME = "easyread-annotations";
 const EASYREAD_HIGHLIGHT_SETTING = "highlightsEnabled";
 const EASYREAD_NOTES_KEY = "notes";
-const EASYREAD_ANNOTATIONS_KEY = "annotations";
-const EASYREAD_ANNOTATION_AUTHOR_KEY = "annotationAuthor";
+
 const EASYREAD_ANNOTATION_WIDTH_KEY = "annotationSidebarWidth";
 const EASYREAD_CONTEXT_LENGTH = 32;
-const EASYREAD_DYNAMIC_OBSERVER_LIFETIME = 15000;
+
 const EASYREAD_VIDEO_REPORT_INTERVAL = 5000;
 
 let userHasScrolled = false;
 let scrollTimer;
 let highlightTimer;
 let highlightObserver;
-let highlightTargets = [];
+
 let annotationTargets = [];
+let notesRenderRevision = 0;
+let notesHighlightRevision = 0;
 let captureScrollInProgress = false;
 const videoReportTimes = new WeakMap();
 let extensionContextStopped = false;
@@ -31,7 +35,7 @@ function stopInvalidatedExtensionContext() {
     clearTimeout(highlightTimer);
     highlightObserver?.disconnect();
     highlightObserver = null;
-    clearHighlights();
+
     clearAnnotationHighlights();
 }
 
@@ -59,8 +63,8 @@ function decodeStoredText(value) {
     if (!value) return "";
     try {
         return decodeURIComponent(value);
-    } catch (error) {
-        console.log("EasyRead could not decode a stored note.", error);
+    } catch {
+        // Legacy notes can contain plain percent signs; this is a supported fallback.
         return value;
     }
 }
@@ -105,7 +109,9 @@ function selectOccurrences(text, note) {
     const occurrences = findOccurrences(text, exact);
     const prefix = decodeStoredText(note.prefix);
     const suffix = decodeStoredText(note.suffix);
-    if (!prefix && !suffix) return occurrences;
+    const closest = matches => Number.isFinite(note.textPosition) && matches.length > 1
+        ? [...matches].sort((a, b) => Math.abs(a.start - note.textPosition) - Math.abs(b.start - note.textPosition)).slice(0, 1) : matches;
+    if (!prefix && !suffix) return closest(occurrences);
 
     const contextualMatches = occurrences.filter((occurrence) => {
         const prefixMatches = !prefix || text.slice(Math.max(0, occurrence.start - prefix.length), occurrence.start) === prefix;
@@ -113,7 +119,7 @@ function selectOccurrences(text, note) {
         return prefixMatches && suffixMatches;
     });
 
-    if (contextualMatches.length > 0) return contextualMatches;
+    if (contextualMatches.length > 0) return closest(contextualMatches);
     return occurrences.length === 1 ? occurrences : [];
 }
 
@@ -138,12 +144,6 @@ function createRange(nodes, occurrence) {
     return range;
 }
 
-function clearHighlights() {
-    if (typeof CSS !== "undefined" && CSS.highlights) {
-        CSS.highlights.delete(EASYREAD_HIGHLIGHT_NAME);
-    }
-}
-
 function clearAnnotationHighlights() {
     if (typeof CSS !== "undefined" && CSS.highlights) {
         CSS.highlights.delete(EASYREAD_ANNOTATION_HIGHLIGHT_NAME);
@@ -153,9 +153,13 @@ function clearAnnotationHighlights() {
 }
 
 async function refreshAnnotationHighlights() {
+    const revision = ++notesHighlightRevision;
     clearAnnotationHighlights();
     if (!extensionContextAvailable() || !document.body || typeof CSS === "undefined" || !CSS.highlights || typeof Highlight === "undefined") return;
+    const settings = await chrome.storage.local.get(EASYREAD_HIGHLIGHT_SETTING);
+    if (settings[EASYREAD_HIGHLIGHT_SETTING] === false) return;
     const annotations = await getOrderedPageAnnotations();
+    if (revision !== notesHighlightRevision) return;
     if (annotations.length === 0) return;
 
     const index = createTextIndex();
@@ -174,7 +178,11 @@ async function refreshAnnotationHighlights() {
         marker.dataset.easyreadUi = "true";
         marker.textContent = String(annotationIndex + 1);
         marker.dataset.annotationId = String(annotation.id);
-        marker.title = `${chrome.i18n.getMessage("annotation_sidebar_title")} ${annotationIndex + 1}`;
+        marker.tabIndex = 0;
+        marker.setAttribute('role', 'button');
+        marker.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); marker.click(); } });
+        marker.addEventListener("click", () => openAnnotationComposer({ noteId: annotation.id }).catch(console.error));
+        marker.title = `${(globalThis.EasyReadLocale || chrome.i18n).getMessage("annotation_sidebar_title")} ${annotationIndex + 1}`;
         marker.style.left = `${Math.max(2, rect.right + window.scrollX - 8)}px`;
         marker.style.top = `${Math.max(2, rect.top + window.scrollY - 10)}px`;
         document.documentElement.appendChild(marker);
@@ -182,39 +190,7 @@ async function refreshAnnotationHighlights() {
     if (ranges.length > 0) CSS.highlights.set(EASYREAD_ANNOTATION_HIGHLIGHT_NAME, new Highlight(...ranges));
 }
 
-async function refreshHighlights() {
-    clearTimeout(highlightTimer);
-    clearHighlights();
-    highlightTargets = [];
-    if (!extensionContextAvailable()) { stopInvalidatedExtensionContext(); return; }
-    if (!document.body || typeof CSS === "undefined" || !CSS.highlights || typeof Highlight === "undefined") return;
-
-    const pageKey = normalizePageUrl(location.href);
-    const stored = await chrome.storage.local.get([EASYREAD_HIGHLIGHT_SETTING, EASYREAD_NOTES_KEY]);
-    if (stored[EASYREAD_HIGHLIGHT_SETTING] === false) return;
-
-    const notes = stored[EASYREAD_NOTES_KEY]?.[pageKey]?.notes ?? [];
-    if (notes.length === 0) return;
-
-    const index = createTextIndex();
-    const ranges = [];
-    for (const note of notes) {
-        for (const occurrence of selectOccurrences(index.text, note)) {
-            const range = createRange(index.nodes, occurrence);
-            if (!range) continue;
-            ranges.push(range);
-            highlightTargets.push({
-                noteId: note.id,
-                range,
-                length: occurrence.end - occurrence.start
-            });
-        }
-    }
-
-    if (ranges.length > 0) {
-        CSS.highlights.set(EASYREAD_HIGHLIGHT_NAME, new Highlight(...ranges));
-    }
-}
+async function refreshHighlights() { await refreshAnnotationHighlights(); }
 
 function getDocumentPoint(clientX, clientY) {
     if (document.caretPositionFromPoint) {
@@ -226,21 +202,6 @@ function getDocumentPoint(clientX, clientY) {
         return range ? { node: range.startContainer, offset: range.startOffset } : null;
     }
     return null;
-}
-
-function findHighlightAtPoint(clientX, clientY) {
-    const point = getDocumentPoint(clientX, clientY);
-    if (!point) return null;
-
-    return highlightTargets
-        .filter((target) => {
-            try {
-                return target.range.isPointInRange(point.node, point.offset);
-            } catch {
-                return false;
-            }
-        })
-        .sort((left, right) => left.length - right.length)[0] ?? null;
 }
 
 function findAnnotationAtPoint(clientX, clientY) {
@@ -259,12 +220,12 @@ function hasTextSelection() {
 
 document.addEventListener("contextmenu", (event) => {
     if (!extensionContextAvailable()) { stopInvalidatedExtensionContext(); return; }
-    const target = findHighlightAtPoint(event.clientX, event.clientY);
+
     const markerId = event.target.closest?.(".easyread-annotation-marker")?.dataset.annotationId;
     const annotationTarget = markerId ? { annotationId: markerId } : findAnnotationAtPoint(event.clientX, event.clientY);
     sendRuntimeMessage({
         command: "updateHighlightContextMenu",
-        noteId: target?.noteId ?? null,
+        noteId: annotationTarget?.annotationId ?? null,
         annotationId: annotationTarget?.annotationId ?? null,
         hasSelection: hasTextSelection()
     }).catch(() => {});
@@ -273,7 +234,10 @@ document.addEventListener("contextmenu", (event) => {
 function scheduleHighlightRefresh() {
     if (!extensionContextAvailable()) { stopInvalidatedExtensionContext(); return; }
     clearTimeout(highlightTimer);
-    highlightTimer = setTimeout(() => refreshHighlights().catch(console.log), 400);
+    highlightTimer = setTimeout(() => {
+        refreshHighlights().catch(console.log);
+        renderAnnotationList().catch(console.log);
+    }, 400);
 }
 
 function observeDynamicContent() {
@@ -281,14 +245,11 @@ function observeDynamicContent() {
     highlightObserver = new MutationObserver((mutations) => {
         if (mutations.every((mutation) => mutation.target.parentElement?.closest?.("[data-easyread-ui]") || mutation.target.closest?.("[data-easyread-ui]"))) return;
         scheduleHighlightRefresh();
-        setTimeout(() => refreshAnnotationHighlights().catch(console.log), 420);
+
         observeVideos();
     });
     highlightObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
-    setTimeout(() => {
-        highlightObserver?.disconnect();
-        highlightObserver = null;
-    }, EASYREAD_DYNAMIC_OBSERVER_LIFETIME);
+
 }
 
 function reportVideoProgress(video, force = false) {
@@ -318,53 +279,65 @@ function observeVideos() {
 function getSelectionContext() {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0 || selection.isCollapsed || !document.body) return {};
-
     const range = selection.getRangeAt(0);
-    if (!document.body.contains(range.commonAncestorContainer)) return {};
-
-    const beforeRange = range.cloneRange();
-    beforeRange.selectNodeContents(document.body);
-    beforeRange.setEnd(range.startContainer, range.startOffset);
-
-    const afterRange = range.cloneRange();
-    afterRange.selectNodeContents(document.body);
-    afterRange.setStart(range.endContainer, range.endOffset);
-
-    return {
-        prefix: beforeRange.toString().slice(-EASYREAD_CONTEXT_LENGTH),
-        suffix: afterRange.toString().slice(0, EASYREAD_CONTEXT_LENGTH)
-    };
+    const index = createTextIndex();
+    const start = index.nodes.find(entry => entry.node === range.startContainer);
+    const end = index.nodes.find(entry => entry.node === range.endContainer);
+    if (!start || !end) return {};
+    const offset = start.start + range.startOffset;
+    const finish = end.start + range.endOffset;
+    return { textPosition: offset, prefix: index.text.slice(Math.max(0, offset - EASYREAD_CONTEXT_LENGTH), offset), suffix: index.text.slice(finish, finish + EASYREAD_CONTEXT_LENGTH) };
 }
 
 function createAnnotationId() {
     return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-async function getPageAnnotations() {
-    const stored = await chrome.storage.local.get([EASYREAD_ANNOTATIONS_KEY]);
-    return stored[EASYREAD_ANNOTATIONS_KEY]?.[normalizePageUrl(location.href)]?.annotations ?? [];
+async function notesRequest(action, data = {}) {
+    const reply = await sendRuntimeMessage({ command: 'easyreadNotes', action, url: location.href, title: document.title, ...data });
+    if (!reply || reply.error) throw new Error(reply?.error || 'Notes unavailable');
+    return reply;
 }
+async function getPageAnnotations() { return (await notesRequest('get')).notes; }
 
 async function getOrderedPageAnnotations() {
-    const annotations = await getPageAnnotations();
-    if (annotations.length < 2 || !document.body) return annotations;
-    const textIndex = createTextIndex();
-    return annotations.map((annotation, storageIndex) => ({
-        annotation,
-        storageIndex,
-        documentPosition: selectOccurrences(textIndex.text, annotation)[0]?.start ?? Number.POSITIVE_INFINITY
-    })).sort((left, right) => {
-        if (left.documentPosition !== right.documentPosition) return left.documentPosition - right.documentPosition;
-        return (left.annotation.createDateTime ?? 0) - (right.annotation.createDateTime ?? 0) || left.storageIndex - right.storageIndex;
-    }).map((item) => item.annotation);
+    const notes = await getPageAnnotations();
+    const textIndex = document.body ? createTextIndex() : { text: '' };
+    const positions = {};
+    const ordered = notes.map((note, index) => {
+        const page = note.scope === 'page' || !decodeStoredText(note.selectionText).trim();
+        const found = page ? undefined : selectOccurrences(textIndex.text, note)[0]?.start;
+        if (Number.isFinite(found) && note.textPosition !== found) positions[String(note.id)] = found;
+        return { ...note, scope: page ? 'page' : 'text', anchored: !page && Number.isFinite(found), documentPosition: found ?? note.textPosition ?? Infinity, storageIndex: index };
+    }).sort((a, b) => {
+        if (a.scope !== b.scope) return a.scope === 'page' ? 1 : -1;
+        if (a.scope !== 'page' && a.documentPosition !== b.documentPosition) return a.documentPosition - b.documentPosition;
+        return (a.createDateTime || 0) - (b.createDateTime || 0) || a.storageIndex - b.storageIndex;
+    });
+    if (Object.keys(positions).length) await notesRequest('positions', { positions });
+    return ordered;
 }
 
 function annotationDocumentPosition(annotation, textIndex) {
     return selectOccurrences(textIndex.text, annotation)[0]?.start ?? Number.POSITIVE_INFINITY;
 }
 
+async function locatePageAnnotation(id, smooth = true) {
+    const note = (await getPageAnnotations()).find(item => String(item.id) === String(id));
+    const index = document.body ? createTextIndex() : { text: '', nodes: [] };
+    const matches = note && note.scope !== 'page' ? selectOccurrences(index.text, note) : [];
+    const range = matches.length === 1 ? createRange(index.nodes, matches[0]) : null;
+    if (!range || !range.getClientRects().length) {
+        throw new Error((globalThis.EasyReadLocale || chrome.i18n).getMessage('notes_unlocated'));
+    }
+    range.startContainer.parentElement.scrollIntoView({
+        block: 'center', inline: 'nearest',
+        behavior: smooth && !window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'smooth' : 'instant'
+    });
+}
+
 function formatAnnotationDate(timestamp) {
-    return new Date(timestamp).toLocaleString(chrome.i18n.getUILanguage());
+    return new Date(timestamp).toLocaleString((globalThis.EasyReadLocale || chrome.i18n).getUILanguage());
 }
 
 function createIconButton(className, title, iconMarkup) {
@@ -404,23 +377,23 @@ async function downloadPageAnnotations() {
         "",
         "---",
         "",
-        `## ${chrome.i18n.getMessage("annotation_sidebar_title")}`,
+        `## ${(globalThis.EasyReadLocale || chrome.i18n).getMessage("annotation_sidebar_title")}`,
         ""
     ];
     for (const [index, annotation] of annotations.entries()) {
         lines.push(
-            `### ${index + 1}. ${annotation.author || chrome.i18n.getMessage("annotation_author_anonymous")} · ${formatAnnotationDate(annotation.createDateTime)}`,
+            `### ${index + 1}. ${annotation.author || (globalThis.EasyReadLocale || chrome.i18n).getMessage("annotation_author_anonymous")} · ${formatAnnotationDate(annotation.createDateTime)}`,
             "",
-            `> ${decodeStoredText(annotation.selectionText).replace(/\n/g, "\n> ")}`,
+            decodeStoredText(annotation.selectionText).trim() ? `> ${decodeStoredText(annotation.selectionText).replace(/\r\n?/g, '\n').replace(/\n/g, "\n> ")}` : '',
             "",
-            annotation.comment,
+            annotation.comment || "",
             ""
         );
     }
     const blobUrl = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/markdown;charset=utf-8" }));
     const link = document.createElement("a");
     link.href = blobUrl;
-    link.download = `${sanitizeDownloadName(document.title)}-annotations.md`;
+    link.download = `${sanitizeDownloadName(document.title)}-notes.md`;
     link.click();
     setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
 }
@@ -465,84 +438,22 @@ function installAnnotationResize(sidebar) {
 
 async function renderAnnotationList() {
     const list = document.querySelector("#easyread-annotation-sidebar .easyread-annotation-list");
-    if (!list) return;
+    if (!list || list.querySelector('textarea')) return;
+    const revision = ++notesRenderRevision;
     const annotations = await getOrderedPageAnnotations();
-    const fragment = document.createDocumentFragment();
-    list.classList.toggle("is-empty", annotations.length === 0);
-    if (annotations.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "easyread-annotation-empty";
-        empty.innerHTML = `
-          <div class="easyread-annotation-empty-visual" aria-hidden="true">
-            <span class="easyread-annotation-empty-sheet"></span>
-            <span class="easyread-annotation-empty-line easyread-annotation-empty-line-long"></span>
-            <span class="easyread-annotation-empty-line easyread-annotation-empty-line-short"></span>
-            <span class="easyread-annotation-empty-mark"></span>
-          </div>
-          <strong>${chrome.i18n.getMessage("annotation_empty_title")}</strong>
-          <p>${chrome.i18n.getMessage("annotation_empty_description")}</p>`;
-        fragment.appendChild(empty);
-    }
-    for (const [index, annotation] of annotations.entries()) {
-        const item = document.createElement("article");
-        item.className = "easyread-annotation-item";
-        const number = document.createElement("span");
-        number.className = "easyread-annotation-number";
-        number.textContent = String(index + 1);
-        const meta = document.createElement("div");
-        meta.className = "easyread-annotation-meta";
-        meta.textContent = `${annotation.author || chrome.i18n.getMessage("annotation_author_anonymous")} · ${formatAnnotationDate(annotation.createDateTime)}`;
-        const editButton = createIconButton(
-            "easyread-annotation-edit",
-            chrome.i18n.getMessage("annotation_action_edit"),
-            `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4l11-11-4-4L4 16v4Z"></path><path d="m13.5 6.5 4 4"></path></svg>`
-        );
-        const removeButton = createIconButton(
-            "easyread-annotation-remove",
-            chrome.i18n.getMessage("annotation_action_remove"),
-            `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="m9 7 1-3h4l1 3"></path><path d="m7 7 1 13h8l1-13"></path><path d="M10 11v5M14 11v5"></path></svg>`
-        );
-        const itemActions = document.createElement("div");
-        itemActions.className = "easyread-annotation-item-actions";
-        itemActions.append(editButton, removeButton);
-        const metaRow = document.createElement("div");
-        metaRow.className = "easyread-annotation-meta-row";
-        metaRow.append(meta, itemActions);
-        const quote = document.createElement("div");
-        quote.className = "easyread-annotation-quote";
-        quote.textContent = decodeStoredText(annotation.selectionText);
-        const comment = document.createElement("div");
-        comment.className = "easyread-annotation-comment";
-        comment.textContent = annotation.comment;
-        editButton.addEventListener("click", () => startInlineAnnotationEdit(item, annotation, comment, editButton));
-        removeButton.addEventListener("click", () => removePageAnnotation(annotation.id).catch(console.log));
-        const content = document.createElement("div");
-        content.className = "easyread-annotation-content";
-        content.append(metaRow, quote, comment);
-        item.append(number, content);
-        fragment.appendChild(item);
-    }
-    list.replaceChildren(fragment);
+    if (revision !== notesRenderRevision || list.querySelector('textarea')) return;
+    globalThis.EasyReadAnnotationView.render(list, annotations.map(item => ({ ...item, quote: decodeStoredText(item.selectionText) })), startInlineAnnotationEdit, id => removePageAnnotation(id).catch(console.log), locatePageAnnotation);
 }
 
 async function removePageAnnotation(annotationId) {
-    const pageKey = normalizePageUrl(location.href);
-    const stored = await chrome.storage.local.get([EASYREAD_ANNOTATIONS_KEY]);
-    const annotationsByPage = stored[EASYREAD_ANNOTATIONS_KEY] ?? {};
-    const page = annotationsByPage[pageKey];
-    if (!page?.annotations) return false;
-    const remaining = page.annotations.filter((annotation) => String(annotation.id) !== String(annotationId));
-    if (remaining.length === page.annotations.length) return false;
-    const nextAnnotations = { ...annotationsByPage };
-    if (remaining.length === 0) delete nextAnnotations[pageKey];
-    else nextAnnotations[pageKey] = { ...page, annotations: remaining };
-    await chrome.storage.local.set({ [EASYREAD_ANNOTATIONS_KEY]: nextAnnotations });
+    const result = await notesRequest('remove', { id: annotationId });
     await renderAnnotationList();
     await refreshAnnotationHighlights();
-    return true;
+    return result.removed;
 }
 
 function startInlineAnnotationEdit(item, annotation, commentElement, editButton) {
+    item.parentElement.__notesSignature = null;
     const activeEditor = document.querySelector("#easyread-annotation-sidebar .easyread-annotation-inline-editor");
     activeEditor?.querySelector(".easyread-annotation-inline-cancel")?.click();
 
@@ -550,38 +461,40 @@ function startInlineAnnotationEdit(item, annotation, commentElement, editButton)
     editor.className = "easyread-annotation-inline-editor";
     const textarea = document.createElement("textarea");
     textarea.value = annotation.comment ?? "";
-    textarea.placeholder = chrome.i18n.getMessage("annotation_comment_placeholder");
+    textarea.placeholder = (globalThis.EasyReadLocale || chrome.i18n).getMessage("annotation_comment_placeholder");
     const actions = document.createElement("div");
     actions.className = "easyread-annotation-actions";
     const cancelButton = document.createElement("button");
     cancelButton.type = "button";
     cancelButton.className = "easyread-annotation-inline-cancel";
-    cancelButton.textContent = chrome.i18n.getMessage("annotation_action_cancel");
+    cancelButton.textContent = (globalThis.EasyReadLocale || chrome.i18n).getMessage("annotation_action_cancel");
     const saveButton = document.createElement("button");
     saveButton.type = "button";
-    saveButton.textContent = chrome.i18n.getMessage("annotation_action_save");
+    saveButton.textContent = (globalThis.EasyReadLocale || chrome.i18n).getMessage("annotation_action_save");
     actions.append(cancelButton, saveButton);
     editor.append(textarea, actions);
 
     const cancel = () => {
         editor.replaceWith(commentElement);
         editButton.disabled = false;
+        editButton.focus();
+        renderAnnotationList().catch(console.error);
     };
     cancelButton.addEventListener("click", cancel);
     saveButton.addEventListener("click", async () => {
         const comment = textarea.value.trim();
-        if (!comment) return;
+        if (!comment && annotation.scope === "page") return;
         saveButton.disabled = true;
-        const pageKey = normalizePageUrl(location.href);
-        const stored = await chrome.storage.local.get([EASYREAD_ANNOTATIONS_KEY]);
-        const annotationsByPage = stored[EASYREAD_ANNOTATIONS_KEY] ?? {};
-        const page = annotationsByPage[pageKey];
-        if (!page) return;
-        page.annotations = (page.annotations ?? []).map((itemAnnotation) => String(itemAnnotation.id) === String(annotation.id)
-            ? { ...itemAnnotation, comment }
-            : itemAnnotation);
-        await chrome.storage.local.set({ [EASYREAD_ANNOTATIONS_KEY]: { ...annotationsByPage, [pageKey]: page } });
+        try {
+        await notesRequest('edit', { id: annotation.id, comment });
+        editor.replaceWith(commentElement);
         await renderAnnotationList();
+        } catch (error) {
+            let feedback = editor.querySelector('[role="status"]');
+            if (!feedback) { feedback = document.createElement('p'); feedback.setAttribute('role', 'status'); editor.append(feedback); }
+            feedback.textContent = (globalThis.EasyReadLocale || chrome.i18n).getMessage('ui_operation_failed');
+            globalThis.EasyReadDiagnostics?.record(error, { operation: 'edit-annotation' }, feedback);
+        } finally { saveButton.disabled = false; }
     });
     textarea.addEventListener("keydown", (event) => {
         if (event.isComposing) return;
@@ -619,31 +532,48 @@ function ensureAnnotationSidebar() {
     const reopen = document.createElement("button");
     reopen.id = "easyread-annotation-reopen";
     reopen.dataset.easyreadUi = "true";
-    reopen.title = chrome.i18n.getMessage("annotation_sidebar_expand");
+    reopen.title = (globalThis.EasyReadLocale || chrome.i18n).getMessage("annotation_sidebar_expand");
     reopen.setAttribute("aria-label", reopen.title);
     const reopenLogo = document.createElement("img");
     reopenLogo.src = chrome.runtime.getURL("assets/logo/icon-32.png");
     reopenLogo.alt = "EasyRead";
     reopen.appendChild(reopenLogo);
-    sidebar.querySelector("strong").textContent = chrome.i18n.getMessage("annotation_sidebar_title");
+    sidebar.querySelector("strong").textContent = (globalThis.EasyReadLocale || chrome.i18n).getMessage("annotation_sidebar_title");
     const toolbar = sidebar.querySelector(".easyread-annotation-toolbar");
     const downloadButton = createIconButton(
         "easyread-annotation-download",
-        chrome.i18n.getMessage("annotation_sidebar_download"),
+        (globalThis.EasyReadLocale || chrome.i18n).getMessage("annotation_sidebar_download"),
         `<img src="${chrome.runtime.getURL("assets/download-file.png")}" alt="">`
     );
     const collapseButton = createIconButton(
         "easyread-annotation-collapse",
-        chrome.i18n.getMessage("annotation_sidebar_collapse"),
+        (globalThis.EasyReadLocale || chrome.i18n).getMessage("annotation_sidebar_collapse"),
         `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>`
     );
-    toolbar.append(downloadButton, collapseButton);
+    const popupButton = createIconButton('easyread-annotation-popup', (globalThis.EasyReadLocale || chrome.i18n).getMessage('annotation_move_popup'),
+        `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><rect x="10" y="8" width="9" height="9" rx="1"/></svg>`);
+    popupButton.addEventListener('click', async () => {
+        const editor = sidebar.querySelector('textarea');
+        if (editor) { editor.focus(); return; }
+        try {
+            const reply = await chrome.runtime.sendMessage({ command: 'openAnnotationPopup' });
+            if (reply?.ok) setAnnotationExpanded(sidebar, false);
+            else throw new Error(reply?.error || (globalThis.EasyReadLocale || chrome.i18n).getMessage('ui_operation_failed'));
+        } catch (error) { globalThis.EasyReadDiagnostics?.record(error, { operation: 'open-annotation-popup' }); }
+    });
+    toolbar.append(downloadButton, popupButton, collapseButton);
     downloadButton.addEventListener("click", () => downloadPageAnnotations().catch(console.log));
     collapseButton.addEventListener("click", () => setAnnotationExpanded(sidebar, false));
     reopen.addEventListener("click", () => {
         setAnnotationExpanded(sidebar, true);
         renderAnnotationList().catch(console.log);
     });
+    const pageNote = document.createElement('button');
+    pageNote.className = 'easyread-page-note-add';
+    pageNote.textContent = (globalThis.EasyReadLocale || chrome.i18n).getMessage('notes_add_page');
+    pageNote.onclick = () => openAnnotationComposer({ selectionText: '' }).catch(console.error);
+    sidebar.append(pageNote);
+    globalThis.EasyReadAnnotationView.attachPageDrawer(sidebar.querySelector('.easyread-annotation-list'), pageNote);
     document.documentElement.append(sidebar, reopen);
     installAnnotationResize(sidebar);
     chrome.storage.local.get([EASYREAD_ANNOTATION_WIDTH_KEY]).then((stored) => {
@@ -658,12 +588,24 @@ function ensureAnnotationSidebar() {
 async function openAnnotationComposer(context) {
     const sidebar = ensureAnnotationSidebar();
     setAnnotationExpanded(sidebar, true);
-    const selectionText = context.selectionText;
+    const selectionText = context.selectionText || '';
+    const existing = (await getOrderedPageAnnotations()).find(note => context.noteId !== null && context.noteId !== undefined
+        ? String(note.id) === String(context.noteId)
+        : selectionText && decodeStoredText(note.selectionText) === selectionText && decodeStoredText(note.prefix) === (context.prefix || '') && decodeStoredText(note.suffix) === (context.suffix || ''));
+    const currentEditor = sidebar.querySelector('textarea');
+    if (currentEditor) { globalThis.EasyReadAnnotationView.syncPageDrawer(sidebar.querySelector('.easyread-annotation-list'), true); currentEditor.focus(); return; }
     await renderAnnotationList();
     const list = sidebar.querySelector(".easyread-annotation-list");
+    if (existing) {
+        if (existing.scope === 'page') globalThis.EasyReadAnnotationView.syncPageDrawer(list, true);
+        const item = [...list.querySelectorAll('[data-note-id]')].find(row => row.dataset.noteId === String(existing.id));
+        item?.querySelector('.easyread-annotation-edit')?.click();
+        return;
+    }
     list.querySelector(".easyread-annotation-draft")?.remove();
     list.querySelector(".easyread-annotation-empty")?.remove();
     list.classList.remove("is-empty");
+    list.__notesSignature = null;
 
     const storedAnnotations = await getOrderedPageAnnotations();
     const textIndex = createTextIndex();
@@ -673,34 +615,37 @@ async function openAnnotationComposer(context) {
         suffix: context.suffix ? encodeURIComponent(context.suffix) : undefined
     };
     const draftPosition = annotationDocumentPosition(draftAnchor, textIndex);
-    const insertionIndex = storedAnnotations.findIndex((annotation) => annotationDocumentPosition(annotation, textIndex) > draftPosition);
+    const insertionIndex = selectionText ? storedAnnotations.findIndex(annotation => annotation.scope === 'page' || annotationDocumentPosition(annotation, textIndex) > draftPosition) : -1;
     const targetIndex = insertionIndex < 0 ? storedAnnotations.length : insertionIndex;
 
     const draft = document.createElement("article");
-    draft.className = "easyread-annotation-item easyread-annotation-draft";
+    draft.className = "easyread-annotation-item easyread-annotation-draft" + (selectionText ? "" : " easyread-page-note");
     const draftMarker = document.createElement("span");
     draftMarker.className = "easyread-annotation-number easyread-annotation-draft-marker";
     draftMarker.textContent = "+";
+    if (!selectionText) draftMarker.style.display = "none";
     const content = document.createElement("div");
     content.className = "easyread-annotation-content";
     const quote = document.createElement("div");
     quote.className = "easyread-annotation-quote";
-    quote.textContent = selectionText;
+    quote.textContent = selectionText || (globalThis.EasyReadLocale || chrome.i18n).getMessage("notes_page");
     const textarea = document.createElement("textarea");
     textarea.className = "easyread-annotation-draft-input";
-    textarea.placeholder = chrome.i18n.getMessage("annotation_comment_placeholder");
+    textarea.placeholder = (globalThis.EasyReadLocale || chrome.i18n).getMessage("annotation_comment_placeholder");
     const actions = document.createElement("div");
     actions.className = "easyread-annotation-actions";
     const cancelButton = document.createElement("button");
     cancelButton.type = "button";
-    cancelButton.textContent = chrome.i18n.getMessage("annotation_action_cancel");
+    cancelButton.textContent = (globalThis.EasyReadLocale || chrome.i18n).getMessage("annotation_action_cancel");
     const saveButton = document.createElement("button");
     saveButton.type = "button";
-    saveButton.textContent = chrome.i18n.getMessage("annotation_action_save");
+    saveButton.textContent = (globalThis.EasyReadLocale || chrome.i18n).getMessage("annotation_action_save");
     actions.append(cancelButton, saveButton);
     content.append(quote, textarea, actions);
     draft.append(draftMarker, content);
-    list.insertBefore(draft, list.children[targetIndex] ?? null);
+    const nextRow = [...list.querySelectorAll('[data-note-id]')][targetIndex];
+    list.insertBefore(draft, nextRow?.parentElement === list ? nextRow : list.querySelector('.easyread-page-drawer'));
+    if (!selectionText) globalThis.EasyReadAnnotationView.syncPageDrawer(list, true);
     textarea.value = "";
     textarea.focus();
 
@@ -713,24 +658,17 @@ async function openAnnotationComposer(context) {
         const comment = textarea.value.trim();
         if (!comment) return;
         saveButton.disabled = true;
-        const pageKey = normalizePageUrl(location.href);
-        const stored = await chrome.storage.local.get([EASYREAD_ANNOTATIONS_KEY, EASYREAD_ANNOTATION_AUTHOR_KEY]);
-        const annotationsByPage = stored[EASYREAD_ANNOTATIONS_KEY] ?? {};
-        const page = annotationsByPage[pageKey] ?? { title: document.title, url: location.href, annotations: [] };
-        page.annotations = [...(page.annotations ?? []), {
-            id: createAnnotationId(),
-            selectionText: encodeURIComponent(selectionText),
-            prefix: context.prefix ? encodeURIComponent(context.prefix) : undefined,
-            suffix: context.suffix ? encodeURIComponent(context.suffix) : undefined,
-            comment,
-            author: stored[EASYREAD_ANNOTATION_AUTHOR_KEY] ?? "",
-            createDateTime: Date.now()
-        }];
-        await chrome.storage.local.set({
-            [EASYREAD_ANNOTATIONS_KEY]: { ...annotationsByPage, [pageKey]: page }
-        });
+        try {
+        await notesRequest('add', { selectionText, comment, prefix: context.prefix, suffix: context.suffix, textPosition: Number.isFinite(draftPosition) ? draftPosition : context.textPosition });
+        draft.remove();
         await renderAnnotationList();
         await refreshAnnotationHighlights();
+        } catch (error) {
+            let feedback = draft.querySelector('[role="status"]');
+            if (!feedback) { feedback = document.createElement('p'); feedback.setAttribute('role', 'status'); content.append(feedback); }
+            feedback.textContent = (globalThis.EasyReadLocale || chrome.i18n).getMessage('ui_operation_failed');
+            globalThis.EasyReadDiagnostics?.record(error, { operation: 'add-annotation' }, feedback);
+        } finally { saveButton.disabled = false; }
     });
     textarea.onkeydown = (event) => {
         if (event.isComposing) return;
@@ -831,23 +769,13 @@ function markdownFromNode(node, depth = 0) {
 
 async function buildMarkdownCapture() {
     const main = document.querySelector("article, main, [role='main']") || document.body;
-    const stored = await chrome.storage.local.get([EASYREAD_NOTES_KEY, EASYREAD_ANNOTATIONS_KEY]);
-    const pageKey = normalizePageUrl(location.href);
-    const notes = stored[EASYREAD_NOTES_KEY]?.[pageKey]?.notes ?? [];
-    const annotations = stored[EASYREAD_ANNOTATIONS_KEY]?.[pageKey]?.annotations ?? [];
-    const description = document.querySelector('meta[name="description"]')?.content ?? "";
-    const author = document.querySelector('meta[name="author"]')?.content ?? "";
-    let markdown = `---\ntitle: "${document.title.replace(/"/g, '\\"')}"\nsource: "${location.href}"\nauthor: "${author.replace(/"/g, '\\"')}"\ndescription: "${description.replace(/"/g, '\\"')}"\nhighlights_count: ${notes.length}\nannotations_count: ${annotations.length}\n---\n\n`;
+    const notes = await getOrderedPageAnnotations();
+    const description = document.querySelector('meta[name="description"]')?.content || '';
+    const author = document.querySelector('meta[name="author"]')?.content || '';
+    let markdown = `---\ntitle: ${JSON.stringify(document.title)}\nsource: ${JSON.stringify(location.href)}\nauthor: ${JSON.stringify(author)}\ndescription: ${JSON.stringify(description)}\nnotes_count: ${notes.length}\n---\n\n# ${document.title}\n\n`;
     markdown += markdownFromNode(main).replace(/\n{3,}/g, "\n\n").trim();
-    if (notes.length) {
-        markdown += `\n\n## ${chrome.i18n.getMessage("capture_highlights_heading")}\n`;
-        markdown += notes.map((note) => `\n> ${decodeStoredText(note.selectionText)}`).join("\n");
-    }
-    if (annotations.length) {
-        markdown += `\n\n## ${chrome.i18n.getMessage("annotation_sidebar_title")}\n`;
-        markdown += annotations.map((item) => `\n> ${decodeStoredText(item.selectionText)}\n\n${item.comment}`).join("\n");
-    }
-    return markdown + "\n";
+    if (notes.length) markdown += '\n\n## Notes\n' + notes.map(note => `\n### ${note.scope === 'page' ? (globalThis.EasyReadLocale || chrome.i18n).getMessage('notes_page') : (notes.indexOf(note) + 1)}\n\n${note.selectionText ? '> ' + decodeStoredText(note.selectionText).replace(/\n/g, '\n> ') + '\n\n' : ''}${note.comment || ''}\n`).join('\n');
+    return markdown + '\n';
 }
 
 async function createHtmlCapture(reportProgress = () => {}) {
@@ -884,7 +812,7 @@ async function createHtmlCapture(reportProgress = () => {}) {
             computedRules.get(cssText).pseudo.set(`${pseudo}:${pseudoCssText}`, { className, pseudo, cssText: pseudoCssText });
         }
         if (index > 0 && index % 250 === 0) {
-            reportProgress(25 + Math.round(index / snapshotLimit * 25), chrome.i18n.getMessage("capture_stage_styles", [index, snapshotLimit]));
+            reportProgress(25 + Math.round(index / snapshotLimit * 25), (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_styles", [index, snapshotLimit]));
             await new Promise((resolve) => setTimeout(resolve, 0));
         }
     }
@@ -951,7 +879,7 @@ async function createHtmlCapture(reportProgress = () => {}) {
             });
             clonedImages[index]?.setAttribute("src", dataUrl);
         } catch { inaccessibleImages += 1; }
-        if (index > 0 && index % 20 === 0) reportProgress(52 + Math.round(index / sourceImages.length * 10), chrome.i18n.getMessage("capture_stage_resources", [index, sourceImages.length]));
+        if (index > 0 && index % 20 === 0) reportProgress(52 + Math.round(index / sourceImages.length * 10), (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_resources", [index, sourceImages.length]));
     }
     const style = document.createElement("style");
     let css = "";
@@ -1024,9 +952,9 @@ function mediaCandidates() {
     const youtubeCandidates = globalThis.EasyReadYouTubeMedia?.buildCandidates(youtubeResponse, {
         poster: document.querySelector('meta[property="og:image"]')?.content || "",
         labels: {
-            muxed: chrome.i18n.getMessage("capture_media_track_muxed"),
-            video: chrome.i18n.getMessage("capture_media_track_video"),
-            audio: chrome.i18n.getMessage("capture_media_track_audio")
+            muxed: (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_media_track_muxed"),
+            video: (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_media_track_video"),
+            audio: (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_media_track_audio")
         }
     }) || [];
     youtubeCandidates.forEach((item) => candidates.set(item.url, item));
@@ -1092,7 +1020,14 @@ function mediaCandidates() {
     });
     performance.getEntriesByType("resource").forEach((entry) => add(entry.name, "resource"));
     hookedRequests.forEach((entry) => add(entry.url, "resource", entry));
-    return refineMediaCandidates(Array.from(candidates.values())).slice(0, 12).map((item, index) => ({ ...item, id: `media-${index}`, index }));
+    const images = new Map();
+    document.querySelectorAll('img').forEach(image => {
+        if (image.closest('[data-easyread-ui]')) return;
+        const url = absoluteUrl(image.currentSrc || image.src || image.dataset.src);
+        if (!/^https?:/i.test(url) || images.has(url)) return;
+        images.set(url, { url, kind: 'image', source: 'page-image', name: image.alt || '', width: image.naturalWidth || 0, height: image.naturalHeight || 0 });
+    });
+    return [...refineMediaCandidates(Array.from(candidates.values())).slice(0, 12), ...images.values()].map((item, index) => ({ ...item, id: `media-${index}`, index }));
 }
 
 function safeHostname(url) {
@@ -1217,7 +1152,7 @@ async function ensureMediaEngine() {
 async function requestMediaResource(url, options = {}, referrer = location.href) {
     const result = await chrome.runtime.sendMessage({ command: "mediaFetchResource", url, asText: Boolean(options.text), range: options.range, referrer });
     if (!result?.ok) {
-        const error = new Error(chrome.i18n.getMessage(result?.code || result?.error || "") || result?.error || "Media request failed");
+        const error = new Error((globalThis.EasyReadLocale || chrome.i18n).getMessage(result?.code || result?.error || "") || result?.error || "Media request failed");
         error.code = result?.code;
         error.status = result?.status;
         error.details = { requiredOrigin: result?.requiredOrigin, url };
@@ -1237,7 +1172,7 @@ async function downloadHls(url, updateStatus, referrer = location.href) {
     const engine = await ensureMediaEngine();
     const result = await engine.downloadHls(url, {
         request: (resource, options) => requestMediaResource(resource, options, referrer),
-        progress: event => updateStatus(chrome.i18n.getMessage(event.stage, [String(event.current || 0), String(event.total || 0)]), event.percent, 100, event.bytes || 0)
+        progress: event => updateStatus((globalThis.EasyReadLocale || chrome.i18n).getMessage(event.stage, [String(event.current || 0), String(event.total || 0)]), event.percent, 100, event.bytes || 0)
     });
     return new Blob([result.bytes], { type: result.tracks.some(track => track.type === "video") ? "video/mp4" : "audio/mp4" });
 }
@@ -1258,7 +1193,7 @@ async function resolveVimeoMedia(media) {
     // Select the CDN already observed by this page when possible.
     const preferred = cdns.find(cdn => (media.mediaOrigins || []).includes(`${new URL(cdn.avc_url || cdn.url).origin}/*`)) || hls?.cdns?.[hls?.default_cdn] || cdns[0];
     const url = preferred?.avc_url || preferred?.url;
-    if (!url) throw new Error(chrome.i18n.getMessage("capture_media_no_segments"));
+    if (!url) throw new Error((globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_media_no_segments"));
     return { ...media, url, kind: "hls", referrer: player.href };
 }
 
@@ -1333,7 +1268,7 @@ async function captureFullPagePng(dialog, format = "png", reportProgress) {
                 const targetHeight = Math.ceil(pageHeight * scale);
                 if (targetHeight > 32767 || bitmap.width > 32767) {
                     bitmap.close();
-                    throw new Error(chrome.i18n.getMessage("capture_png_too_long"));
+                    throw new Error((globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_png_too_long"));
                 }
                 canvas = document.createElement("canvas");
                 canvas.width = bitmap.width;
@@ -1342,7 +1277,7 @@ async function captureFullPagePng(dialog, format = "png", reportProgress) {
             }
             context.drawImage(bitmap, 0, Math.round(uniquePositions[index] * scale));
             bitmap.close();
-            const progressMessage = chrome.i18n.getMessage("capture_png_progress", [index + 1, uniquePositions.length]);
+            const progressMessage = (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_png_progress", [index + 1, uniquePositions.length]);
             if (dialog) setCaptureStatus(dialog, progressMessage);
             reportProgress?.(15 + Math.round((index + 1) / uniquePositions.length * 75), progressMessage);
         }
@@ -1387,7 +1322,7 @@ async function prepareLazyPage(reportProgress) {
                 if (target.element === window) window.scrollTo(0, position);
                 else target.element.scrollTop = position;
                 completedSteps += 1;
-                reportProgress(5 + Math.round(completedSteps / Math.max(totalSteps, 1) * 13), chrome.i18n.getMessage("capture_stage_lazy", [completedSteps, totalSteps]));
+                reportProgress(5 + Math.round(completedSteps / Math.max(totalSteps, 1) * 13), (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_lazy", [completedSteps, totalSteps]));
                 await new Promise((resolve) => setTimeout(resolve, 180));
             }
             if (target.element === window) window.scrollTo(0, target.original);
@@ -1395,7 +1330,7 @@ async function prepareLazyPage(reportProgress) {
         }
         const waitStarted = Date.now();
         while (Date.now() - lastMutation < 600 && Date.now() - waitStarted < 1500) {
-            reportProgress(19, chrome.i18n.getMessage("capture_stage_stabilizing"));
+            reportProgress(19, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_stabilizing"));
             await new Promise((resolve) => setTimeout(resolve, 100));
         }
     } finally {
@@ -1446,7 +1381,7 @@ async function runPopupCapture(type, options = {}) {
     let integrity = "complete";
     let details = {};
     if (type === "html") {
-        report(24, chrome.i18n.getMessage("capture_stage_document"));
+        report(24, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_document"));
         if (!globalThis.EasyReadSnapshotEngine) throw new Error("EasyRead Snapshot Engine is unavailable");
         const engine = new globalThis.EasyReadSnapshotEngine({ progress: report });
         const result = await engine.capture();
@@ -1455,13 +1390,13 @@ async function runPopupCapture(type, options = {}) {
         integrity = result.integrity;
         fileName = captureFileName("html");
     } else if (type === "markdown") {
-        report(30, chrome.i18n.getMessage("capture_stage_document"));
+        report(30, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_document"));
         blob = new Blob([await buildMarkdownCapture()], { type: "text/markdown;charset=utf-8" });
         fileName = captureFileName("md");
     } else if (type === "pdf") {
-        report(35, chrome.i18n.getMessage("capture_stage_print_dialog"));
+        report(35, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_print_dialog"));
         window.print();
-        report(100, chrome.i18n.getMessage("capture_stage_print_opened"));
+        report(100, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_print_opened"));
         return;
     } else if (type === "image") {
         const format = options.format === "jpeg" ? "jpeg" : "png";
@@ -1470,7 +1405,7 @@ async function runPopupCapture(type, options = {}) {
             blob = result.blob;
             details = result.details;
         } else {
-            report(45, chrome.i18n.getMessage("capture_stage_viewport"));
+            report(45, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_viewport"));
             const result = await chrome.runtime.sendMessage({ command: "captureVisibleTab", format });
             if (!result?.ok) throw new Error(result?.error || "capture failed");
             blob = await (await fetch(result.dataUrl)).blob();
@@ -1479,13 +1414,13 @@ async function runPopupCapture(type, options = {}) {
         fileName = captureFileName(format === "jpeg" ? "jpg" : "png");
     } else throw new Error("Unsupported capture type");
     if (options.action === "prepareCopy") {
-        report(92, chrome.i18n.getMessage("capture_stage_copying"));
+        report(92, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_copying"));
         return prepareCaptureForClipboard(blob, type);
     } else {
-        report(92, chrome.i18n.getMessage("capture_stage_downloading"));
+        report(92, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_downloading"));
         downloadCaptureBlob(blob, fileName);
         await recordArtifact(type, fileName, blob, integrity, details);
-        report(100, chrome.i18n.getMessage(integrity === "partial" ? "capture_status_partial" : "capture_status_saved"));
+        report(100, (globalThis.EasyReadLocale || chrome.i18n).getMessage(integrity === "partial" ? "capture_status_partial" : "capture_status_saved"));
     }
 }
 
@@ -1495,17 +1430,17 @@ async function downloadMediaFromPopup(media, onProgress) {
         return sendRuntimeMessage({ command: "mediaProgress", index: media.index, percent, stage, ...extra }).catch(() => {});
     };
     if (media.source === "vimeo-player") {
-        report(2, chrome.i18n.getMessage("media_stage_playlists"));
+        report(2, (globalThis.EasyReadLocale || chrome.i18n).getMessage("media_stage_playlists"));
         media = await resolveVimeoMedia(media);
     }
     if (media.source === "youtube-player") {
-        report(10, chrome.i18n.getMessage("capture_status_working"));
+        report(10, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_status_working"));
         const extension = ({ "video/mp4": "mp4", "audio/mp4": "m4a", "video/webm": "webm", "audio/webm": "webm" })[media.mimeType] || "mp4";
         const fileName = media.fileName || captureFileName(extension);
         const result = await sendRuntimeMessage({ command: "downloadYouTubeInPage", url: media.url, filename: fileName });
         if (!result?.ok) throw new Error(result?.error || "YouTube page download failed");
         await recordArtifact("media", fileName, { type: result.mimeType || media.mimeType, size: result.size || 0 }, "complete", { source: media.url, kind: media.kind, itag: media.itag });
-        report(100, chrome.i18n.getMessage("capture_status_saved"), { done: true, fileSize: result.size || 0 });
+        report(100, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_status_saved"), { done: true, fileSize: result.size || 0 });
         return;
     }
     let blob;
@@ -1534,7 +1469,7 @@ async function downloadMediaFromPopup(media, onProgress) {
                 if (done) break;
                 chunks.push(value);
                 loaded += value.byteLength;
-                report(total ? Math.min(95, loaded / total * 95) : 45, total ? `${Math.round(loaded / total * 100)}%` : chrome.i18n.getMessage("capture_status_working"), { loadedBytes: loaded, totalBytes: total });
+                report(total ? Math.min(95, loaded / total * 95) : 45, total ? `${Math.round(loaded / total * 100)}%` : (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_status_working"), { loadedBytes: loaded, totalBytes: total });
             }
             blob = new Blob(chunks, { type: response.headers.get("content-type") || "application/octet-stream" });
         }
@@ -1542,34 +1477,12 @@ async function downloadMediaFromPopup(media, onProgress) {
     const extension = await detectMediaExtension(blob, media.url);
     if (extension === "mp4" || extension === "m4a") await validateMediaMp4(blob);
     const fileName = media.fileName || captureFileName(extension);
-    report(97, chrome.i18n.getMessage("media_stage_validating"), { fileSize: blob.size });
+    report(97, (globalThis.EasyReadLocale || chrome.i18n).getMessage("media_stage_validating"), { fileSize: blob.size });
     await saveValidatedMedia(blob, fileName);
     await recordArtifact("media", fileName, blob, "complete", { source: media.url, kind: media.kind });
-    report(100, chrome.i18n.getMessage("capture_status_saved"), { done: true });
+    report(100, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_status_saved"), { done: true });
 }
 
-function downloadMediaErrorReport(error, media, source = "page-dialog") {
-    if (!globalThis.EasyReadDiagnostics) return;
-    const manifest = chrome.runtime.getManifest();
-    const report = {
-        schema: "easyread-media-debug-v1",
-        capturedAt: new Date().toISOString(),
-        source,
-        extension: { name: manifest.name, version: manifest.version, manifestVersion: manifest.manifest_version },
-        environment: { userAgent: navigator.userAgent, language: navigator.language, platform: navigator.platform },
-        page: { title: document.title, url: location.href },
-        selectedMedia: media,
-        detectedMedia: mediaCandidates(),
-        error: { name: error?.name || "Error", message: error?.message || String(error), stack: error?.stack || "" },
-        details: error?.debug || error?.details || null
-    };
-    const blobUrl = URL.createObjectURL(new Blob([JSON.stringify(report, null, 2)], { type: "application/json;charset=utf-8" }));
-    const link = document.createElement("a");
-    link.href = blobUrl;
-    link.download = `EasyRead-media-error-${location.hostname.replace(/[^a-z0-9.-]/gi, "-")}-${Date.now()}.json`;
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
-}
 
 function setCaptureStatus(dialog, message, state = "working") {
     const status = dialog.querySelector(".easyread-capture-status");
@@ -1582,10 +1495,10 @@ function renderMediaList(dialog) {
     list.replaceChildren();
     const candidates = mediaCandidates();
     if (!candidates.length) {
-        setCaptureStatus(dialog, chrome.i18n.getMessage("capture_media_none"), "error");
+        setCaptureStatus(dialog, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_media_none"), "error");
         return;
     }
-    setCaptureStatus(dialog, chrome.i18n.getMessage("capture_media_found", [candidates.length]));
+    setCaptureStatus(dialog, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_media_found", [candidates.length]));
     for (const item of candidates) {
         const row = document.createElement("div");
         row.className = "easyread-media-item";
@@ -1599,31 +1512,24 @@ function renderMediaList(dialog) {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "easyread-media-download";
-        button.textContent = chrome.i18n.getMessage("capture_action_download");
+        button.textContent = (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_action_download");
         const errorArea = document.createElement("div");
         errorArea.className = "easyread-media-error";
         errorArea.hidden = true;
         const errorMessage = document.createElement("span");
-        const debugButton = document.createElement("button");
-        debugButton.type = "button";
-        debugButton.className = "easyread-media-debug-download";
-        debugButton.hidden = !globalThis.EasyReadDiagnostics;
-        debugButton.textContent = chrome.i18n.getMessage("capture_media_debug_download");
-        errorArea.append(errorMessage, debugButton);
+        errorArea.append(errorMessage);
         button.addEventListener("click", async () => {
             try {
                 button.disabled = true;
                 errorArea.hidden = true;
-                debugButton.onclick = null;
-                setCaptureStatus(dialog, chrome.i18n.getMessage("capture_status_working"));
+                setCaptureStatus(dialog, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_status_working"));
                 await downloadMediaFromPopup(item, message => setCaptureStatus(dialog, message));
-                setCaptureStatus(dialog, chrome.i18n.getMessage("capture_status_saved"), "success");
+                setCaptureStatus(dialog, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_status_saved"), "success");
             } catch (error) {
-                setCaptureStatus(dialog, `${chrome.i18n.getMessage("capture_status_failed")}: ${error.message}`, "error");
+                setCaptureStatus(dialog, `${(globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_status_failed")}: ${error.message}`, "error");
                 errorMessage.textContent = error.message;
-                globalThis.EasyReadDiagnostics?.record(error, { operation: "media", media: item }, false);
+                globalThis.EasyReadDiagnostics?.record(error, { operation: "media", media: item, detectedMedia: candidates }, false);
                 errorArea.hidden = false;
-                debugButton.onclick = () => downloadMediaErrorReport(error, item);
             } finally { button.disabled = false; }
         });
         row.append(copy, button, errorArea);
@@ -1645,9 +1551,9 @@ function ensureCaptureDialog() {
         <button type="button" class="easyread-capture-option" data-format="png"><svg viewBox="0 0 24 24"><path d="M4 7h4l2-2h4l2 2h4v12H4z"/><circle cx="12" cy="13" r="3"/></svg><span><strong></strong><span></span></span></button>
         <button type="button" class="easyread-capture-option" data-format="media"><svg viewBox="0 0 24 24"><path d="M5 4h14v16H5zM10 9l5 3-5 3z"/></svg><span><strong></strong><span></span></span></button>
       </div><div class="easyread-capture-status" role="status"></div><div class="easyread-media-list"></div>`;
-    dialog.querySelector(".easyread-capture-header strong").textContent = chrome.i18n.getMessage("capture_title");
+    dialog.querySelector(".easyread-capture-header strong").textContent = (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_title");
     const close = dialog.querySelector(".easyread-capture-close");
-    close.setAttribute("aria-label", chrome.i18n.getMessage("capture_close"));
+    close.setAttribute("aria-label", (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_close"));
     close.addEventListener("click", () => dialog.close());
     const labels = {
         markdown: ["capture_markdown_title", "capture_markdown_description"],
@@ -1657,14 +1563,14 @@ function ensureCaptureDialog() {
     };
     dialog.querySelectorAll(".easyread-capture-option").forEach((button) => {
         const [titleKey, descriptionKey] = labels[button.dataset.format];
-        button.querySelector("strong").textContent = chrome.i18n.getMessage(titleKey);
-        button.querySelector("span span").textContent = chrome.i18n.getMessage(descriptionKey);
+        button.querySelector("strong").textContent = (globalThis.EasyReadLocale || chrome.i18n).getMessage(titleKey);
+        button.querySelector("span span").textContent = (globalThis.EasyReadLocale || chrome.i18n).getMessage(descriptionKey);
         button.addEventListener("click", async () => {
             const format = button.dataset.format;
             if (format === "media") return renderMediaList(dialog);
             try {
                 button.disabled = true;
-                setCaptureStatus(dialog, chrome.i18n.getMessage("capture_status_working"));
+                setCaptureStatus(dialog, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_status_working"));
                 let blob;
                 let fileName;
                 let integrity = "complete";
@@ -1686,9 +1592,9 @@ function ensureCaptureDialog() {
                 }
                 downloadCaptureBlob(blob, fileName);
                 await recordArtifact(format, fileName, blob, integrity, details);
-                setCaptureStatus(dialog, chrome.i18n.getMessage(integrity === "partial" ? "capture_status_partial" : "capture_status_saved"), integrity === "partial" ? "working" : "success");
+                setCaptureStatus(dialog, (globalThis.EasyReadLocale || chrome.i18n).getMessage(integrity === "partial" ? "capture_status_partial" : "capture_status_saved"), integrity === "partial" ? "working" : "success");
             } catch (error) {
-                setCaptureStatus(dialog, `${chrome.i18n.getMessage("capture_status_failed")}: ${error.message}`, "error");
+                setCaptureStatus(dialog, `${(globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_status_failed")}: ${error.message}`, "error");
                 globalThis.EasyReadDiagnostics?.record(error, { operation: "capture", format }, dialog.querySelector(".easyread-capture-status"));
             } finally { button.disabled = false; }
         });
@@ -1701,7 +1607,7 @@ function ensureCaptureDialog() {
 function openCaptureDialog() {
     const dialog = ensureCaptureDialog();
     dialog.querySelector(".easyread-media-list").replaceChildren();
-    setCaptureStatus(dialog, chrome.i18n.getMessage("capture_status_ready"));
+    setCaptureStatus(dialog, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_status_ready"));
     if (!dialog.open) dialog.showModal();
 }
 
@@ -1747,6 +1653,7 @@ window.addEventListener("scroll", () => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message?.command === 'easyreadPing') { sendResponse({ ok: true }); return; }
     if (message?.command === "setScroll" && !userHasScrolled) {
         setScrollPosition(message.position);
     }
@@ -1757,7 +1664,38 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse(getSelectionContext());
     }
     if (message?.command === "openAnnotationComposer") {
-        openAnnotationComposer(message).catch(console.log);
+        openAnnotationComposer(message).then(() => sendResponse({ ok: true }), error => sendResponse({ error: error.message }));
+        return true;
+    }
+    if (message?.command === 'addPopupPageNote') {
+        notesRequest('add', { comment: message.comment, selectionText: '' }).then(() => sendResponse({ ok: true }), error => sendResponse({ error: error.message }));
+        return true;
+    }
+    if (message?.command === 'getPopupAnnotations') {
+        getOrderedPageAnnotations().then(annotations => sendResponse({ annotations: annotations.map(item => ({ ...item, quote: decodeStoredText(item.selectionText) })) }), error => sendResponse({ error: error.message }));
+        return true;
+    }
+    if (message?.command === 'locateAnnotation') {
+        locatePageAnnotation(message.annotationId, message.smooth !== false).then(() => sendResponse({ ok: true }), error => sendResponse({ error: error.message }));
+        return true;
+    }
+    if (message?.command === 'downloadPopupAnnotations') {
+        downloadPageAnnotations().then(() => sendResponse({ ok: true }), error => sendResponse({ error: error.message }));
+        return true;
+    }
+    if (message?.command === 'editPopupAnnotation') {
+        (async () => {
+            await notesRequest('edit', { id: message.annotationId, comment: message.comment });
+            await renderAnnotationList();
+            sendResponse({ ok: true });
+        })().catch(error => sendResponse({ error: error.message }));
+        return true;
+    }
+    if (message?.command === 'showAnnotationSidebar') {
+        const sidebar = ensureAnnotationSidebar();
+        setAnnotationExpanded(sidebar, true);
+        renderAnnotationList().then(() => sendResponse({ visible: true }), error => sendResponse({ error: error.message }));
+        return true;
     }
     if (message?.command === "removeAnnotation") {
         removePageAnnotation(message.annotationId).then(
@@ -1798,7 +1736,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     size = isMediaResponse(response) ? Number(range?.[1]) || (response.status === 200 ? Number(response.headers.get("content-length")) || 0 : 0) : 0;
                     response.body?.cancel().catch(() => {});
                 }
-                sendResponse({ size });
+                sendResponse({ size, mimeType: isMediaResponse(response) ? response.headers.get('content-type') || '' : '' });
             } catch { sendResponse({ size: 0 }); }
         })();
         return true;
@@ -1817,7 +1755,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         runPopupCapture(message.type, message.options).then(
             (clipboard) => sendResponse({ ok: true, clipboard }),
             (error) => {
-                sendCaptureProgress(100, error.message, chrome.i18n.getMessage("capture_status_failed"));
+                sendCaptureProgress(100, error.message, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_status_failed"));
                 const debug = globalThis.EasyReadDiagnostics?.record(error, { operation: "capture", type: message.type }, false);
                 sendResponse({ ok: false, error: error.message, debug });
             }
@@ -1837,7 +1775,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     error: { name: error.name, message: error.message, stack: error.stack || "", code: error.code },
                     details: error.debug || error.details || null
                 };
-                const localizedError = chrome.i18n.getMessage(error.code || error.message) || error.message;
+                const localizedError = (globalThis.EasyReadLocale || chrome.i18n).getMessage(error.code || error.message) || error.message;
                 sendRuntimeMessage({ command: "mediaProgress", index: message.media.index, percent: 0, stage: localizedError, error: true, debug }).catch(() => {});
                 sendResponse({ ok: false, error: localizedError, debug });
             }
@@ -1850,7 +1788,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === "local" && (changes[EASYREAD_NOTES_KEY] || changes[EASYREAD_HIGHLIGHT_SETTING])) {
         refreshHighlights().catch(console.log);
     }
-    if (areaName === "local" && changes[EASYREAD_ANNOTATIONS_KEY]) {
+    if (areaName === "local" && changes[EASYREAD_NOTES_KEY]) {
         renderAnnotationList().catch(console.log);
         refreshAnnotationHighlights().catch(console.log);
     }
@@ -1862,7 +1800,7 @@ function initializeHighlights() {
     observeDynamicContent();
     observeVideos();
     getPageAnnotations().then((annotations) => {
-        if (annotations.length > 0) {
+        if (annotations.some(note => note.comment)) {
             const sidebar = ensureAnnotationSidebar();
             setAnnotationExpanded(sidebar, true);
             renderAnnotationList().catch(console.log);
@@ -1875,3 +1813,16 @@ if (document.readyState === "loading") {
 } else {
     initializeHighlights();
 }
+globalThis.__easyreadContentReady = true;
+document.addEventListener('easyread-language-changed', () => {
+    const sidebar = document.getElementById('easyread-annotation-sidebar');
+    if (!sidebar) return;
+    sidebar.querySelector('header strong').textContent = globalThis.EasyReadLocale.getMessage('annotation_sidebar_title');
+    for (const [selector, key] of [['.easyread-annotation-download', 'annotation_sidebar_download'], ['.easyread-annotation-popup', 'annotation_move_popup'], ['.easyread-annotation-collapse', 'annotation_sidebar_collapse']]) {
+        const button = sidebar.querySelector(selector);
+        button.title = globalThis.EasyReadLocale.getMessage(key); button.setAttribute('aria-label', button.title);
+    }
+    sidebar.querySelector('.easyread-page-note-add').textContent = globalThis.EasyReadLocale.getMessage('notes_add_page');
+    if (!sidebar.querySelector('textarea')) renderAnnotationList().catch(console.error);
+});
+})();

@@ -1,12 +1,12 @@
 #easyread-annotation-sidebar[data-easyread-ui] {
-  -webkit-backdrop-filter: blur(24px) saturate(145%);
-  backdrop-filter: blur(24px) saturate(145%);
-  background: rgba(255, 255, 255, .86);
+  -webkit-backdrop-filter: blur(16px) saturate(135%);
+  backdrop-filter: blur(16px) saturate(135%);
+  background: rgba(249, 250, 252, .94);
   border: 1px solid rgba(225, 227, 231, .9);
   border-radius: 18px 0 0 18px;
-  box-shadow: 0 18px 48px rgba(25, 28, 33, .12), inset 0 1px 0 rgba(255,255,255,.92);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.92);
   box-sizing: border-box;
-  color: #35251d;
+  color: #1d1d1f;
   display: flex;
   flex-direction: column;
   font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -44,9 +44,9 @@ html[data-easyread-annotation-resizing] * { cursor: ew-resize !important; user-s
 .easyread-annotation-header strong { color: #202124; font-size: 15px; letter-spacing: -.01em; }
 .easyread-annotation-actions button,
 #easyread-annotation-reopen {
-  border: 1px solid #e7b48f;
-  border-radius: 999px;
-  background: #fff8f2;
+  border: 1px solid #dedee4;
+  border-radius: 9px;
+  background: #fff;
   color: #333;
   cursor: pointer;
   padding: 6px 10px;
@@ -76,8 +76,8 @@ html[data-easyread-annotation-resizing] * { cursor: ew-resize !important; user-s
 #easyread-annotation-reopen:focus-visible { outline: 3px solid rgba(255, 138, 0, .3); outline-offset: 2px; }
 
 @media (hover: hover) and (pointer: fine) {
-  .easyread-annotation-icon-button:hover { background: rgba(255, 138, 0, .1); transform: scale(1.06); }
-  #easyread-annotation-reopen:hover { transform: scale(1.06); }
+  .easyread-annotation-icon-button:hover { background: rgba(60, 60, 67, .07); transform: scale(1.03); }
+  #easyread-annotation-reopen:hover { transform: scale(1.03); }
 }
 
 .easyread-annotation-resize {
@@ -90,8 +90,8 @@ html[data-easyread-annotation-resizing] * { cursor: ew-resize !important; user-s
   z-index: 2;
 }
 .easyread-annotation-resize::after {
-  border-left: 1.5px solid rgba(143, 56, 8, .5);
-  border-right: 1.5px solid rgba(143, 56, 8, .5);
+  border-left: 1.5px solid rgba(80, 85, 94, .5);
+  border-right: 1.5px solid rgba(80, 85, 94, .5);
   border-radius: 2px;
   box-sizing: border-box;
   content: "";
@@ -108,13 +108,14 @@ html[data-easyread-annotation-resizing] * { cursor: ew-resize !important; user-s
 
 .easyread-annotation-quote {
   border-left: 3px solid #ff8a00;
-  color: #704832;
+  color: #64646d;
   margin: 0 0 10px;
   padding-left: 10px;
 }
 
 .easyread-annotation-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
-.easyread-annotation-list { flex: 1; min-height: 0; overflow: auto; padding: 4px 10px 14px; position: relative; }
+.easyread-annotation-list { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow: auto; padding: 4px 10px 14px; position: relative; }
+.easyread-annotation-list > * { flex-shrink: 0; }
 .easyread-annotation-list.is-empty {
   align-items: center;
   background:
@@ -194,14 +195,22 @@ html[data-easyread-annotation-resizing] * { cursor: ew-resize !important; user-s
 .easyread-annotation-item { align-items: flex-start; background: rgba(255,255,255,.8); border: 1px solid rgba(226,228,232,.9); border-radius: 14px; box-shadow: 0 5px 16px rgba(0,0,0,.045); display: grid; gap: 9px; grid-template-columns: 18px minmax(0, 1fr); margin-top: 8px; padding: 13px; }
 .easyread-annotation-number { align-items: center; background: #e35503; border: 2px solid #fff; border-radius: 999px; box-shadow: 0 2px 7px rgba(80,35,8,.25); box-sizing: border-box; color: #fff; display: inline-flex; font: 700 10px/1 system-ui, sans-serif; height: 18px; justify-content: center; min-width: 18px; padding: 0 4px; }
 .easyread-annotation-content { min-width: 0; }
+.easyread-annotation-item.easyread-page-note { grid-template-columns: minmax(0, 1fr); margin-top: 24px; border-color: #dce3ee; background: linear-gradient(140deg, #fff, #f5f7fa); }
+.easyread-annotation-list > .easyread-page-note { margin-top: auto; }
+.easyread-annotation-list > .easyread-page-note + .easyread-page-note { margin-top: 10px; }
+.easyread-annotation-list > :not(.easyread-page-note):has(+ .easyread-page-note) { margin-bottom: 24px; }
+.easyread-page-note .easyread-annotation-quote { border-left: 0; padding-left: 0; color: #505968; font-size: 12px; font-weight: 650; }
+.easyread-note-unlocated { display: block; margin-top: 6px; color: #92969e; font-size: 11px; font-weight: 400; }
+#easyread-annotation-sidebar .easyread-page-note-add { flex-shrink: 0; margin: 0 10px 12px; border: 1px solid #dfe3e9; border-radius: 12px; padding: 11px; background: rgba(255,255,255,.8); color: #4b5665; text-align: left; cursor: pointer; font-size: 12px; }
+#easyread-annotation-sidebar .easyread-note-add-thought { padding: 4px 0; border: 0; background: transparent; color: #66758b; font-size: 12px; cursor: pointer; text-align: left; }
+#easyread-annotation-sidebar .easyread-page-note-add:active, #easyread-annotation-sidebar .easyread-note-add-thought:active { transform: scale(.98); }
+.easyread-annotation-quote { white-space: pre-wrap; }
 .easyread-annotation-meta { color: #7a7f87; font-size: 12px; margin-bottom: 6px; }
 .easyread-annotation-meta-row { align-items: center; display: flex; justify-content: space-between; min-height: 24px; }
 .easyread-annotation-meta-row .easyread-annotation-meta { margin-bottom: 0; min-width: 0; }
-.easyread-annotation-edit { flex: 0 0 auto; height: 24px; margin: -3px -3px 0 6px; padding: 4px; width: 24px; }
-.easyread-annotation-edit svg { height: 15px; width: 15px; }
-.easyread-annotation-item-actions { align-items: center; display: flex; flex: 0 0 auto; gap: 1px; }
-.easyread-annotation-remove { color: #8b3a32; flex: 0 0 auto; height: 24px; padding: 4px; width: 24px; }
-.easyread-annotation-remove svg { height: 15px; width: 15px; }
+.easyread-annotation-item-actions { align-items: center; display: flex; flex: 0 0 auto; gap: 4px; }
+.easyread-annotation-edit, .easyread-annotation-remove, .easyread-annotation-locate { flex: 0 0 24px; height: 24px; margin: 0; padding: 4px; width: 24px; }
+.easyread-annotation-edit svg, .easyread-annotation-remove svg, .easyread-annotation-locate svg { height: 15px; width: 15px; }
 .easyread-annotation-inline-editor textarea { background: rgba(255,255,255,.94); border: 1px solid #dfe2e6; border-radius: 9px; box-sizing: border-box; min-height: 72px; padding: 9px; resize: vertical; width: 100%; }
 .easyread-annotation-inline-editor .easyread-annotation-actions { margin-top: 7px; }
 .easyread-annotation-draft { background: rgba(255,248,241,.88); border-color: rgba(227,85,3,.22); }
@@ -234,7 +243,19 @@ html[data-easyread-annotation-resizing] * { cursor: ew-resize !important; user-s
 }
 #easyread-annotation-reopen:active { transform: scale(.96); }
 
-#easyread-annotation-reopen[data-visible="true"] { display: block; }
+#easyread-annotation-reopen[data-visible="true"] { display: flex; }
+
+/* Limit resets to EasyRead's surfaces, without changing the surrounding page. */
+#easyread-annotation-sidebar *, #easyread-annotation-sidebar *::before, #easyread-annotation-sidebar *::after { box-sizing: border-box; }
+#easyread-annotation-sidebar button, #easyread-annotation-sidebar textarea { font: inherit; }
+#easyread-annotation-sidebar button { line-height: 1.4; text-transform: none; letter-spacing: normal; }
+#easyread-annotation-sidebar .easyread-annotation-actions button { font-size: 12px; min-height: 30px; }
+#easyread-annotation-sidebar .easyread-annotation-actions button:last-child { color: #fff; background: #29292e; border-color: #29292e; }
+#easyread-annotation-sidebar .easyread-annotation-quote, #easyread-annotation-sidebar .easyread-annotation-comment, #easyread-annotation-sidebar .easyread-annotation-meta { overflow-wrap: anywhere; }
+#easyread-annotation-sidebar .easyread-annotation-meta { font-size: 11px; }
+#easyread-annotation-sidebar .easyread-annotation-draft { background: #fff; border-color: #bfcde1; }
+#easyread-annotation-sidebar :is(button, textarea):focus-visible { outline: 3px solid #007aff70; outline-offset: 2px; }
+#easyread-annotation-sidebar .easyread-annotation-list { overscroll-behavior: contain; }
 
 @media (prefers-reduced-motion: reduce) {
   .easyread-annotation-icon-button,
@@ -243,4 +264,40 @@ html[data-easyread-annotation-resizing] * { cursor: ew-resize !important; user-s
   .easyread-annotation-icon-button:active,
   #easyread-annotation-reopen:hover,
   #easyread-annotation-reopen:active { transform: none; }
+}
+
+/* Neutral gray applies only to icons; preserve original text and button colors. */
+#easyread-annotation-sidebar { --easyread-action-gray: #60646c; }
+#easyread-annotation-sidebar .easyread-annotation-icon-button svg { color: var(--easyread-action-gray); }
+#easyread-annotation-sidebar .easyread-annotation-icon-button img { filter: invert(39%) sepia(7%) saturate(562%) hue-rotate(181deg) brightness(93%) contrast(87%); }
+.easyread-annotation-header { flex-shrink: 0; }
+#easyread-annotation-sidebar .easyread-page-note-footer { display: flex; flex-shrink: 0; gap: 4px; margin: 4px 10px 12px; padding: 0; border: 1px solid #dfe3e9; border-radius: 12px; background: rgba(255,255,255,.8); }
+#easyread-annotation-sidebar .easyread-page-note-footer .easyread-page-note-add { flex: 1; margin: 0; border: 0; background: transparent; min-width: 0; }
+#easyread-annotation-sidebar .easyread-page-note-toggle { align-self: center; gap: 6px; width: auto; min-width: 52px; margin-right: 6px; }
+.easyread-page-note-toggle span { font: 600 11px/1.5 system-ui; background: #edeef1; border-radius: 9px; min-width: 18px; padding: 1px 4px; }
+.easyread-page-note-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.easyread-page-note-toggle[hidden], .easyread-page-drawer[hidden] { display: none !important; }
+#easyread-annotation-sidebar .easyread-page-drawer { position: sticky; bottom: 0; margin-top: auto; flex: 0 0 auto; width: 100%; max-height: 80%; overflow: auto; overscroll-behavior: contain; padding: 8px; border: 1px solid #e1e3e8; border-radius: 16px; background: rgba(249,250,252,.96); backdrop-filter: blur(16px); box-shadow: 0 0 20px #2428320a; }
+#easyread-annotation-sidebar .easyread-page-drawer .easyread-page-note { margin: 0 0 8px; }
+#easyread-annotation-sidebar .easyread-page-drawer .easyread-page-note:last-child { margin-bottom: 0; }
+.easyread-annotation-list.is-empty { justify-content: safe center; }
+.easyread-annotation-empty-visual { flex-shrink: 0; }
+
+/* Entry belongs to the surface, not one particular toggle button. */
+#easyread-annotation-sidebar .easyread-page-drawer,
+#easyread-annotation-sidebar .easyread-page-note:has(textarea) {
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform 220ms cubic-bezier(.32,.72,0,1), opacity 220ms ease-out;
+}
+@starting-style {
+  #easyread-annotation-sidebar .easyread-page-drawer,
+  #easyread-annotation-sidebar .easyread-page-note:has(textarea) {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #easyread-annotation-sidebar .easyread-page-drawer,
+  #easyread-annotation-sidebar .easyread-page-note:has(textarea) { transition: none; }
 }

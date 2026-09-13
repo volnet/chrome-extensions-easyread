@@ -52,13 +52,21 @@ function addCopyrightInfo() {
         spanElement1.textContent = versionText;
         spanElement1.classList.add("copyrightSpan");
 
+        if (location.pathname.endsWith('/setting/setting.html')) {
         divElement.appendChild(imgElement1);
         divElement.appendChild(linkElement1);
         divElement.appendChild(imgElement2);
         divElement.appendChild(linkElement2);
         divElement.appendChild(imgElement3);
         divElement.appendChild(linkElement3);
+        }
         divElement.appendChild(spanElement1);
+        if (location.pathname.endsWith('/setting/setting.html')) {
+            const contacts = document.createElement('div'); contacts.className = 'copyrightContacts';
+            for (const child of [...divElement.children]) if (child !== spanElement1) contacts.append(child);
+            divElement.prepend(contacts);
+            const owner = document.createElement('span'); owner.textContent = '©i-whimsy'; divElement.append(owner);
+        }
     }
 }
 

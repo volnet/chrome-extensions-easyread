@@ -8,10 +8,12 @@
 - Preserve both English and Simplified Chinese locale coverage.
 - Treat export/import compatibility as a public data contract. Do not silently rename storage keys or fields.
 - Notes are also page highlights. Keep legacy `selectionText` notes readable; `prefix` and `suffix` are optional hints, never required migration fields.
-- Annotations are stored separately under `annotations`; their author setting is `annotationAuthor`. Do not merge annotations into notes/highlights.
+- Notes unify highlights, quoted thoughts and whole-page thoughts under `notes`. Migrate legacy `annotations` without losing content; retain a local migration snapshot. Keep `annotationAuthor` as the compatible author setting. Text Notes follow document order; whole-page Notes always come last.
 - Video progress is observational only. Never seek or resume page videos on the user's behalf.
 - `highlightsEnabled` controls only visual rendering. Turning it off must never delete notes.
 - Never commit `key.pem` or any replacement signing key.
+- Keep settings aligned with the external product: use the same names and order for primary feature tabs and their secondary settings. Update both surfaces together whenever navigation changes.
+- Diagnostics are local and opt-in through General > Diagnostic Tool in both builds. Never add diagnostic overlays or automatic error downloads. Disabling collection preserves existing reports.
 
 ## Safe workflow
 

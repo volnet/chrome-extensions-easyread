@@ -1,396 +1,956 @@
 {
-    "capture_stage_tab": {"message":"Capturing tab $1/$2: $3"},
-    "capture_tab_unavailable": {"message":"This tab could not be captured. View it on the original webpage."},
-    "diagnostics_details": {"message":"Error details (development)"},
-    "diagnostics_dismiss": {"message":"Hide"},
-    "diagnostics_download_all": {"message":"Download recent errors"},
-    "capture_media_file_size_pending": {"message":"Size pending"},
-    "capture_media_file_size_estimated": {"message":"About $1"},
-    "capture_media_progress_amount": {"message":"Downloaded $1"},
-    "capture_media_progress_amount_total": {"message":"$1/$2"},
-    "capture_media_progress_detail": {"message":"$1, $2"},
-    "capture_media_eta_seconds": {"message":"$1 sec remaining"},
-    "capture_media_eta_minutes": {"message":"$1 min $2 sec remaining"},
-    "capture_media_eta_hours": {"message":"$1 hr $2 min remaining"},
-    "capture_action_sources": {"message":"Sources"},
-    "capture_media_sources_loading": {"message":"Loading"},
-    "capture_media_sources_failed": {"message":"Media sources could not be read"},
-    "capture_media_sources_count": {"message":"$1 resource links"},
-    "capture_media_sources_copy": {"message":"Copy all"},
-    "capture_media_source_player": {"message":"Player"},
-    "capture_media_source_media": {"message":"Media"},
-    "capture_media_source_backup": {"message":"Backup"},
-    "capture_media_source_playlist": {"message":"Playlist"},
-    "capture_media_source_segment": {"message":"Segment"},
-    "capture_media_source_key": {"message":"Key"},
-    "capture_media_source_resource": {"message":"Resource"},
-    "capture_media_size_unknown": {"message":"Size pending"},
-    "capture_media_preview": {"message":"Preview video"},
-    "capture_media_preview_unsupported": {"message":"Video preview is not supported in this browser."},
-    "capture_media_preview_failed": {"message":"Preview could not be loaded. You can still try downloading the video."},
-    "media_invalid_playlist": {"message":"The server did not return a valid video playlist."},
-    "media_invalid_range": {"message":"The video contains an invalid byte range."},
-    "media_invalid_iv": {"message":"The video encryption information is incomplete."},
-    "media_missing_segment": {"message":"The playlist marks a missing segment. A complete video cannot be saved."},
-    "media_empty_track": {"message":"An audio or video track is missing or empty."},
-    "media_invalid_timeline": {"message":"The video timeline is incomplete or out of order."},
-    "media_unsupported_codec": {"message":"This video encoding cannot currently be packaged."},
-    "media_codec_changed": {"message":"The encoding changes within this stream. A complete file could not be packaged."},
-    "media_size_limit": {"message":"This video exceeds the current 512 MB local processing limit."},
-    "media_live_unsupported": {"message":"This is an ongoing live stream, not a finished video."},
-    "media_duration_mismatch": {"message":"The downloaded track duration does not match the playlist. No incomplete file was saved."},
-    "media_stage_playlists": {"message":"Reading video and audio playlists…"},
-    "media_stage_segments": {"message":"Downloading segments $1 of $2…"},
-    "media_stage_merging": {"message":"Combining audio and video locally…"},
-    "media_stage_validating": {"message":"Checking file integrity…"},
-    "capture_media_incomplete_mp4": { "message": "This resource is an incomplete video fragment. A complete video with initialization data is required; no file was saved." },
-    "capture_media_separate_audio": { "message": "This video has separate audio and video tracks. Merging this stream is not supported yet; no file was saved." },
-    "capture_media_hls_layout": { "message": "This stream requires byte-range or timeline processing that is not supported yet; no file was saved." },
-    "manifest_name": {
-        "message": "EasyRead",
-        "description": "The manifest field."
-    },
-    "manifest_description": {
-        "message": "EasyRead: Read later, automatic history, highlights, annotations, and Markdown export.",
-        "description": "The manifest field."
-    },
-    "popup_page_title": {
-        "message": "EasyRead: empower your time!",
-        "description": "The popup page's title."
-    },
-    "popup_page_top_menu_bar_all_records_title": {
-        "message": "All Records",
-        "description": "The top menu bar."
-    },
-    "popup_page_top_menu_bar_annotations_title": {
-        "message": "Expand or collapse annotations",
-        "description": "Expand or collapse the annotation sidebar from the popup."
-    },
-    "popup_page_top_menu_bar_setting_title": {
-        "message": "Settings & Backup",
-        "description": "The top menu bar."
-    },
-    "popup_page_read_times": {
-        "message": "Read Times: $READ_TIMES$",
-        "description": "The page read times.",
-        "placeholders": {
-            "read_times": {
-                "content": "$1",
-                "example": "3"
-            }
-        }
-    },
-    "popup_page_total_pages": {
-        "message": "Total Pages: $total_pages$",
-        "description": "The total pages title.",
-        "placeholders": {
-            "total_pages": {
-                "content": "$1",
-                "example": "3"
-            }
-        }
-    },
-    "popup_btn_read_later_text": {
-        "message": "Read Later",
-        "description": "The read later button text."
-    },
-    "popup_page_notes_title": {
-        "message": "Highlights",
-        "description": "The note block title."
-    },
-    "popup_page_message_no_readlaters": {
-        "message": "No readlaters, Is this your first time here?",
-        "description": "The message: no readlater records."
-    },
-    "popup_page_message_duplicate_readlaters": {
-        "message": "It has in your list yet.",
-        "description": "The message: dupulicate readlater records."
-    },
-    "popup_page_message_readlaters_added": {
-        "message": "Added successfully!",
-        "description": "The message: add readlater records successfully."
-    },
-    "popup_page_message_readlaters_firsttime": {
-        "message": "Well done!",
-        "description": "The message: first time to insert a readlater records."
-    },
-    "popup_page_message_readlaters_remove_null": {
-        "message": "Nothing be removed!",
-        "description": "The message: remove a readlater records not exists."
-    },
-    "popup_page_message_notes_downloaded": {
-        "message": "The page highlights were downloaded.",
-        "description": "The message: download the page note successfully."
-    },
-    "popup_page_message_notes_removed": {
-        "message": "The page highlights were removed.",
-        "description": "The message: remove the page note successfully."
-    },
-    "popup_page_message_no_notes": {
-        "message": "No highlights found.",
-        "description": "The message: no notes found."
-    },
-    "popup_page_message_no_records_no_datetimes": {
-        "message": "No records",
-        "description": "The message: not found the allrecords."
-    },
-    "popup_page_message_no_records_text": {
-        "message": "No records",
-        "description": "The message: not found the allrecords."
-    },
-    "popup_page_message_no_records_firsttime": {
-        "message": "No records",
-        "description": "The message: not found the allrecords, Is this your first time here?"
-    },
-    "popup_page_message_records_removed": {
-        "message": "The records of the page is removed.",
-        "description": "The message: the page's records is removed."
-    },
-    "popup_page_message_records_not_supported": {
-        "message": "This page not supported.",
-        "description": "The message: the page's url is not supported."
-    },
-    "allrecords_page_title": {
-        "message": "EasyRead: empower your time!",
-        "description": "The all records display list."
-    },
-    "allrecords_page_notice": {
-        "message": "This is all your readed history:",
-        "description": "Notice the user what's next."
-    },
-    "allrecords_page_summary": {
-        "message": "$1 records, $2 per page",
-        "description": "Summary for paginated records."
-    },
-    "allrecords_page_indicator": {
-        "message": "Page $1 of $2",
-        "description": "Current page indicator."
-    },
-    "allrecords_page_previous": { "message": "Previous", "description": "Previous records page." },
-    "allrecords_page_next": { "message": "Next", "description": "Next records page." },
-    "allrecords_export": { "message": "Export records", "description": "Export all reading records." },
-    "allrecords_header_number": { "message": "No.", "description": "Record sequence column." },
-    "allrecords_header_title": { "message": "Title (URL)", "description": "Record title column." },
-    "allrecords_header_read_times": { "message": "Read times", "description": "Visit count column." },
-    "allrecords_header_last_read_time": { "message": "Last read", "description": "Most recent reading time column." },
-    "allrecords_header_read_progress": { "message": "Read progress", "description": "Reading progress column." },
-    "allrecords_header_video_progress": { "message": "Video progress", "description": "Video progress column." },
-    "setting_page_title": {
-        "message": "EasyRead: empower your time!",
-        "description": "The setting page display list."
-    },
-    "setting_page_notice": {
-        "message": "Setting Page, manage the EasyRead better.",
-        "description": "Notice the user what's next."
-    },
-    "setting_tab_general": { "message": "General", "description": "General settings tab." },
-    "setting_tab_data": { "message": "Content & records", "description": "Content data tab." },
-    "setting_tab_backup": { "message": "Backup & restore", "description": "Backup and restore tab." },
-    "setting_page_highlights_description": { "message": "Controls whether saved highlights appear in page content. This never deletes highlight data.", "description": "Page highlight visibility setting description." },
-    "setting_page_notice_annotationAuthor": { "message": "Annotation author", "description": "Annotation author settings title." },
-    "setting_page_annotationAuthorLabel": { "message": "Author shown beside new annotations", "description": "Annotation author input label." },
-    "setting_page_btnSaveAnnotationAuthor": { "message": "Save author", "description": "Save annotation author button." },
-    "setting_page_annotationAuthorSaved": { "message": "Annotation author saved.", "description": "Annotation author saved message." },
-    "setting_page_notice_allRecords": {
-        "message": "It's only about all records, they are record by EasyRead.",
-        "description": "The notice message."
-    },
-    "setting_page_btnDownloadAllRecordsAsJson": {
-        "message": "Download All Records",
-        "description": "The button text."
-    },
-    "setting_page_btnRemoveAllRecords": {
-        "message": "Remove All Records",
-        "description": "The button text."
-    },
-    "setting_page_allRecordsRemoved": {
-        "message": "All records has been removed.",
-        "description": "The message for button click."
-    },
-    "setting_page_notice_readLaters": {
-        "message": "It's only about all readLaters, they are record by YOU(Human).",
-        "description": "The notice message."
-    },
-    "setting_page_btnDownloadReadLatersAsJson": {
-        "message": "Download ReadLaters",
-        "description": "The button text."
-    },
-    "setting_page_btnRemoveReadLaters": {
-        "message": "Remove ReadLaters",
-        "description": "The button text."
-    },
-    "setting_page_readLatersRemoved": {
-        "message": "ReadLaters has been removed.",
-        "description": "The message for button click."
-    },
-    "setting_page_notice_notes": {
-        "message": "Manage highlights that you selected yourself.",
-        "description": "The notice message."
-    },
-    "setting_page_btnDownloadNotesAsJson": {
-        "message": "Download Highlights as JSON (*.json)",
-        "description": "The button text."
-    },
-    "setting_page_btnDownloadNotesAsMarkdown": {
-        "message": "Download Highlights as Markdown (*.zip)",
-        "description": "The button text."
-    },
-    "setting_page_btnRemoveNotes": {
-        "message": "Remove Highlights",
-        "description": "The button text."
-    },
-    "setting_page_notesRemoved": {
-        "message": "All highlights were removed.",
-        "description": "The message for button click."
-    },
-    "setting_page_notice_storage": {
-        "message": "(full backup)It will download all storage.",
-        "description": "The notice message."
-    },
-    "setting_page_btnDownloadStorageAsJson": {
-        "message": "Download Storage",
-        "description": "The button text."
-    },
-    "setting_page_btnMergeStorageJson": {
-        "message": "Merge Storage",
-        "description": "The button text."
-    },
-    "setting_page_btnReplaceStorageJson": {
-        "message": "Replace Storage",
-        "description": "The button text."
-    },
-    "setting_page_btnDropStorage": {
-        "message": "Drop Storage",
-        "description": "The button text."
-    },
-    "setting_page_storageDroped": {
-        "message": "The Storage is dropped.",
-        "description": "The message for button click."
-    },
-    "setting_page_storageMergedSuccessfully": {
-        "message": "The storage merged successfully.",
-        "description": "The message for button click." 
-    },
-    "setting_page_storageMergedFailed": {
-        "message": "The storage merged failed.",
-        "description": "The message for button click." 
-    },
-    "setting_page_storageReplacedSuccessfully": {
-        "message": "The storage replaced successfully.",
-        "description": "The message for button click." 
-    },
-    "setting_page_storageReplacedFailed": {
-        "message": "The storage replaced failed.",
-        "description": "The message for button click." 
-    },
-    "setting_page_fileInputNofiles": {
-        "message": "You must select *.json file.",
-        "description": "The message for button click." 
-    }, 
-    "popup_page_show_highlights": {
-        "message": "Show page highlights",
-        "description": "Label for the page highlight visibility toggle."
-    },
-    "popup_page_highlights_enabled": {
-        "message": "Page highlights are on.",
-        "description": "Message shown after enabling page highlights."
-    },
-    "popup_page_highlights_disabled": {
-        "message": "Page highlights are off. Your highlight data is kept.",
-        "description": "Message shown after disabling page highlights."
-    },
-    "contextMenus_title_page_addReadLater": {
-        "message": "Read Later (Page)",
-        "description": "The message for context menu."  
-    }, 
-    "contextMenus_title_selection_addNote": {
-        "message": "Add highlight (current selection)",
-        "description": "Add the current text selection as a page highlight."
-    },
-    "contextMenus_title_selection_addAnnotation": {
-        "message": "Add annotation",
-        "description": "Add an annotation for the selected text."
-    },
-    "annotation_sidebar_title": { "message": "Annotations", "description": "Annotation sidebar title." },
-    "annotation_sidebar_collapse": { "message": "Collapse annotations", "description": "Collapse the sidebar and keep the EasyRead entry visible." },
-    "annotation_sidebar_expand": { "message": "Expand annotations", "description": "Expand the sidebar from the EasyRead entry." },
-    "annotation_sidebar_download": { "message": "Download page annotations", "description": "Download annotations from this page as Markdown." },
-    "annotation_empty_title": { "message": "Quiet for now", "description": "Empty-state title when this page has no annotations." },
-    "annotation_empty_description": { "message": "Select some text and add an annotation. Your thoughts will appear here in page order.", "description": "Empty-state guidance when this page has no annotations." },
-    "annotation_comment_placeholder": { "message": "Write an annotation…", "description": "Annotation input placeholder." },
-    "annotation_action_cancel": { "message": "Cancel", "description": "Cancel annotation." },
-    "annotation_action_save": { "message": "Save", "description": "Save annotation." },
-    "annotation_action_edit": { "message": "Edit annotation", "description": "Edit an existing annotation." },
-    "annotation_action_remove": { "message": "Remove annotation", "description": "Remove an existing annotation." },
-    "contextMenus_title_selection_removeAnnotation": { "message": "Remove annotation", "description": "Remove the annotation at the current text." },
-    "annotation_author_anonymous": { "message": "Anonymous", "description": "Fallback annotation author." },
-    "contextMenus_title_selection_removeHighlight": {
-        "message": "Remove highlight (current selection)",
-        "description": "Remove the page highlight under the context-menu pointer."
-    },
-    "popup_page_top_menu_bar_save_copy_title": { "message": "Save a copy", "description": "Open the page copy panel." },
-    "allrecords_header_artifacts": { "message": "Saved copies", "description": "Saved page artifacts column." },
-    "capture_title": { "message": "Save a copy", "description": "Page copy dialog title." },
-    "capture_close": { "message": "Close", "description": "Close the page copy dialog." },
-    "capture_markdown_title": { "message": "Markdown", "description": "Markdown capture title." },
-    "capture_markdown_description": { "message": "Editable article text with EasyRead highlights and annotations.", "description": "Markdown capture description." },
-    "capture_html_title": { "message": "Single HTML", "description": "HTML capture title." },
-    "capture_html_description": { "message": "A safer page snapshot. Inaccessible remote resources are reported.", "description": "HTML capture description." },
-    "capture_png_title": { "message": "Screenshot", "description": "Screenshot feature title." },
-    "capture_png_description": { "message": "Scroll and stitch the full page; exceptionally long pages are reported clearly.", "description": "PNG capture description." },
-    "capture_png_progress": { "message": "Capturing image $1 of $2…", "description": "Full-page capture progress." },
-    "capture_png_too_long": { "message": "This page exceeds the browser canvas limit, so a complete PNG cannot be created.", "description": "Full-page capture length error." },
-    "capture_media_title": { "message": "Media", "description": "Media capture title." },
-    "capture_media_description": { "message": "Find direct media and supported HLS streams on this page.", "description": "Media capture description." },
-    "capture_status_ready": { "message": "Choose the copy that best matches how you will use this page later.", "description": "Ready status." },
-    "capture_status_working": { "message": "Preparing the copy…", "description": "Working status." },
-    "capture_status_saved": { "message": "The copy was prepared and downloaded.", "description": "Success status." },
-    "capture_status_partial": { "message": "The copy was downloaded, but some protected or inaccessible resources remain external.", "description": "Partial status." },
-    "capture_status_failed": { "message": "Could not save the copy", "description": "Failure status." },
-    "capture_highlights_heading": { "message": "Highlights", "description": "Markdown highlights heading." },
-    "capture_media_none": { "message": "No downloadable media found yet", "description": "No media status." },
-    "capture_media_none_description": { "message": "Try playing a video or audio track on the page, then reopen EasyRead.", "description": "Suggestion shown when no media is found." },
-    "capture_media_debug_saved": { "message": "The media error report was downloaded.", "description": "Notice shown after downloading media diagnostics." },
-    "capture_media_debug_download": { "message": "Download error details", "description": "Button for the user to explicitly download media diagnostics." },
-    "capture_media_found": { "message": "$1 media candidates found. Choose one to download.", "description": "Media found status." },
-    "capture_action_download": { "message": "Download", "description": "Download media action." },
-    "capture_media_no_segments": { "message": "The playlist contains no downloadable segments.", "description": "HLS error." },
-    "capture_media_drm_unsupported": { "message": "This stream uses DRM or an unsupported encryption method. EasyRead will not bypass it.", "description": "DRM error." },
-    "capture_media_key_missing": { "message": "The AES-128 key URL is missing.", "description": "HLS key error." },
-    "capture_media_segment_progress": { "message": "Downloading segment $1 of $2…", "description": "HLS download progress." },
-    "capture_media_transmuxing": { "message": "Converting to MP4…", "description": "Status shown while HLS segments are transmuxed to MP4." },
-    "capture_media_track_muxed": { "message": "Video + audio", "description": "Media candidate contains both video and audio." },
-    "capture_media_track_video": { "message": "Video only, no audio", "description": "Media candidate contains only a video track." },
-    "capture_media_track_audio": { "message": "Audio only", "description": "Media candidate contains only an audio track." },
-    "popup_tab_read_later": { "message": "Read later", "description": "Popup read-later tab." },
-    "popup_tab_save_page": { "message": "Save page", "description": "Popup page-saving tab." },
-    "popup_tab_media": { "message": "Media", "description": "Popup media tab." },
-    "capture_save_page_intro": { "message": "Choose an output. Every task reports its current stage, progress, and result.", "description": "Save-page introduction." },
-    "capture_pdf_title": { "message": "PDF", "description": "PDF capture title." },
-    "capture_pdf_description": { "message": "Open the browser print dialog so you can confirm pages, paper, and destination.", "description": "PDF capture description." },
-    "capture_image_description": { "message": "Current viewport or full page, in PNG or JPG.", "description": "Image capture description." },
-    "capture_prepare_lazy": { "message": "Scroll the page first to load lazy content", "description": "Lazy-content option." },
-    "capture_scope_viewport": { "message": "Viewport", "description": "Viewport screenshot." },
-    "capture_scope_full_page": { "message": "Full page", "description": "Full-page screenshot." },
-    "capture_action_save": { "message": "Save", "description": "Save action." },
-    "capture_action_copy": { "message": "Copy", "description": "Copy to clipboard action." },
-    "capture_stage_copying": { "message": "Writing to the system clipboard…", "description": "Clipboard stage." },
-    "capture_status_copied": { "message": "The content was copied to the clipboard.", "description": "Clipboard success status." },
-    "capture_download_permission_missing": { "message": "EasyRead does not have the download permission yet. Reload EasyRead on the Extensions page and try again.", "description": "Missing download permission warning." },
-    "capture_task_title": { "message": "Saving", "description": "Capture task title." },
-    "capture_stage_starting": { "message": "Connecting to the current page…", "description": "Capture start stage." },
-    "capture_stage_permission": { "message": "Confirming cross-origin resource access…", "description": "HTML resource permission stage." },
-    "capture_stage_lazy": { "message": "Loading page content $1 of $2…", "description": "Lazy-content stage." },
-    "capture_stage_stabilizing": { "message": "Waiting for the dynamic page to stabilize…", "description": "Dynamic-page stabilization stage." },
-    "capture_stage_document": { "message": "Analyzing the article, highlights, annotations, and page structure…", "description": "Document analysis stage." },
-    "capture_stage_styles": { "message": "Freezing page styles $1 of $2…", "description": "HTML computed-style stage." },
-    "capture_stage_frames": { "message": "Freezing frames and live page state…", "description": "HTML frame stage." },
-    "capture_stage_stylesheet": { "message": "Processing stylesheet $1 of $2…", "description": "HTML stylesheet stage." },
-    "capture_stage_resource_url": { "message": "$1 CSS resources inlined…", "description": "CSS resource stage." },
-    "capture_stage_resources": { "message": "Inlining image resources $1 of $2…", "description": "HTML resource stage." },
-    "capture_stage_packaging": { "message": "Inlining resources and packaging the single-page file…", "description": "HTML packaging stage." },
-    "capture_stage_viewport": { "message": "Capturing the current viewport…", "description": "Viewport capture stage." },
-    "capture_stage_downloading": { "message": "The file is ready and has been handed to the browser downloader…", "description": "Download stage." },
-    "capture_stage_print_dialog": { "message": "Opening the browser print dialog…", "description": "PDF print stage." },
-    "capture_stage_print_opened": { "message": "Choose Save as PDF in the print dialog and confirm the destination.", "description": "PDF interaction hint." }
+  "setting_read_later_empty": {
+    "message": "No records yet"
+  },
+  "setting_read_later_empty_hint": {
+    "message": "Save a page to Read Later. It will be waiting here when you return."
+  },
+  "setting_read_later_count": {
+    "message": "$1 records · $2 / $3"
+  },
+  "setting_remove_scope": {
+    "message": "Delete Records — $1"
+  },
+  "setting_records_parent": {
+    "message": "Read Later / Browsing History"
+  },
+  "setting_language": {
+    "message": "Display Language"
+  },
+  "setting_language_auto": {
+    "message": "Automatic (browser language)"
+  },
+  "setting_open_all_records": {
+    "message": "Open All Records"
+  },
+  "annotation_move_sidebar": {
+    "message": "Move to sidebar"
+  },
+  "annotation_move_popup": {
+    "message": "Move to popup"
+  },
+  "capture_page_reconnect_failed": {
+    "message": "Unable to connect to this page. Refresh it and check that EasyRead has access to this site."
+  },
+  "diagnostics_title": {
+    "message": "Diagnostic Tool"
+  },
+  "diagnostics_description": {
+    "message": "Record errors only while enabled, without overlays or automatic downloads. The latest 100 reports stay on this device and remain downloadable after disabling. Review page URLs before sharing."
+  },
+  "diagnostics_empty": {
+    "message": "No error reports"
+  },
+  "diagnostics_count": {
+    "message": "$1 error reports"
+  },
+  "diagnostics_clear": {
+    "message": "Delete Records"
+  },
+  "diagnostics_download": {
+    "message": "Download JSON"
+  },
+  "diagnostics_single": {
+    "message": "Download error report"
+  },
+  "diagnostics_multiple": {
+    "message": "View $1 error reports"
+  },
+  "screenshot_format_label": {
+    "message": "Screenshot file format"
+  },
+  "screenshot_format_description": {
+    "message": "Used when saving screenshots. Clipboard copies always use PNG for browser compatibility."
+  },
+  "screenshot_copy_viewport": {
+    "message": "Copy viewport"
+  },
+  "screenshot_copy_full": {
+    "message": "Copy full page"
+  },
+  "screenshot_save_viewport": {
+    "message": "Save viewport"
+  },
+  "screenshot_save_full": {
+    "message": "Save full page"
+  },
+  "media_settings_description": {
+    "message": "Applies only to EasyRead previews. Autoplay and mute are off by default; simultaneous playback is always muted. If the browser blocks audible autoplay, click play. Original page playback progress is only recorded, never restored."
+  },
+  "setting_tab_read_later": {
+    "message": "Read Later"
+  },
+  "setting_tab_save_page": {
+    "message": "Save Page"
+  },
+  "setting_tab_media": {
+    "message": "Media"
+  },
+  "setting_tab_annotations": {
+    "message": "Notes"
+  },
+  "capture_stage_tab": {
+    "message": "Capturing tab $1/$2: $3"
+  },
+  "capture_tab_unavailable": {
+    "message": "This tab could not be captured. View it on the original webpage."
+  },
+  "diagnostics_details": {
+    "message": "Error details (development)"
+  },
+  "diagnostics_dismiss": {
+    "message": "Hide"
+  },
+  "diagnostics_download_all": {
+    "message": "Download recent errors"
+  },
+  "capture_media_file_size_pending": {
+    "message": "Size pending"
+  },
+  "capture_media_file_size_estimated": {
+    "message": "About $1"
+  },
+  "capture_media_progress_amount": {
+    "message": "Downloaded $1"
+  },
+  "capture_media_progress_amount_total": {
+    "message": "$1/$2"
+  },
+  "capture_media_progress_detail": {
+    "message": "$1, $2"
+  },
+  "capture_media_eta_seconds": {
+    "message": "$1 sec remaining"
+  },
+  "capture_media_eta_minutes": {
+    "message": "$1 min $2 sec remaining"
+  },
+  "capture_media_eta_hours": {
+    "message": "$1 hr $2 min remaining"
+  },
+  "capture_action_sources": {
+    "message": "Sources"
+  },
+  "capture_media_sources_loading": {
+    "message": "Loading"
+  },
+  "capture_media_sources_failed": {
+    "message": "Media sources could not be read"
+  },
+  "capture_media_sources_count": {
+    "message": "$1 resource links"
+  },
+  "capture_media_sources_copy": {
+    "message": "Copy all"
+  },
+  "capture_media_source_player": {
+    "message": "Player"
+  },
+  "capture_media_source_media": {
+    "message": "Media"
+  },
+  "capture_media_source_backup": {
+    "message": "Backup"
+  },
+  "capture_media_source_playlist": {
+    "message": "Playlist"
+  },
+  "capture_media_source_segment": {
+    "message": "Segment"
+  },
+  "capture_media_source_key": {
+    "message": "Key"
+  },
+  "capture_media_source_resource": {
+    "message": "Resource"
+  },
+  "capture_media_size_unknown": {
+    "message": "Size pending"
+  },
+  "capture_media_preview": {
+    "message": "Preview video"
+  },
+  "capture_media_preview_unsupported": {
+    "message": "Video preview is not supported in this browser."
+  },
+  "capture_media_preview_failed": {
+    "message": "Preview could not be loaded. You can still try downloading the video."
+  },
+  "media_invalid_playlist": {
+    "message": "The server did not return a valid video playlist."
+  },
+  "media_invalid_range": {
+    "message": "The video contains an invalid byte range."
+  },
+  "media_invalid_iv": {
+    "message": "The video encryption information is incomplete."
+  },
+  "media_missing_segment": {
+    "message": "The playlist marks a missing segment. A complete video cannot be saved."
+  },
+  "media_empty_track": {
+    "message": "An audio or video track is missing or empty."
+  },
+  "media_invalid_timeline": {
+    "message": "The video timeline is incomplete or out of order."
+  },
+  "media_unsupported_codec": {
+    "message": "This video encoding cannot currently be packaged."
+  },
+  "media_codec_changed": {
+    "message": "The encoding changes within this stream. A complete file could not be packaged."
+  },
+  "media_size_limit": {
+    "message": "This video exceeds the current 512 MB local processing limit."
+  },
+  "media_live_unsupported": {
+    "message": "This is an ongoing live stream, not a finished video."
+  },
+  "media_duration_mismatch": {
+    "message": "The downloaded track duration does not match the playlist. No incomplete file was saved."
+  },
+  "media_stage_playlists": {
+    "message": "Reading video and audio playlists…"
+  },
+  "media_stage_segments": {
+    "message": "Downloading segments $1 of $2…"
+  },
+  "media_stage_merging": {
+    "message": "Combining audio and video locally…"
+  },
+  "media_stage_validating": {
+    "message": "Checking file integrity…"
+  },
+  "capture_media_incomplete_mp4": {
+    "message": "This resource is an incomplete video fragment. A complete video with initialization data is required; no file was saved."
+  },
+  "capture_media_separate_audio": {
+    "message": "This video has separate audio and video tracks. Merging this stream is not supported yet; no file was saved."
+  },
+  "capture_media_hls_layout": {
+    "message": "This stream requires byte-range or timeline processing that is not supported yet; no file was saved."
+  },
+  "manifest_name": {
+    "message": "EasyRead",
+    "description": "The manifest field."
+  },
+  "manifest_description": {
+    "message": "EasyRead: Read Later, automatic history, Notes, and Markdown export.",
+    "description": "The manifest field."
+  },
+  "popup_page_title": {
+    "message": "EasyRead: empower your time!",
+    "description": "The popup page's title."
+  },
+  "popup_page_top_menu_bar_all_records_title": {
+    "message": "All Records",
+    "description": "The top menu bar."
+  },
+  "popup_page_top_menu_bar_annotations_title": {
+    "message": "Expand or collapse annotations",
+    "description": "Expand or collapse the annotation sidebar from the popup."
+  },
+  "popup_page_top_menu_bar_setting_title": {
+    "message": "Settings & Backup",
+    "description": "The top menu bar."
+  },
+  "popup_page_read_times": {
+    "message": "Read Times: $READ_TIMES$",
+    "description": "The page read times.",
+    "placeholders": {
+      "read_times": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "popup_page_total_pages": {
+    "message": "Total Pages: $total_pages$",
+    "description": "The total pages title.",
+    "placeholders": {
+      "total_pages": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "popup_btn_read_later_text": {
+    "message": "Read Later",
+    "description": "The read later button text."
+  },
+  "popup_page_notes_title": {
+    "message": "Notes",
+    "description": "The note block title."
+  },
+  "popup_page_message_no_readlaters": {
+    "message": "No Read Later, Is this your first time here?",
+    "description": "The message: no readlater records."
+  },
+  "popup_page_message_duplicate_readlaters": {
+    "message": "It has in your list yet.",
+    "description": "The message: dupulicate readlater records."
+  },
+  "popup_page_message_readlaters_added": {
+    "message": "Added successfully!",
+    "description": "The message: add readlater records successfully."
+  },
+  "popup_page_message_readlaters_firsttime": {
+    "message": "Well done!",
+    "description": "The message: first time to insert a readlater records."
+  },
+  "popup_page_message_readlaters_remove_null": {
+    "message": "Nothing be removed!",
+    "description": "The message: remove a readlater records not exists."
+  },
+  "popup_page_message_notes_downloaded": {
+    "message": "The page highlights were downloaded.",
+    "description": "The message: download the page note successfully."
+  },
+  "popup_page_message_notes_removed": {
+    "message": "The page highlights were removed.",
+    "description": "The message: remove the page note successfully."
+  },
+  "popup_page_message_no_notes": {
+    "message": "No Notes yet.",
+    "description": "The message: no notes found."
+  },
+  "popup_page_message_no_records_no_datetimes": {
+    "message": "No records",
+    "description": "The message: not found the allrecords."
+  },
+  "popup_page_message_no_records_text": {
+    "message": "No reading history for this page yet.",
+    "description": "The message: not found the allrecords."
+  },
+  "popup_page_message_no_records_firsttime": {
+    "message": "No records",
+    "description": "The message: not found the allrecords, Is this your first time here?"
+  },
+  "popup_page_message_records_removed": {
+    "message": "The records of the page is removed.",
+    "description": "The message: the page's records is removed."
+  },
+  "popup_page_message_records_not_supported": {
+    "message": "This page not supported.",
+    "description": "The message: the page's url is not supported."
+  },
+  "allrecords_page_title": {
+    "message": "All Records",
+    "description": "The all records display list."
+  },
+  "allrecords_page_notice": {
+    "message": "Revisit the pages you have read and pick up where you left off.",
+    "description": "Notice the user what's next."
+  },
+  "allrecords_page_summary": {
+    "message": "$1 records, $2 per page",
+    "description": "Summary for paginated records."
+  },
+  "allrecords_page_indicator": {
+    "message": "Page $1 of $2",
+    "description": "Current page indicator."
+  },
+  "allrecords_page_previous": {
+    "message": "Previous",
+    "description": "Previous records page."
+  },
+  "allrecords_page_next": {
+    "message": "Next",
+    "description": "Next records page."
+  },
+  "allrecords_export": {
+    "message": "Export records",
+    "description": "Export all reading records."
+  },
+  "allrecords_header_number": {
+    "message": "No.",
+    "description": "Record sequence column."
+  },
+  "allrecords_header_title": {
+    "message": "Title (URL)",
+    "description": "Record title column."
+  },
+  "allrecords_header_read_times": {
+    "message": "Read times",
+    "description": "Visit count column."
+  },
+  "allrecords_header_last_read_time": {
+    "message": "Last read",
+    "description": "Most recent reading time column."
+  },
+  "allrecords_header_read_progress": {
+    "message": "Read progress",
+    "description": "Reading progress column."
+  },
+  "allrecords_header_video_progress": {
+    "message": "Video progress",
+    "description": "Video progress column."
+  },
+  "setting_page_title": {
+    "message": "EasyRead · Settings",
+    "description": "The setting page display list."
+  },
+  "setting_page_notice": {
+    "message": "Your reading preferences and local data, in one place.",
+    "description": "Notice the user what's next."
+  },
+  "setting_tab_general": {
+    "message": "General",
+    "description": "General settings tab."
+  },
+  "setting_tab_data": {
+    "message": "Content & records",
+    "description": "Content data tab."
+  },
+  "setting_tab_backup": {
+    "message": "Backup & Restore",
+    "description": "Backup and restore tab."
+  },
+  "setting_page_highlights_description": {
+    "message": "Show highlights and numbers for quoted Notes on the page. This never deletes Notes.",
+    "description": "Page highlight visibility setting description."
+  },
+  "setting_page_notice_annotationAuthor": {
+    "message": "Note Author",
+    "description": "Annotation author settings title."
+  },
+  "setting_page_annotationAuthorLabel": {
+    "message": "Author shown on new Notes",
+    "description": "Annotation author input label."
+  },
+  "setting_page_btnSaveAnnotationAuthor": {
+    "message": "Save author",
+    "description": "Save annotation author button."
+  },
+  "setting_page_annotationAuthorSaved": {
+    "message": "Note author saved.",
+    "description": "Annotation author saved message."
+  },
+  "setting_page_notice_allRecords": {
+    "message": "Reading history",
+    "description": "The notice message."
+  },
+  "setting_page_btnDownloadAllRecordsAsJson": {
+    "message": "Export reading history",
+    "description": "The button text."
+  },
+  "setting_page_btnRemoveAllRecords": {
+    "message": "Delete Records",
+    "description": "The button text."
+  },
+  "setting_page_allRecordsRemoved": {
+    "message": "All Records has been removed.",
+    "description": "The message for button click."
+  },
+  "setting_page_notice_readLaters": {
+    "message": "Read Later",
+    "description": "The notice message."
+  },
+  "setting_page_btnDownloadReadLatersAsJson": {
+    "message": "Export Read Later items",
+    "description": "The button text."
+  },
+  "setting_page_btnRemoveReadLaters": {
+    "message": "Delete Records",
+    "description": "The button text."
+  },
+  "setting_page_readLatersRemoved": {
+    "message": "Read Later has been removed.",
+    "description": "The message for button click."
+  },
+  "setting_page_notice_notes": {
+    "message": "Manage Notes",
+    "description": "The notice message."
+  },
+  "setting_page_btnDownloadNotesAsJson": {
+    "message": "Export Notes (JSON)",
+    "description": "The button text."
+  },
+  "setting_page_btnDownloadNotesAsMarkdown": {
+    "message": "Export Notes (Markdown)",
+    "description": "The button text."
+  },
+  "setting_page_btnRemoveNotes": {
+    "message": "Delete Records",
+    "description": "The button text."
+  },
+  "setting_page_notesRemoved": {
+    "message": "All Notes were deleted.",
+    "description": "The message for button click."
+  },
+  "setting_page_notice_storage": {
+    "message": "Full backup",
+    "description": "The notice message."
+  },
+  "setting_page_btnDownloadStorageAsJson": {
+    "message": "Export full backup",
+    "description": "The button text."
+  },
+  "setting_page_btnMergeStorageJson": {
+    "message": "Merge backup",
+    "description": "The button text."
+  },
+  "setting_page_btnReplaceStorageJson": {
+    "message": "Overwrite from backup",
+    "description": "The button text."
+  },
+  "setting_page_btnDropStorage": {
+    "message": "Clear local data",
+    "description": "The button text."
+  },
+  "setting_page_storageDroped": {
+    "message": "The Storage is dropped.",
+    "description": "The message for button click."
+  },
+  "setting_page_storageMergedSuccessfully": {
+    "message": "The storage merged successfully.",
+    "description": "The message for button click."
+  },
+  "setting_page_storageMergedFailed": {
+    "message": "The storage merged failed.",
+    "description": "The message for button click."
+  },
+  "setting_page_storageReplacedSuccessfully": {
+    "message": "The storage replaced successfully.",
+    "description": "The message for button click."
+  },
+  "setting_page_storageReplacedFailed": {
+    "message": "The storage replaced failed.",
+    "description": "The message for button click."
+  },
+  "setting_page_fileInputNofiles": {
+    "message": "You must select *.json file.",
+    "description": "The message for button click."
+  },
+  "popup_page_show_highlights": {
+    "message": "Show page highlights",
+    "description": "Label for the page highlight visibility toggle."
+  },
+  "popup_page_highlights_enabled": {
+    "message": "Page highlights are on.",
+    "description": "Message shown after enabling page highlights."
+  },
+  "popup_page_highlights_disabled": {
+    "message": "Page highlights are off. Your highlight data is kept.",
+    "description": "Message shown after disabling page highlights."
+  },
+  "contextMenus_title_page_addReadLater": {
+    "message": "Read Later (Page)",
+    "description": "The message for context menu."
+  },
+  "contextMenus_title_selection_addNote": {
+    "message": "Add highlight (current selection)",
+    "description": "Add the current text selection as a page highlight."
+  },
+  "contextMenus_title_selection_addAnnotation": {
+    "message": "Add Note (Selection)",
+    "description": "Add an annotation for the selected text."
+  },
+  "annotation_sidebar_title": {
+    "message": "Notes",
+    "description": "Annotation sidebar title."
+  },
+  "annotation_sidebar_collapse": {
+    "message": "Collapse Notes",
+    "description": "Collapse the sidebar and keep the EasyRead entry visible."
+  },
+  "annotation_sidebar_expand": {
+    "message": "Expand Notes",
+    "description": "Expand the sidebar from the EasyRead entry."
+  },
+  "annotation_sidebar_download": {
+    "message": "Download Page Notes",
+    "description": "Download annotations from this page as Markdown."
+  },
+  "annotation_empty_title": {
+    "message": "Leave a thought as you read",
+    "description": "Empty-state title when this page has no annotations."
+  },
+  "annotation_empty_description": {
+    "message": "Highlight selected text, add a thought, or write a Page Note below.",
+    "description": "Empty-state guidance when this page has no annotations."
+  },
+  "annotation_comment_placeholder": {
+    "message": "Write your thoughts…",
+    "description": "Annotation input placeholder."
+  },
+  "annotation_action_cancel": {
+    "message": "Cancel",
+    "description": "Cancel annotation."
+  },
+  "annotation_action_save": {
+    "message": "Save",
+    "description": "Save annotation."
+  },
+  "annotation_action_edit": {
+    "message": "Edit Note",
+    "description": "Edit an existing annotation."
+  },
+  "annotation_action_remove": {
+    "message": "Remove Note",
+    "description": "Remove an existing annotation."
+  },
+  "contextMenus_title_selection_removeAnnotation": {
+    "message": "Remove Note",
+    "description": "Remove the annotation at the current text."
+  },
+  "annotation_author_anonymous": {
+    "message": "Anonymous",
+    "description": "Fallback annotation author."
+  },
+  "contextMenus_title_selection_removeHighlight": {
+    "message": "Remove Note (Current Text)",
+    "description": "Remove the page highlight under the context-menu pointer."
+  },
+  "popup_page_top_menu_bar_save_copy_title": {
+    "message": "Save a copy",
+    "description": "Open the page copy panel."
+  },
+  "allrecords_header_artifacts": {
+    "message": "Saved copies",
+    "description": "Saved page artifacts column."
+  },
+  "capture_title": {
+    "message": "Save a copy",
+    "description": "Page copy dialog title."
+  },
+  "capture_close": {
+    "message": "Close",
+    "description": "Close the page copy dialog."
+  },
+  "capture_markdown_title": {
+    "message": "Markdown",
+    "description": "Markdown capture title."
+  },
+  "capture_markdown_description": {
+    "message": "Editable article text with EasyRead Notes.",
+    "description": "Markdown capture description."
+  },
+  "capture_html_title": {
+    "message": "Single HTML",
+    "description": "HTML capture title."
+  },
+  "capture_html_description": {
+    "message": "A safer page snapshot. Inaccessible remote resources are reported.",
+    "description": "HTML capture description."
+  },
+  "capture_png_title": {
+    "message": "Screenshot",
+    "description": "Screenshot feature title."
+  },
+  "capture_png_description": {
+    "message": "Scroll and stitch the full page; exceptionally long pages are reported clearly.",
+    "description": "PNG capture description."
+  },
+  "capture_png_progress": {
+    "message": "Capturing image $1 of $2…",
+    "description": "Full-page capture progress."
+  },
+  "capture_png_too_long": {
+    "message": "This page exceeds the browser canvas limit, so a complete PNG cannot be created.",
+    "description": "Full-page capture length error."
+  },
+  "capture_media_title": {
+    "message": "Media",
+    "description": "Media capture title."
+  },
+  "capture_media_description": {
+    "message": "Find direct media and supported HLS streams on this page.",
+    "description": "Media capture description."
+  },
+  "capture_status_ready": {
+    "message": "Choose the copy that best matches how you will use this page later.",
+    "description": "Ready status."
+  },
+  "capture_status_working": {
+    "message": "Preparing the copy…",
+    "description": "Working status."
+  },
+  "capture_status_saved": {
+    "message": "The copy was prepared and downloaded.",
+    "description": "Success status."
+  },
+  "capture_status_partial": {
+    "message": "The copy was downloaded, but some protected or inaccessible resources remain external.",
+    "description": "Partial status."
+  },
+  "capture_status_failed": {
+    "message": "Could not save the copy",
+    "description": "Failure status."
+  },
+  "capture_highlights_heading": {
+    "message": "Notes",
+    "description": "Markdown highlights heading."
+  },
+  "capture_media_none": {
+    "message": "No downloadable media found yet",
+    "description": "No media status."
+  },
+  "capture_media_none_description": {
+    "message": "Try playing a video or audio track on the page, then reopen EasyRead.",
+    "description": "Suggestion shown when no media is found."
+  },
+  "capture_media_debug_saved": {
+    "message": "The media error report was downloaded.",
+    "description": "Notice shown after downloading media diagnostics."
+  },
+  "capture_media_debug_download": {
+    "message": "Download error details",
+    "description": "Button for the user to explicitly download media diagnostics."
+  },
+  "capture_media_found": {
+    "message": "$1 media candidates found. Choose one to download.",
+    "description": "Media found status."
+  },
+  "capture_action_download": {
+    "message": "Download",
+    "description": "Download media action."
+  },
+  "capture_media_no_segments": {
+    "message": "The playlist contains no downloadable segments.",
+    "description": "HLS error."
+  },
+  "capture_media_drm_unsupported": {
+    "message": "This stream uses DRM or an unsupported encryption method. EasyRead will not bypass it.",
+    "description": "DRM error."
+  },
+  "capture_media_key_missing": {
+    "message": "The AES-128 key URL is missing.",
+    "description": "HLS key error."
+  },
+  "capture_media_segment_progress": {
+    "message": "Downloading segment $1 of $2…",
+    "description": "HLS download progress."
+  },
+  "capture_media_transmuxing": {
+    "message": "Converting to MP4…",
+    "description": "Status shown while HLS segments are transmuxed to MP4."
+  },
+  "capture_media_track_muxed": {
+    "message": "Video + audio",
+    "description": "Media candidate contains both video and audio."
+  },
+  "capture_media_track_video": {
+    "message": "Video only, no audio",
+    "description": "Media candidate contains only a video track."
+  },
+  "capture_media_track_audio": {
+    "message": "Audio only",
+    "description": "Media candidate contains only an audio track."
+  },
+  "popup_tab_read_later": {
+    "message": "Read Later",
+    "description": "Popup read-later tab."
+  },
+  "popup_tab_save_page": {
+    "message": "Save Page",
+    "description": "Popup page-saving tab."
+  },
+  "popup_tab_media": {
+    "message": "Media",
+    "description": "Popup media tab."
+  },
+  "capture_save_page_intro": {
+    "message": "Choose an output. Every task reports its current stage, progress, and result.",
+    "description": "Save-page introduction."
+  },
+  "capture_pdf_title": {
+    "message": "PDF",
+    "description": "PDF capture title."
+  },
+  "capture_pdf_description": {
+    "message": "Open the browser print dialog so you can confirm pages, paper, and destination.",
+    "description": "PDF capture description."
+  },
+  "capture_image_description": {
+    "message": "Current viewport or full page, in PNG or JPG.",
+    "description": "Image capture description."
+  },
+  "capture_prepare_lazy": {
+    "message": "Scroll the page first to load lazy content",
+    "description": "Lazy-content option."
+  },
+  "capture_scope_viewport": {
+    "message": "Viewport",
+    "description": "Viewport screenshot."
+  },
+  "capture_scope_full_page": {
+    "message": "Full page",
+    "description": "Full-page screenshot."
+  },
+  "capture_action_save": {
+    "message": "Save",
+    "description": "Save action."
+  },
+  "capture_action_copy": {
+    "message": "Copy",
+    "description": "Copy to clipboard action."
+  },
+  "capture_stage_copying": {
+    "message": "Writing to the system clipboard…",
+    "description": "Clipboard stage."
+  },
+  "capture_status_copied": {
+    "message": "The content was copied to the clipboard.",
+    "description": "Clipboard success status."
+  },
+  "capture_download_permission_missing": {
+    "message": "EasyRead does not have the download permission yet. Reload EasyRead on the Extensions page and try again.",
+    "description": "Missing download permission warning."
+  },
+  "capture_task_title": {
+    "message": "Saving",
+    "description": "Capture task title."
+  },
+  "capture_stage_starting": {
+    "message": "Connecting to the current page…",
+    "description": "Capture start stage."
+  },
+  "capture_stage_permission": {
+    "message": "Confirming cross-origin resource access…",
+    "description": "HTML resource permission stage."
+  },
+  "capture_stage_lazy": {
+    "message": "Loading page content $1 of $2…",
+    "description": "Lazy-content stage."
+  },
+  "capture_stage_stabilizing": {
+    "message": "Waiting for the dynamic page to stabilize…",
+    "description": "Dynamic-page stabilization stage."
+  },
+  "capture_stage_document": {
+    "message": "Analyzing the article, Notes and page structure…",
+    "description": "Document analysis stage."
+  },
+  "capture_stage_styles": {
+    "message": "Freezing page styles $1 of $2…",
+    "description": "HTML computed-style stage."
+  },
+  "capture_stage_frames": {
+    "message": "Freezing frames and live page state…",
+    "description": "HTML frame stage."
+  },
+  "capture_stage_stylesheet": {
+    "message": "Processing stylesheet $1 of $2…",
+    "description": "HTML stylesheet stage."
+  },
+  "capture_stage_resource_url": {
+    "message": "$1 CSS resources inlined…",
+    "description": "CSS resource stage."
+  },
+  "capture_stage_resources": {
+    "message": "Inlining image resources $1 of $2…",
+    "description": "HTML resource stage."
+  },
+  "capture_stage_packaging": {
+    "message": "Inlining resources and packaging the single-page file…",
+    "description": "HTML packaging stage."
+  },
+  "capture_stage_viewport": {
+    "message": "Capturing the current viewport…",
+    "description": "Viewport capture stage."
+  },
+  "capture_stage_downloading": {
+    "message": "The file is ready and has been handed to the browser downloader…",
+    "description": "Download stage."
+  },
+  "capture_stage_print_dialog": {
+    "message": "Opening the browser print dialog…",
+    "description": "PDF print stage."
+  },
+  "capture_stage_print_opened": {
+    "message": "Choose Save as PDF in the print dialog and confirm the destination.",
+    "description": "PDF interaction hint."
+  },
+  "ui_operation_failed": {
+    "message": "The operation could not be completed. Please try again."
+  },
+  "ui_export_ready": {
+    "message": "Your export is ready."
+  },
+  "ui_confirm_remove": {
+    "message": "Are you sure you want to “$1”? This cannot be undone. Export a backup first."
+  },
+  "ui_confirm_replace": {
+    "message": "This overwrites the data categories included in the backup. Categories not included remain unchanged. Export a full backup first. Continue?"
+  },
+  "ui_invalid_backup": {
+    "message": "Invalid backup format. No data was written."
+  },
+  "ui_markdown_template": {
+    "message": "Markdown export templates"
+  },
+  "ui_markdown_page_template": {
+    "message": "Page template"
+  },
+  "ui_markdown_note_template": {
+    "message": "Note Template · {notes_section}"
+  },
+  "ui_backup_description": {
+    "message": "Back up browsing history, Read Later, Notes and settings to a local file."
+  },
+  "ui_import_title": {
+    "message": "Import & restore"
+  },
+  "ui_import_file": {
+    "message": "Choose an EasyRead JSON backup"
+  },
+  "ui_clear_description": {
+    "message": "Clearing removes all local records and settings. Make sure you have a backup first."
+  },
+  "ui_records_empty": {
+    "message": "No reading history yet. Let EasyRead remember your next visit."
+  },
+  "ui_generated_at": {
+    "message": "List generated"
+  },
+  "ui_download_page_highlights": {
+    "message": "Download page highlights (Markdown)"
+  },
+  "ui_remove_page_records": {
+    "message": "Delete this page’s reading history"
+  },
+  "setting_browsing_history": {
+    "message": "Browsing History"
+  },
+  "notes_add": {
+    "message": "Annotate (Selection)"
+  },
+  "media_autoplay": { "message": "Autoplay" },
+  "media_filter_all": { "message": "All" },
+  "media_filter_empty": { "message": "No media in this category" },
+  "media_filter_video": { "message": "Video" },
+  "media_filter_audio": { "message": "Audio" },
+  "media_filter_image": { "message": "Images" },
+  "read_later_unread": { "message": "Unread" },
+  "read_later_completed": { "message": "Read" },
+  "read_later_completed_empty": { "message": "No read items yet" },
+  "media_autoplay_off": { "message": "Off (Default)" },
+  "media_autoplay_sequential": { "message": "Play in Order" },
+  "media_autoplay_simultaneous": { "message": "Play Together (Muted)" },
+  "media_muted": { "message": "Mute" },
+  "notes_page_expand": { "message": "Expand Page Notes" },
+  "notes_page_collapse": { "message": "Collapse Page Notes" },
+  "notes_countdown_seconds": { "message": "$1s" },
+  "notes_edit": {
+    "message": "Edit Note"
+  },
+  "contextMenus_title_page_addNote": {
+    "message": "Add Note"
+  },
+  "notes_add_page": {
+    "message": "Add Page Note"
+  },
+  "notes_page": {
+    "message": "Page Note"
+  },
+  "notes_add_thought": {
+    "message": "Add a thought…"
+  },
+  "notes_unlocated": {
+    "message": "Original text not found; this Note is kept"
+  },
+  "notes_locate": {
+    "message": "Go to Original Text"
+  }
 }

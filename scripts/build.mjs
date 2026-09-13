@@ -3,6 +3,7 @@ import { dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { build, transform } from "esbuild";
+import { verifyBuildIcons } from './verify-build-icons.mjs';
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const sourceRoot = join(repositoryRoot, "src");
@@ -34,10 +35,7 @@ function copySource(destination, mode) {
   cpSync(jsZipSource, jsZipDestination);
   cpSync(muxMp4Source, join(destination, "scripts", "mux-mp4.min.js"));
   cpSync(hlsSource, join(destination, "scripts", "hls.min.js"));
-  const diagnosticsPath = join(destination, "scripts", "diagnostics.js");
-  writeFileSync(diagnosticsPath, mode === "development"
-    ? readFileSync(diagnosticsPath, "utf8").replace("const DEVELOPMENT_DIAGNOSTICS = false;", "const DEVELOPMENT_DIAGNOSTICS = true;")
-    : "/* Development diagnostics are excluded from release builds. */\n");
+  // Both builds expose the persistent opt-in setting; collection is off by default.
 }
 
 function listJavaScriptFiles(directory) {
@@ -74,5 +72,6 @@ for (const destination of [developmentRoot, productionRoot]) {
   cpSync(join(repositoryRoot, "node_modules", "mp4box", "LICENSE"), join(destination, "scripts", "MP4BOX-LICENSE.txt"));
 }
 await minifyProduction(productionRoot);
+verifyBuildIcons(repositoryRoot);
 
 console.log("Built dist/development and dist/production.");

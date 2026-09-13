@@ -23,7 +23,7 @@
 			<td><span class="artifacts"></span></td>
 		</tr>
 	</template>
-	<header class="pageHeader"><div><h1 id="allrecords_page_title">EasyRead</h1><p id="allrecords_page_notice">This is all your reading history:</p></div><button id="exportRecords" class="primaryButton" type="button">Export records</button></header>
+	<header class="pageHeader"><div class="pageBrand"><img src="../assets/logo/icon-48.png" alt="" /><div><h1 id="allrecords_page_title">EasyRead</h1><p id="allrecords_page_notice">This is all your reading history:</p></div></div><button id="exportRecords" class="primaryButton" type="button">Export records</button></header>
 	<div class="recordsToolbar">
 		<span id="recordSummary"></span>
 		<nav class="pagination" aria-label="Records pagination">
@@ -45,7 +45,8 @@
 			</tr></thead>
 			<tbody id="recordsBody"></tbody>
 		</table>
-		<div>Created Time: <span id="createdTime"></span></div>
+		<div id="recordsEmpty" role="status" hidden></div>
+		<div class="recordTimestamp"><span id="createdTimeLabel"></span> <span id="createdTime"></span></div>
 	</div>
 	<div class="copyright">
 	</div>

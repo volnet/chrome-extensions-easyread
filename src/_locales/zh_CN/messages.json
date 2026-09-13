@@ -1,396 +1,956 @@
 {
-    "capture_stage_tab": {"message":"正在采集页内标签 $1/$2：$3"},
-    "capture_tab_unavailable": {"message":"此标签内容未能保存，请前往原网页查看。"},
-    "diagnostics_details": {"message":"错误详情（开发版）"},
-    "diagnostics_dismiss": {"message":"收起"},
-    "diagnostics_download_all": {"message":"下载最近的错误"},
-    "capture_media_file_size_pending": {"message":"大小待计算"},
-    "capture_media_file_size_estimated": {"message":"约 $1"},
-    "capture_media_progress_amount": {"message":"已下载 $1"},
-    "capture_media_progress_amount_total": {"message":"$1/$2"},
-    "capture_media_progress_detail": {"message":"$1，$2"},
-    "capture_media_eta_seconds": {"message":"剩余 $1 秒"},
-    "capture_media_eta_minutes": {"message":"剩余 $1 分 $2 秒"},
-    "capture_media_eta_hours": {"message":"剩余 $1 小时 $2 分"},
-    "capture_action_sources": {"message":"来源"},
-    "capture_media_sources_loading": {"message":"读取中"},
-    "capture_media_sources_failed": {"message":"无法读取媒体来源"},
-    "capture_media_sources_count": {"message":"共 $1 个资源链接"},
-    "capture_media_sources_copy": {"message":"复制全部"},
-    "capture_media_source_player": {"message":"播放器"},
-    "capture_media_source_media": {"message":"媒体"},
-    "capture_media_source_backup": {"message":"备用"},
-    "capture_media_source_playlist": {"message":"清单"},
-    "capture_media_source_segment": {"message":"分片"},
-    "capture_media_source_key": {"message":"密钥"},
-    "capture_media_source_resource": {"message":"资源"},
-    "capture_media_size_unknown": {"message":"尺寸待识别"},
-    "capture_media_preview": {"message":"预览视频"},
-    "capture_media_preview_unsupported": {"message":"当前浏览器不支持视频预览。"},
-    "capture_media_preview_failed": {"message":"预览加载失败，仍可尝试下载视频。"},
-    "media_invalid_playlist": {"message":"服务器未返回有效的视频播放列表。"},
-    "media_invalid_range": {"message":"视频的字节范围信息无效。"},
-    "media_invalid_iv": {"message":"视频加密信息不完整。"},
-    "media_missing_segment": {"message":"播放列表标记了缺失分片，无法保存完整视频。"},
-    "media_empty_track": {"message":"视频轨或音频轨缺失，无法保存完整视频。"},
-    "media_invalid_timeline": {"message":"视频时间轴不完整或顺序异常。"},
-    "media_unsupported_codec": {"message":"暂不支持封装该视频编码。"},
-    "media_codec_changed": {"message":"视频中途变更了编码配置，无法完整封装。"},
-    "media_size_limit": {"message":"视频超过当前 512 MB 本地处理上限。"},
-    "media_live_unsupported": {"message":"这是尚未结束的直播流，暂不支持保存为完整视频。"},
-    "media_duration_mismatch": {"message":"下载的轨道时长与播放列表不符，未保存残缺文件。"},
-    "media_stage_playlists": {"message":"正在读取视频和音频播放列表…"},
-    "media_stage_segments": {"message":"正在下载分片 $1 / $2…"},
-    "media_stage_merging": {"message":"正在本地合并音频和视频…"},
-    "media_stage_validating": {"message":"正在检查文件完整性…"},
-    "capture_media_incomplete_mp4": { "message": "当前资源是未完整封装的视频分片，需要获取包含初始化信息的完整视频，本次未保存文件。" },
-    "capture_media_separate_audio": { "message": "当前视频的音轨和画面分别存储，暂未支持该流的完整合并，本次未保存文件。" },
-    "capture_media_hls_layout": { "message": "当前视频需要额外的字节范围或时间轴处理，暂未支持，本次未保存文件。" },
-    "manifest_name": {
-        "message": "轻松阅读 - EasyRead",
-        "description": "The manifest field."
-    },
-    "manifest_description": {
-        "message": "轻松阅读：稍后阅读、自动记录、划重点、批注与Markdown导出。https://github.com/volnet/chrome-extensions-easyread",
-        "description": "The manifest field."
-    },
-    "popup_page_title": {
-        "message": "EasyRead：让时间倍增魔力！",
-        "description": "The popup page's title."
-    },
-    "popup_page_top_menu_bar_all_records_title": {
-        "message": "所有记录",
-        "description": "The top menu bar."
-    },
-    "popup_page_top_menu_bar_annotations_title": {
-        "message": "展开或折叠批注栏",
-        "description": "浮窗顶部的批注栏展开折叠开关。"
-    },
-    "popup_page_top_menu_bar_setting_title": {
-        "message": "设置和备份",
-        "description": "The top menu bar."
-    },
-    "popup_page_read_times": {
-        "message": "已读：$READ_TIMES$次",
-        "description": "The page read times.",
-        "placeholders": {
-            "read_times": {
-                "content": "$1",
-                "example": "3"
-            }
-        }
-    },
-    "popup_page_total_pages": {
-        "message": "总计：$total_pages$页",
-        "description": "The total pages title.",
-        "placeholders": {
-            "total_pages": {
-                "content": "$1",
-                "example": "3"
-            }
-        }
-    },
-    "popup_btn_read_later_text": {
-        "message": "稍后阅读",
-        "description": "The read later button text."
-    },
-    "popup_page_notes_title": {
-        "message": "重点",
-        "description": "The note block title."
-    },
-    "popup_page_message_no_readlaters": {
-        "message": "未曾记录，是否初次到访该页？",
-        "description": "The message: no readlater records."
-    },
-    "popup_page_message_duplicate_readlaters": {
-        "message": "不能重复添加哟！",
-        "description": "The message: dupulicate readlater records."
-    },
-    "popup_page_message_readlaters_added": {
-        "message": "添加成功！",
-        "description": "The message: add readlater records successfully."
-    },
-    "popup_page_message_readlaters_firsttime": {
-        "message": "干得漂亮，就是这样！",
-        "description": "The message: first time to insert a records."
-    },
-    "popup_page_message_readlaters_remove_null": {
-        "message": "什么都没删除！",
-        "description": "The message: remove a readlater records not exists."
-    },
-    "popup_page_message_notes_downloaded": {
-        "message": "成功下载！",
-        "description": "The message: download the page note successfully."
-    },
-    "popup_page_message_notes_removed": {
-        "message": "成功删除！",
-        "description": "The message: remove the page note successfully."
-    },
-    "popup_page_message_no_notes": {
-        "message": "未找到重点",
-        "description": "The message: no notes found."
-    },
-    "popup_page_message_no_records_no_datetimes": {
-        "message": "没有记录",
-        "description": "The message: not found the allrecords."
-    },
-    "popup_page_message_no_records_text": {
-        "message": "没有记录",
-        "description": "The message: not found the allrecords."
-    },
-    "popup_page_message_no_records_firsttime": {
-        "message": "没有记录",
-        "description": "The message: not found the allrecords, Is this your first time here?"
-    },
-    "popup_page_message_records_removed": {
-        "message": "记录已删除",
-        "description": "The message: the page's records is removed."
-    },
-    "popup_page_message_records_not_supported": {
-        "message": "当前页面URL类型不支持。",
-        "description": "The message: the page's url is not supported."
-    },
-    "allrecords_page_title": {
-        "message": "EasyRead：让时间倍增魔力！",
-        "description": "The all records display list."
-    },
-    "allrecords_page_notice": {
-        "message": "这是您的所有阅读历史记录：",
-        "description": "Notice the user what's next."
-    },
-    "allrecords_page_summary": {
-        "message": "共 $1 条记录，每页 $2 条",
-        "description": "分页记录摘要。"
-    },
-    "allrecords_page_indicator": {
-        "message": "第 $1 / $2 页",
-        "description": "当前页码。"
-    },
-    "allrecords_page_previous": { "message": "上一页", "description": "上一页。" },
-    "allrecords_page_next": { "message": "下一页", "description": "下一页。" },
-    "allrecords_export": { "message": "导出记录", "description": "导出全部阅读记录。" },
-    "allrecords_header_number": { "message": "序号", "description": "记录序号列。" },
-    "allrecords_header_title": { "message": "标题（URL）", "description": "记录标题列。" },
-    "allrecords_header_read_times": { "message": "阅读次数", "description": "访问次数列。" },
-    "allrecords_header_last_read_time": { "message": "最近阅读时间", "description": "最近一次阅读时间列。" },
-    "allrecords_header_read_progress": { "message": "阅读进度", "description": "阅读进度列。" },
-    "allrecords_header_video_progress": { "message": "视频进度", "description": "视频进度列。" },
-    "setting_page_title": {
-        "message": "EasyRead：让时间倍增魔力！",
-        "description": "The setting page display list."
-    },
-    "setting_page_notice": {
-        "message": "设置页面，将帮助你更好地管理EasyRead。",
-        "description": "Notice the user what's next."
-    },
-    "setting_tab_general": { "message": "常规", "description": "常规设置标签。" },
-    "setting_tab_data": { "message": "内容与记录", "description": "内容数据标签。" },
-    "setting_tab_backup": { "message": "备份与恢复", "description": "备份恢复标签。" },
-    "setting_page_highlights_description": { "message": "控制已保存重点是否在网页正文中显示，不会删除任何重点数据。", "description": "网页重点显示设置说明。" },
-    "setting_page_notice_annotationAuthor": { "message": "批注作者", "description": "批注作者设置标题。" },
-    "setting_page_annotationAuthorLabel": { "message": "显示在新批注旁的作者名称", "description": "批注作者输入标签。" },
-    "setting_page_btnSaveAnnotationAuthor": { "message": "保存作者", "description": "保存批注作者按钮。" },
-    "setting_page_annotationAuthorSaved": { "message": "批注作者已保存。", "description": "保存成功提示。" },
-    "setting_page_notice_allRecords": {
-        "message": "仅操作“阅读记录”，它们由EasyRead自动记录。",
-        "description": "The notice message."
-    },
-    "setting_page_btnDownloadAllRecordsAsJson": {
-        "message": "导出所有记录",
-        "description": "The button text."
-    },
-    "setting_page_btnRemoveAllRecords": {
-        "message": "删除所有记录",
-        "description": "The button text."
-    },
-    "setting_page_allRecordsRemoved": {
-        "message": "所有记录已被删除。",
-        "description": "The message for button click."
-    },
-    "setting_page_notice_readLaters": {
-        "message": "仅操作“稍后阅读”，它们由你（人类）记录。",
-        "description": "The notice message."
-    },
-    "setting_page_btnDownloadReadLatersAsJson": {
-        "message": "导出稍后阅读",
-        "description": "The button text."
-    },
-    "setting_page_btnRemoveReadLaters": {
-        "message": "删除稍后阅读",
-        "description": "The button text."
-    },
-    "setting_page_readLatersRemoved": {
-        "message": "稍后阅读已被删除。",
-        "description": "The message for button click."
-    },
-    "setting_page_notice_notes": {
-        "message": "仅操作“重点”，它们由你主动标记。",
-        "description": "The notice message."
-    },
-    "setting_page_btnDownloadNotesAsJson": {
-        "message": "导出所有重点为Json格式（*.json）",
-        "description": "The button text."
-    },
-    "setting_page_btnDownloadNotesAsMarkdown": {
-        "message": "导出所有重点为Markdown格式（*.zip）",
-        "description": "The button text."
-    },
-    "setting_page_btnRemoveNotes": {
-        "message": "删除所有重点",
-        "description": "The button text."
-    },
-    "setting_page_notesRemoved": {
-        "message": "所有重点已被删除。",
-        "description": "The message for button click."
-    },
-    "setting_page_notice_storage": {
-        "message": "（完全备份）操作所有数据。",
-        "description": "The notice message."
-    },    
-    "setting_page_btnDownloadStorageAsJson": {
-        "message": "导出存储",
-        "description": "The button text."
-    },
-    "setting_page_btnMergeStorageJson": {
-        "message": "合并存储",
-        "description": "The button text."
-    },
-    "setting_page_btnReplaceStorageJson": {
-        "message": "还原存储",
-        "description": "The button text."
-    },
-    "setting_page_btnDropStorage": {
-        "message": "删除存储",
-        "description": "The button text."
-    },
-    "setting_page_storageDroped": {
-        "message": "存储已删除",
-        "description": "The message for button click."
-    },
-    "setting_page_storageMergedSuccessfully": {
-        "message": "存储合并成功",
-        "description": "The message for button click." 
-    },
-    "setting_page_storageMergedFailed": {
-        "message": "存储合并失败",
-        "description": "The message for button click." 
-    },
-    "setting_page_storageReplacedSuccessfully": {
-        "message": "存储还原成功",
-        "description": "The message for button click." 
-    },
-    "setting_page_storageReplacedFailed": {
-        "message": "存储还原失败",
-        "description": "The message for button click." 
-    },
-    "setting_page_fileInputNofiles": {
-        "message": "请选择文件（*.json）",
-        "description": "The message for button click." 
-    }, 
-    "popup_page_show_highlights": {
-        "message": "显示网页重点",
-        "description": "网页重点显示开关的标签。"
-    },
-    "popup_page_highlights_enabled": {
-        "message": "网页重点显示已开启。",
-        "description": "开启网页重点显示后的提示。"
-    },
-    "popup_page_highlights_disabled": {
-        "message": "网页重点显示已关闭，重点数据仍会保留。",
-        "description": "关闭网页重点显示后的提示。"
-    },
-    "contextMenus_title_page_addReadLater": {
-        "message": "稍后阅读（当前页面）",
-        "description": "The message for context menu."  
-    }, 
-    "contextMenus_title_selection_addNote": {
-        "message": "划重点（当前选中）",
-        "description": "将当前文字选区添加为网页重点。"
-    },
-    "contextMenus_title_selection_addAnnotation": {
-        "message": "添加批注",
-        "description": "为当前选中文字添加批注。"
-    },
-    "annotation_sidebar_title": { "message": "批注", "description": "批注栏标题。" },
-    "annotation_sidebar_collapse": { "message": "折叠批注栏", "description": "折叠批注栏并保留EasyRead入口。" },
-    "annotation_sidebar_expand": { "message": "展开批注栏", "description": "从EasyRead入口展开批注栏。" },
-    "annotation_sidebar_download": { "message": "下载当前页面批注", "description": "将当前页面批注下载为Markdown。" },
-    "annotation_empty_title": { "message": "这里还很安静", "description": "当前页面没有批注时的空状态标题。" },
-    "annotation_empty_description": { "message": "选中文字后右键添加批注，想法会按原文顺序整理在这里。", "description": "当前页面没有批注时的空状态说明。" },
-    "annotation_comment_placeholder": { "message": "输入批注内容…", "description": "批注输入提示。" },
-    "annotation_action_cancel": { "message": "取消", "description": "取消批注。" },
-    "annotation_action_save": { "message": "保存", "description": "保存批注。" },
-    "annotation_action_edit": { "message": "编辑批注", "description": "编辑已有批注。" },
-    "annotation_action_remove": { "message": "移除批注", "description": "移除已有批注。" },
-    "contextMenus_title_selection_removeAnnotation": { "message": "移除批注", "description": "移除正文中的当前批注。" },
-    "annotation_author_anonymous": { "message": "未署名", "description": "无作者时的名称。" },
-    "contextMenus_title_selection_removeHighlight": {
-        "message": "移除重点（当前选中）",
-        "description": "移除右键位置命中的网页重点。"
-    },
-    "popup_page_top_menu_bar_save_copy_title": { "message": "保存副本", "description": "打开网页副本面板。" },
-    "allrecords_header_artifacts": { "message": "已保存副本", "description": "网页副本记录列。" },
-    "capture_title": { "message": "保存副本", "description": "网页副本对话框标题。" },
-    "capture_close": { "message": "关闭", "description": "关闭网页副本对话框。" },
-    "capture_markdown_title": { "message": "Markdown", "description": "Markdown副本标题。" },
-    "capture_markdown_description": { "message": "保存可编辑的正文，并附带EasyRead重点与批注。", "description": "Markdown副本说明。" },
-    "capture_html_title": { "message": "单文件HTML", "description": "HTML副本标题。" },
-    "capture_html_description": { "message": "生成安全的页面快照，无法访问的远程资源会明确提示。", "description": "HTML副本说明。" },
-    "capture_png_title": { "message": "截图", "description": "截图功能标题。" },
-    "capture_png_description": { "message": "滚动拼接并保存完整网页；超长页面会明确提示。", "description": "PNG副本说明。" },
-    "capture_png_progress": { "message": "正在截取第 $1 张，共 $2 张…", "description": "整页截图进度。" },
-    "capture_png_too_long": { "message": "页面过长，超出浏览器画布限制，暂时无法生成完整 PNG。", "description": "整页截图过长提示。" },
-    "capture_media_title": { "message": "媒体", "description": "媒体副本标题。" },
-    "capture_media_description": { "message": "查找当前页面公开的媒体直链和受支持的HLS流。", "description": "媒体副本说明。" },
-    "capture_status_ready": { "message": "请选择最符合后续使用场景的副本形式。", "description": "就绪提示。" },
-    "capture_status_working": { "message": "正在准备副本…", "description": "处理中提示。" },
-    "capture_status_saved": { "message": "副本已生成并开始下载。", "description": "成功提示。" },
-    "capture_status_partial": { "message": "副本已下载，但部分受保护或无法访问的资源仍保持外部引用。", "description": "部分完成提示。" },
-    "capture_status_failed": { "message": "无法保存副本", "description": "失败提示。" },
-    "capture_highlights_heading": { "message": "重点", "description": "Markdown重点标题。" },
-    "capture_media_none": { "message": "暂未发现可下载的媒体", "description": "没有媒体的提示。" },
-    "capture_media_none_description": { "message": "尝试播放页面中的视频或音频，然后重新打开 EasyRead。", "description": "没有媒体时的操作建议。" },
-    "capture_media_debug_saved": { "message": "媒体错误报告已下载。", "description": "媒体错误报告下载完成提示。" },
-    "capture_media_debug_download": { "message": "下载错误信息", "description": "由用户主动下载媒体错误报告的按钮。" },
-    "capture_media_found": { "message": "发现$1个媒体候选，请选择下载。", "description": "发现媒体的提示。" },
-    "capture_action_download": { "message": "下载", "description": "下载媒体操作。" },
-    "capture_media_no_segments": { "message": "播放列表中没有可下载的分片。", "description": "HLS错误。" },
-    "capture_media_drm_unsupported": { "message": "该媒体使用DRM或不受支持的加密方式，EasyRead不会尝试绕过。", "description": "DRM错误。" },
-    "capture_media_key_missing": { "message": "缺少AES-128密钥地址。", "description": "HLS密钥错误。" },
-    "capture_media_segment_progress": { "message": "正在下载第$1/$2个分片…", "description": "HLS下载进度。" },
-    "capture_media_transmuxing": { "message": "正在转换为MP4…", "description": "HLS分片转封装为MP4时的提示。" },
-    "capture_media_track_muxed": { "message": "视频和音频", "description": "媒体候选包含音画的说明。" },
-    "capture_media_track_video": { "message": "仅视频，暂无声音", "description": "媒体候选仅有视频轨的说明。" },
-    "capture_media_track_audio": { "message": "仅音频", "description": "媒体候选仅有音频轨的说明。" },
-    "popup_tab_read_later": { "message": "稍后阅读", "description": "浮窗稍后阅读Tab。" },
-    "popup_tab_save_page": { "message": "保存网页", "description": "浮窗保存网页Tab。" },
-    "popup_tab_media": { "message": "媒体", "description": "浮窗媒体Tab。" },
-    "capture_save_page_intro": { "message": "选择输出形式。保存过程会显示当前阶段、进度和结果。", "description": "保存网页说明。" },
-    "capture_pdf_title": { "message": "PDF", "description": "PDF保存标题。" },
-    "capture_pdf_description": { "message": "打开浏览器打印窗口，由你确认页面、纸张和保存位置。", "description": "PDF保存说明。" },
-    "capture_image_description": { "message": "支持当前窗口或完整网页，以及PNG、JPG。", "description": "图片保存说明。" },
-    "capture_prepare_lazy": { "message": "保存前滚动页面，以加载懒加载内容", "description": "懒加载准备选项。" },
-    "capture_scope_viewport": { "message": "窗口", "description": "可视窗口截图。" },
-    "capture_scope_full_page": { "message": "整页", "description": "完整网页截图。" },
-    "capture_action_save": { "message": "保存", "description": "保存操作。" },
-    "capture_action_copy": { "message": "复制", "description": "复制到剪贴板。" },
-    "capture_stage_copying": { "message": "正在写入系统剪贴板…", "description": "复制阶段。" },
-    "capture_status_copied": { "message": "内容已复制到剪贴板。", "description": "复制成功提示。" },
-    "capture_download_permission_missing": { "message": "EasyRead尚未获得下载权限。请在扩展管理页重新加载EasyRead后重试。", "description": "下载权限缺失提示。" },
-    "capture_task_title": { "message": "正在保存", "description": "保存任务标题。" },
-    "capture_stage_starting": { "message": "正在连接当前网页…", "description": "保存起始阶段。" },
-    "capture_stage_permission": { "message": "正在确认跨域资源访问权限…", "description": "HTML资源权限阶段。" },
-    "capture_stage_lazy": { "message": "正在加载页面内容 $1/$2…", "description": "懒加载阶段。" },
-    "capture_stage_stabilizing": { "message": "正在等待动态页面稳定…", "description": "动态页面稳定阶段。" },
-    "capture_stage_document": { "message": "正在分析正文、重点、批注和页面结构…", "description": "文档分析阶段。" },
-    "capture_stage_styles": { "message": "正在固化页面样式 $1/$2…", "description": "HTML计算样式阶段。" },
-    "capture_stage_frames": { "message": "正在冻结页面框架和动态状态…", "description": "HTML框架阶段。" },
-    "capture_stage_stylesheet": { "message": "正在处理样式表 $1/$2…", "description": "HTML样式表阶段。" },
-    "capture_stage_resource_url": { "message": "正在内联CSS资源，已处理$1项…", "description": "CSS资源阶段。" },
-    "capture_stage_resources": { "message": "正在内联图片资源 $1/$2…", "description": "HTML资源阶段。" },
-    "capture_stage_packaging": { "message": "正在内联资源并封装单页文件…", "description": "HTML封装阶段。" },
-    "capture_stage_viewport": { "message": "正在截取当前窗口…", "description": "窗口截图阶段。" },
-    "capture_stage_downloading": { "message": "文件已经准备好，正在交给浏览器下载…", "description": "下载阶段。" },
-    "capture_stage_print_dialog": { "message": "正在打开浏览器打印窗口…", "description": "PDF打印阶段。" },
-    "capture_stage_print_opened": { "message": "请在打印窗口中选择“另存为PDF”并确认保存。", "description": "PDF交互提示。" }
+  "setting_read_later_empty": {
+    "message": "当前无记录"
+  },
+  "setting_read_later_empty_hint": {
+    "message": "将网页加入稍后阅读，下次回来时就能在这里找到。"
+  },
+  "setting_read_later_count": {
+    "message": "共 $1 条 · $2 / $3"
+  },
+  "setting_remove_scope": {
+    "message": "删除记录 — $1"
+  },
+  "setting_records_parent": {
+    "message": "稍后阅读 / 浏览历史"
+  },
+  "setting_language": {
+    "message": "显示语言"
+  },
+  "setting_language_auto": {
+    "message": "自动（跟随浏览器）"
+  },
+  "setting_open_all_records": {
+    "message": "打开所有记录"
+  },
+  "annotation_move_sidebar": {
+    "message": "移至右侧批注栏"
+  },
+  "annotation_move_popup": {
+    "message": "移至主窗口"
+  },
+  "capture_page_reconnect_failed": {
+    "message": "无法连接网页，请刷新网页后重试，并确认允许 EasyRead 访问此网站。"
+  },
+  "diagnostics_title": {
+    "message": "诊断工具"
+  },
+  "diagnostics_description": {
+    "message": "仅在开启时记录错误，不显示浮层、不自动下载。最近 100 条记录仅保存在此设备；关闭后仍可下载已有记录。报告可能包含页面地址，请在分享前检查。"
+  },
+  "diagnostics_empty": {
+    "message": "暂无错误记录"
+  },
+  "diagnostics_count": {
+    "message": "$1 条错误记录"
+  },
+  "diagnostics_clear": {
+    "message": "删除记录"
+  },
+  "diagnostics_download": {
+    "message": "下载 JSON"
+  },
+  "diagnostics_single": {
+    "message": "下载错误信息"
+  },
+  "diagnostics_multiple": {
+    "message": "查看 $1 条错误记录"
+  },
+  "screenshot_format_label": {
+    "message": "截图保存格式"
+  },
+  "screenshot_format_description": {
+    "message": "保存截图时使用此格式。复制到剪贴板始终使用 PNG，以兼容浏览器。"
+  },
+  "screenshot_copy_viewport": {
+    "message": "复制窗口"
+  },
+  "screenshot_copy_full": {
+    "message": "复制整页"
+  },
+  "screenshot_save_viewport": {
+    "message": "保存窗口"
+  },
+  "screenshot_save_full": {
+    "message": "保存整页"
+  },
+  "media_settings_description": {
+    "message": "仅控制 EasyRead 中的预览。自动播放与静音默认关闭；同时播放强制静音。浏览器可能限制有声自动播放，此时请手动点击播放。原网页播放进度仅作记录，不会自动恢复。"
+  },
+  "setting_tab_read_later": {
+    "message": "稍后阅读"
+  },
+  "setting_tab_save_page": {
+    "message": "保存网页"
+  },
+  "setting_tab_media": {
+    "message": "媒体"
+  },
+  "setting_tab_annotations": {
+    "message": "笔记"
+  },
+  "capture_stage_tab": {
+    "message": "正在采集页内标签 $1/$2：$3"
+  },
+  "capture_tab_unavailable": {
+    "message": "此标签内容未能保存，请前往原网页查看。"
+  },
+  "diagnostics_details": {
+    "message": "错误详情（开发版）"
+  },
+  "diagnostics_dismiss": {
+    "message": "收起"
+  },
+  "diagnostics_download_all": {
+    "message": "下载最近的错误"
+  },
+  "capture_media_file_size_pending": {
+    "message": "大小待计算"
+  },
+  "capture_media_file_size_estimated": {
+    "message": "约 $1"
+  },
+  "capture_media_progress_amount": {
+    "message": "已下载 $1"
+  },
+  "capture_media_progress_amount_total": {
+    "message": "$1/$2"
+  },
+  "capture_media_progress_detail": {
+    "message": "$1，$2"
+  },
+  "capture_media_eta_seconds": {
+    "message": "剩余 $1 秒"
+  },
+  "capture_media_eta_minutes": {
+    "message": "剩余 $1 分 $2 秒"
+  },
+  "capture_media_eta_hours": {
+    "message": "剩余 $1 小时 $2 分"
+  },
+  "capture_action_sources": {
+    "message": "来源"
+  },
+  "capture_media_sources_loading": {
+    "message": "读取中"
+  },
+  "capture_media_sources_failed": {
+    "message": "无法读取媒体来源"
+  },
+  "capture_media_sources_count": {
+    "message": "共 $1 个资源链接"
+  },
+  "capture_media_sources_copy": {
+    "message": "复制全部"
+  },
+  "capture_media_source_player": {
+    "message": "播放器"
+  },
+  "capture_media_source_media": {
+    "message": "媒体"
+  },
+  "capture_media_source_backup": {
+    "message": "备用"
+  },
+  "capture_media_source_playlist": {
+    "message": "清单"
+  },
+  "capture_media_source_segment": {
+    "message": "分片"
+  },
+  "capture_media_source_key": {
+    "message": "密钥"
+  },
+  "capture_media_source_resource": {
+    "message": "资源"
+  },
+  "capture_media_size_unknown": {
+    "message": "尺寸待识别"
+  },
+  "capture_media_preview": {
+    "message": "预览视频"
+  },
+  "capture_media_preview_unsupported": {
+    "message": "当前浏览器不支持视频预览。"
+  },
+  "capture_media_preview_failed": {
+    "message": "预览加载失败，仍可尝试下载视频。"
+  },
+  "media_invalid_playlist": {
+    "message": "服务器未返回有效的视频播放列表。"
+  },
+  "media_invalid_range": {
+    "message": "视频的字节范围信息无效。"
+  },
+  "media_invalid_iv": {
+    "message": "视频加密信息不完整。"
+  },
+  "media_missing_segment": {
+    "message": "播放列表标记了缺失分片，无法保存完整视频。"
+  },
+  "media_empty_track": {
+    "message": "视频轨或音频轨缺失，无法保存完整视频。"
+  },
+  "media_invalid_timeline": {
+    "message": "视频时间轴不完整或顺序异常。"
+  },
+  "media_unsupported_codec": {
+    "message": "暂不支持封装该视频编码。"
+  },
+  "media_codec_changed": {
+    "message": "视频中途变更了编码配置，无法完整封装。"
+  },
+  "media_size_limit": {
+    "message": "视频超过当前 512 MB 本地处理上限。"
+  },
+  "media_live_unsupported": {
+    "message": "这是尚未结束的直播流，暂不支持保存为完整视频。"
+  },
+  "media_duration_mismatch": {
+    "message": "下载的轨道时长与播放列表不符，未保存残缺文件。"
+  },
+  "media_stage_playlists": {
+    "message": "正在读取视频和音频播放列表…"
+  },
+  "media_stage_segments": {
+    "message": "正在下载分片 $1 / $2…"
+  },
+  "media_stage_merging": {
+    "message": "正在本地合并音频和视频…"
+  },
+  "media_stage_validating": {
+    "message": "正在检查文件完整性…"
+  },
+  "capture_media_incomplete_mp4": {
+    "message": "当前资源是未完整封装的视频分片，需要获取包含初始化信息的完整视频，本次未保存文件。"
+  },
+  "capture_media_separate_audio": {
+    "message": "当前视频的音轨和画面分别存储，暂未支持该流的完整合并，本次未保存文件。"
+  },
+  "capture_media_hls_layout": {
+    "message": "当前视频需要额外的字节范围或时间轴处理，暂未支持，本次未保存文件。"
+  },
+  "manifest_name": {
+    "message": "轻松阅读 - EasyRead",
+    "description": "The manifest field."
+  },
+  "manifest_description": {
+    "message": "轻松阅读：稍后阅读、自动记录、笔记与Markdown导出。https://github.com/volnet/chrome-extensions-easyread",
+    "description": "The manifest field."
+  },
+  "popup_page_title": {
+    "message": "EasyRead：让时间倍增魔力！",
+    "description": "The popup page's title."
+  },
+  "popup_page_top_menu_bar_all_records_title": {
+    "message": "所有记录",
+    "description": "The top menu bar."
+  },
+  "popup_page_top_menu_bar_annotations_title": {
+    "message": "展开或折叠批注栏",
+    "description": "浮窗顶部的批注栏展开折叠开关。"
+  },
+  "popup_page_top_menu_bar_setting_title": {
+    "message": "设置和备份",
+    "description": "The top menu bar."
+  },
+  "popup_page_read_times": {
+    "message": "已读：$READ_TIMES$次",
+    "description": "The page read times.",
+    "placeholders": {
+      "read_times": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "popup_page_total_pages": {
+    "message": "总计：$total_pages$页",
+    "description": "The total pages title.",
+    "placeholders": {
+      "total_pages": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "popup_btn_read_later_text": {
+    "message": "稍后阅读",
+    "description": "The read later button text."
+  },
+  "popup_page_notes_title": {
+    "message": "笔记",
+    "description": "The note block title."
+  },
+  "popup_page_message_no_readlaters": {
+    "message": "未曾记录，是否初次到访该页？",
+    "description": "The message: no readlater records."
+  },
+  "popup_page_message_duplicate_readlaters": {
+    "message": "不能重复添加哟！",
+    "description": "The message: dupulicate readlater records."
+  },
+  "popup_page_message_readlaters_added": {
+    "message": "添加成功！",
+    "description": "The message: add readlater records successfully."
+  },
+  "popup_page_message_readlaters_firsttime": {
+    "message": "干得漂亮，就是这样！",
+    "description": "The message: first time to insert a records."
+  },
+  "popup_page_message_readlaters_remove_null": {
+    "message": "什么都没删除！",
+    "description": "The message: remove a readlater records not exists."
+  },
+  "popup_page_message_notes_downloaded": {
+    "message": "成功下载！",
+    "description": "The message: download the page note successfully."
+  },
+  "popup_page_message_notes_removed": {
+    "message": "成功删除！",
+    "description": "The message: remove the page note successfully."
+  },
+  "popup_page_message_no_notes": {
+    "message": "当前没有笔记。",
+    "description": "The message: no notes found."
+  },
+  "popup_page_message_no_records_no_datetimes": {
+    "message": "没有记录",
+    "description": "The message: not found the allrecords."
+  },
+  "popup_page_message_no_records_text": {
+    "message": "此页还没有阅读记录。",
+    "description": "The message: not found the allrecords."
+  },
+  "popup_page_message_no_records_firsttime": {
+    "message": "没有记录",
+    "description": "The message: not found the allrecords, Is this your first time here?"
+  },
+  "popup_page_message_records_removed": {
+    "message": "记录已删除",
+    "description": "The message: the page's records is removed."
+  },
+  "popup_page_message_records_not_supported": {
+    "message": "当前页面URL类型不支持。",
+    "description": "The message: the page's url is not supported."
+  },
+  "allrecords_page_title": {
+    "message": "所有记录",
+    "description": "The all records display list."
+  },
+  "allrecords_page_notice": {
+    "message": "重访读过的网页，继续未完的阅读。",
+    "description": "Notice the user what's next."
+  },
+  "allrecords_page_summary": {
+    "message": "共 $1 条记录，每页 $2 条",
+    "description": "分页记录摘要。"
+  },
+  "allrecords_page_indicator": {
+    "message": "第 $1 / $2 页",
+    "description": "当前页码。"
+  },
+  "allrecords_page_previous": {
+    "message": "上一页",
+    "description": "上一页。"
+  },
+  "allrecords_page_next": {
+    "message": "下一页",
+    "description": "下一页。"
+  },
+  "allrecords_export": {
+    "message": "导出记录",
+    "description": "导出全部阅读记录。"
+  },
+  "allrecords_header_number": {
+    "message": "序号",
+    "description": "记录序号列。"
+  },
+  "allrecords_header_title": {
+    "message": "标题（URL）",
+    "description": "记录标题列。"
+  },
+  "allrecords_header_read_times": {
+    "message": "阅读次数",
+    "description": "访问次数列。"
+  },
+  "allrecords_header_last_read_time": {
+    "message": "最近阅读时间",
+    "description": "最近一次阅读时间列。"
+  },
+  "allrecords_header_read_progress": {
+    "message": "阅读进度",
+    "description": "阅读进度列。"
+  },
+  "allrecords_header_video_progress": {
+    "message": "视频进度",
+    "description": "视频进度列。"
+  },
+  "setting_page_title": {
+    "message": "EasyRead · 设置",
+    "description": "The setting page display list."
+  },
+  "setting_page_notice": {
+    "message": "阅读偏好与本地数据，都在这里管理。",
+    "description": "Notice the user what's next."
+  },
+  "setting_tab_general": {
+    "message": "常规",
+    "description": "常规设置标签。"
+  },
+  "setting_tab_data": {
+    "message": "内容与记录",
+    "description": "内容数据标签。"
+  },
+  "setting_tab_backup": {
+    "message": "备份与恢复",
+    "description": "备份恢复标签。"
+  },
+  "setting_page_highlights_description": {
+    "message": "控制笔记引用在原网页上的高亮和编号显示，不删除任何笔记。",
+    "description": "网页重点显示设置说明。"
+  },
+  "setting_page_notice_annotationAuthor": {
+    "message": "笔记作者",
+    "description": "批注作者设置标题。"
+  },
+  "setting_page_annotationAuthorLabel": {
+    "message": "新笔记显示的作者",
+    "description": "批注作者输入标签。"
+  },
+  "setting_page_btnSaveAnnotationAuthor": {
+    "message": "保存作者",
+    "description": "保存批注作者按钮。"
+  },
+  "setting_page_annotationAuthorSaved": {
+    "message": "笔记作者已保存。",
+    "description": "保存成功提示。"
+  },
+  "setting_page_notice_allRecords": {
+    "message": "阅读记录",
+    "description": "The notice message."
+  },
+  "setting_page_btnDownloadAllRecordsAsJson": {
+    "message": "导出阅读记录",
+    "description": "The button text."
+  },
+  "setting_page_btnRemoveAllRecords": {
+    "message": "删除记录",
+    "description": "The button text."
+  },
+  "setting_page_allRecordsRemoved": {
+    "message": "所有记录已被删除。",
+    "description": "The message for button click."
+  },
+  "setting_page_notice_readLaters": {
+    "message": "稍后阅读",
+    "description": "The notice message."
+  },
+  "setting_page_btnDownloadReadLatersAsJson": {
+    "message": "导出稍后阅读",
+    "description": "The button text."
+  },
+  "setting_page_btnRemoveReadLaters": {
+    "message": "删除记录",
+    "description": "The button text."
+  },
+  "setting_page_readLatersRemoved": {
+    "message": "稍后阅读已被删除。",
+    "description": "The message for button click."
+  },
+  "setting_page_notice_notes": {
+    "message": "笔记管理",
+    "description": "The notice message."
+  },
+  "setting_page_btnDownloadNotesAsJson": {
+    "message": "导出笔记（JSON）",
+    "description": "The button text."
+  },
+  "setting_page_btnDownloadNotesAsMarkdown": {
+    "message": "导出笔记（Markdown）",
+    "description": "The button text."
+  },
+  "setting_page_btnRemoveNotes": {
+    "message": "删除记录",
+    "description": "The button text."
+  },
+  "setting_page_notesRemoved": {
+    "message": "已删除所有笔记。",
+    "description": "The message for button click."
+  },
+  "setting_page_notice_storage": {
+    "message": "完整备份",
+    "description": "The notice message."
+  },
+  "setting_page_btnDownloadStorageAsJson": {
+    "message": "导出完整备份",
+    "description": "The button text."
+  },
+  "setting_page_btnMergeStorageJson": {
+    "message": "合并导入",
+    "description": "The button text."
+  },
+  "setting_page_btnReplaceStorageJson": {
+    "message": "覆盖导入",
+    "description": "The button text."
+  },
+  "setting_page_btnDropStorage": {
+    "message": "清空本地数据",
+    "description": "The button text."
+  },
+  "setting_page_storageDroped": {
+    "message": "存储已删除",
+    "description": "The message for button click."
+  },
+  "setting_page_storageMergedSuccessfully": {
+    "message": "存储合并成功",
+    "description": "The message for button click."
+  },
+  "setting_page_storageMergedFailed": {
+    "message": "存储合并失败",
+    "description": "The message for button click."
+  },
+  "setting_page_storageReplacedSuccessfully": {
+    "message": "存储还原成功",
+    "description": "The message for button click."
+  },
+  "setting_page_storageReplacedFailed": {
+    "message": "存储还原失败",
+    "description": "The message for button click."
+  },
+  "setting_page_fileInputNofiles": {
+    "message": "请选择文件（*.json）",
+    "description": "The message for button click."
+  },
+  "popup_page_show_highlights": {
+    "message": "显示网页重点",
+    "description": "网页重点显示开关的标签。"
+  },
+  "popup_page_highlights_enabled": {
+    "message": "网页重点显示已开启。",
+    "description": "开启网页重点显示后的提示。"
+  },
+  "popup_page_highlights_disabled": {
+    "message": "网页重点显示已关闭，重点数据仍会保留。",
+    "description": "关闭网页重点显示后的提示。"
+  },
+  "contextMenus_title_page_addReadLater": {
+    "message": "稍后阅读（当前页面）",
+    "description": "The message for context menu."
+  },
+  "contextMenus_title_selection_addNote": {
+    "message": "划重点（当前选中）",
+    "description": "将当前文字选区添加为网页重点。"
+  },
+  "contextMenus_title_selection_addAnnotation": {
+    "message": "添加笔记（当前选中）",
+    "description": "为当前选中文字添加批注。"
+  },
+  "annotation_sidebar_title": {
+    "message": "笔记",
+    "description": "批注栏标题。"
+  },
+  "annotation_sidebar_collapse": {
+    "message": "折叠笔记",
+    "description": "折叠批注栏并保留EasyRead入口。"
+  },
+  "annotation_sidebar_expand": {
+    "message": "展开笔记",
+    "description": "从EasyRead入口展开批注栏。"
+  },
+  "annotation_sidebar_download": {
+    "message": "下载本页笔记",
+    "description": "将当前页面批注下载为Markdown。"
+  },
+  "annotation_empty_title": {
+    "message": "沿着阅读，留下想法",
+    "description": "当前页面没有批注时的空状态标题。"
+  },
+  "annotation_empty_description": {
+    "message": "选中文字即可划重点、写笔记；也可以在下方记录对整页的想法。",
+    "description": "当前页面没有批注时的空状态说明。"
+  },
+  "annotation_comment_placeholder": {
+    "message": "写下你的观点…",
+    "description": "批注输入提示。"
+  },
+  "annotation_action_cancel": {
+    "message": "取消",
+    "description": "取消批注。"
+  },
+  "annotation_action_save": {
+    "message": "保存",
+    "description": "保存批注。"
+  },
+  "annotation_action_edit": {
+    "message": "编辑笔记",
+    "description": "编辑已有批注。"
+  },
+  "annotation_action_remove": {
+    "message": "移除笔记",
+    "description": "移除已有批注。"
+  },
+  "contextMenus_title_selection_removeAnnotation": {
+    "message": "移除笔记",
+    "description": "移除正文中的当前批注。"
+  },
+  "annotation_author_anonymous": {
+    "message": "未署名",
+    "description": "无作者时的名称。"
+  },
+  "contextMenus_title_selection_removeHighlight": {
+    "message": "移除笔记（当前内容）",
+    "description": "移除右键位置命中的网页重点。"
+  },
+  "popup_page_top_menu_bar_save_copy_title": {
+    "message": "保存副本",
+    "description": "打开网页副本面板。"
+  },
+  "allrecords_header_artifacts": {
+    "message": "已保存副本",
+    "description": "网页副本记录列。"
+  },
+  "capture_title": {
+    "message": "保存副本",
+    "description": "网页副本对话框标题。"
+  },
+  "capture_close": {
+    "message": "关闭",
+    "description": "关闭网页副本对话框。"
+  },
+  "capture_markdown_title": {
+    "message": "Markdown",
+    "description": "Markdown副本标题。"
+  },
+  "capture_markdown_description": {
+    "message": "可编辑的文章内容，包含 EasyRead 笔记。",
+    "description": "Markdown副本说明。"
+  },
+  "capture_html_title": {
+    "message": "单文件HTML",
+    "description": "HTML副本标题。"
+  },
+  "capture_html_description": {
+    "message": "生成安全的页面快照，无法访问的远程资源会明确提示。",
+    "description": "HTML副本说明。"
+  },
+  "capture_png_title": {
+    "message": "截图",
+    "description": "截图功能标题。"
+  },
+  "capture_png_description": {
+    "message": "滚动拼接并保存完整网页；超长页面会明确提示。",
+    "description": "PNG副本说明。"
+  },
+  "capture_png_progress": {
+    "message": "正在截取第 $1 张，共 $2 张…",
+    "description": "整页截图进度。"
+  },
+  "capture_png_too_long": {
+    "message": "页面过长，超出浏览器画布限制，暂时无法生成完整 PNG。",
+    "description": "整页截图过长提示。"
+  },
+  "capture_media_title": {
+    "message": "媒体",
+    "description": "媒体副本标题。"
+  },
+  "capture_media_description": {
+    "message": "查找当前页面公开的媒体直链和受支持的HLS流。",
+    "description": "媒体副本说明。"
+  },
+  "capture_status_ready": {
+    "message": "请选择最符合后续使用场景的副本形式。",
+    "description": "就绪提示。"
+  },
+  "capture_status_working": {
+    "message": "正在准备副本…",
+    "description": "处理中提示。"
+  },
+  "capture_status_saved": {
+    "message": "副本已生成并开始下载。",
+    "description": "成功提示。"
+  },
+  "capture_status_partial": {
+    "message": "副本已下载，但部分受保护或无法访问的资源仍保持外部引用。",
+    "description": "部分完成提示。"
+  },
+  "capture_status_failed": {
+    "message": "无法保存副本",
+    "description": "失败提示。"
+  },
+  "capture_highlights_heading": {
+    "message": "笔记",
+    "description": "Markdown重点标题。"
+  },
+  "capture_media_none": {
+    "message": "暂未发现可下载的媒体",
+    "description": "没有媒体的提示。"
+  },
+  "capture_media_none_description": {
+    "message": "尝试播放页面中的视频或音频，然后重新打开 EasyRead。",
+    "description": "没有媒体时的操作建议。"
+  },
+  "capture_media_debug_saved": {
+    "message": "媒体错误报告已下载。",
+    "description": "媒体错误报告下载完成提示。"
+  },
+  "capture_media_debug_download": {
+    "message": "下载错误信息",
+    "description": "由用户主动下载媒体错误报告的按钮。"
+  },
+  "capture_media_found": {
+    "message": "发现$1个媒体候选，请选择下载。",
+    "description": "发现媒体的提示。"
+  },
+  "capture_action_download": {
+    "message": "下载",
+    "description": "下载媒体操作。"
+  },
+  "capture_media_no_segments": {
+    "message": "播放列表中没有可下载的分片。",
+    "description": "HLS错误。"
+  },
+  "capture_media_drm_unsupported": {
+    "message": "该媒体使用DRM或不受支持的加密方式，EasyRead不会尝试绕过。",
+    "description": "DRM错误。"
+  },
+  "capture_media_key_missing": {
+    "message": "缺少AES-128密钥地址。",
+    "description": "HLS密钥错误。"
+  },
+  "capture_media_segment_progress": {
+    "message": "正在下载第$1/$2个分片…",
+    "description": "HLS下载进度。"
+  },
+  "capture_media_transmuxing": {
+    "message": "正在转换为MP4…",
+    "description": "HLS分片转封装为MP4时的提示。"
+  },
+  "capture_media_track_muxed": {
+    "message": "视频和音频",
+    "description": "媒体候选包含音画的说明。"
+  },
+  "capture_media_track_video": {
+    "message": "仅视频，暂无声音",
+    "description": "媒体候选仅有视频轨的说明。"
+  },
+  "capture_media_track_audio": {
+    "message": "仅音频",
+    "description": "媒体候选仅有音频轨的说明。"
+  },
+  "popup_tab_read_later": {
+    "message": "稍后阅读",
+    "description": "浮窗稍后阅读Tab。"
+  },
+  "popup_tab_save_page": {
+    "message": "保存网页",
+    "description": "浮窗保存网页Tab。"
+  },
+  "popup_tab_media": {
+    "message": "媒体",
+    "description": "浮窗媒体Tab。"
+  },
+  "capture_save_page_intro": {
+    "message": "选择输出形式。保存过程会显示当前阶段、进度和结果。",
+    "description": "保存网页说明。"
+  },
+  "capture_pdf_title": {
+    "message": "PDF",
+    "description": "PDF保存标题。"
+  },
+  "capture_pdf_description": {
+    "message": "打开浏览器打印窗口，由你确认页面、纸张和保存位置。",
+    "description": "PDF保存说明。"
+  },
+  "capture_image_description": {
+    "message": "支持当前窗口或完整网页，以及PNG、JPG。",
+    "description": "图片保存说明。"
+  },
+  "capture_prepare_lazy": {
+    "message": "保存前滚动页面，以加载懒加载内容",
+    "description": "懒加载准备选项。"
+  },
+  "capture_scope_viewport": {
+    "message": "窗口",
+    "description": "可视窗口截图。"
+  },
+  "capture_scope_full_page": {
+    "message": "整页",
+    "description": "完整网页截图。"
+  },
+  "capture_action_save": {
+    "message": "保存",
+    "description": "保存操作。"
+  },
+  "capture_action_copy": {
+    "message": "复制",
+    "description": "复制到剪贴板。"
+  },
+  "capture_stage_copying": {
+    "message": "正在写入系统剪贴板…",
+    "description": "复制阶段。"
+  },
+  "capture_status_copied": {
+    "message": "内容已复制到剪贴板。",
+    "description": "复制成功提示。"
+  },
+  "capture_download_permission_missing": {
+    "message": "EasyRead尚未获得下载权限。请在扩展管理页重新加载EasyRead后重试。",
+    "description": "下载权限缺失提示。"
+  },
+  "capture_task_title": {
+    "message": "正在保存",
+    "description": "保存任务标题。"
+  },
+  "capture_stage_starting": {
+    "message": "正在连接当前网页…",
+    "description": "保存起始阶段。"
+  },
+  "capture_stage_permission": {
+    "message": "正在确认跨域资源访问权限…",
+    "description": "HTML资源权限阶段。"
+  },
+  "capture_stage_lazy": {
+    "message": "正在加载页面内容 $1/$2…",
+    "description": "懒加载阶段。"
+  },
+  "capture_stage_stabilizing": {
+    "message": "正在等待动态页面稳定…",
+    "description": "动态页面稳定阶段。"
+  },
+  "capture_stage_document": {
+    "message": "正在分析文章、笔记和页面结构…",
+    "description": "文档分析阶段。"
+  },
+  "capture_stage_styles": {
+    "message": "正在固化页面样式 $1/$2…",
+    "description": "HTML计算样式阶段。"
+  },
+  "capture_stage_frames": {
+    "message": "正在冻结页面框架和动态状态…",
+    "description": "HTML框架阶段。"
+  },
+  "capture_stage_stylesheet": {
+    "message": "正在处理样式表 $1/$2…",
+    "description": "HTML样式表阶段。"
+  },
+  "capture_stage_resource_url": {
+    "message": "正在内联CSS资源，已处理$1项…",
+    "description": "CSS资源阶段。"
+  },
+  "capture_stage_resources": {
+    "message": "正在内联图片资源 $1/$2…",
+    "description": "HTML资源阶段。"
+  },
+  "capture_stage_packaging": {
+    "message": "正在内联资源并封装单页文件…",
+    "description": "HTML封装阶段。"
+  },
+  "capture_stage_viewport": {
+    "message": "正在截取当前窗口…",
+    "description": "窗口截图阶段。"
+  },
+  "capture_stage_downloading": {
+    "message": "文件已经准备好，正在交给浏览器下载…",
+    "description": "下载阶段。"
+  },
+  "capture_stage_print_dialog": {
+    "message": "正在打开浏览器打印窗口…",
+    "description": "PDF打印阶段。"
+  },
+  "capture_stage_print_opened": {
+    "message": "请在打印窗口中选择“另存为PDF”并确认保存。",
+    "description": "PDF交互提示。"
+  },
+  "ui_operation_failed": {
+    "message": "操作未完成，请重试。"
+  },
+  "ui_export_ready": {
+    "message": "导出文件已准备好。"
+  },
+  "ui_confirm_remove": {
+    "message": "确定要“$1”吗？此操作无法撤销，建议先导出备份。"
+  },
+  "ui_confirm_replace": {
+    "message": "将覆盖备份中包含的现有数据类别。未包含的类别保持不变。继续前建议先导出完整备份，是否继续？"
+  },
+  "ui_invalid_backup": {
+    "message": "备份格式无效，未写入任何数据。"
+  },
+  "ui_markdown_template": {
+    "message": "Markdown 导出模板"
+  },
+  "ui_markdown_page_template": {
+    "message": "页面模板"
+  },
+  "ui_markdown_note_template": {
+    "message": "笔记模板 · {notes_section}"
+  },
+  "ui_backup_description": {
+    "message": "将浏览历史、稍后阅读、笔记和设置备份到本地文件。"
+  },
+  "ui_import_title": {
+    "message": "导入与恢复"
+  },
+  "ui_import_file": {
+    "message": "选择 EasyRead JSON 备份文件"
+  },
+  "ui_clear_description": {
+    "message": "清空会移除所有本地记录和设置。请先确认已经保存备份。"
+  },
+  "ui_records_empty": {
+    "message": "还没有阅读记录。从下一次阅读开始，让 EasyRead 为你记住。"
+  },
+  "ui_generated_at": {
+    "message": "列表生成时间"
+  },
+  "ui_download_page_highlights": {
+    "message": "下载此页重点（Markdown）"
+  },
+  "ui_remove_page_records": {
+    "message": "删除此页阅读记录"
+  },
+  "setting_browsing_history": {
+    "message": "浏览历史"
+  },
+  "notes_add": {
+    "message": "批注（当前选中）"
+  },
+  "media_autoplay": { "message": "自动播放" },
+  "media_filter_all": { "message": "全部" },
+  "media_filter_empty": { "message": "此分类暂无媒体" },
+  "media_filter_video": { "message": "视频" },
+  "media_filter_audio": { "message": "音频" },
+  "media_filter_image": { "message": "图片" },
+  "read_later_unread": { "message": "未读" },
+  "read_later_completed": { "message": "已读" },
+  "read_later_completed_empty": { "message": "暂无已读记录" },
+  "media_autoplay_off": { "message": "关闭（默认）" },
+  "media_autoplay_sequential": { "message": "按序播放" },
+  "media_autoplay_simultaneous": { "message": "同时播放（静音）" },
+  "media_muted": { "message": "静音" },
+  "notes_page_expand": { "message": "展开整页笔记" },
+  "notes_page_collapse": { "message": "折叠整页笔记" },
+  "notes_countdown_seconds": { "message": "$1秒" },
+  "notes_edit": {
+    "message": "编辑笔记"
+  },
+  "contextMenus_title_page_addNote": {
+    "message": "添加笔记"
+  },
+  "notes_add_page": {
+    "message": "添加整页笔记"
+  },
+  "notes_page": {
+    "message": "整页笔记"
+  },
+  "notes_add_thought": {
+    "message": "添加我的观点…"
+  },
+  "notes_locate": {
+    "message": "定位原文"
+  },
+  "notes_unlocated": {
+    "message": "暂未定位到原文，内容已保留"
+  }
 }

@@ -1,8 +1,36 @@
 import './diagnostics.js';
 import * as easyReadTools from './easyReadTools.js';
-import { applyVideoProgress, createNoteItem, createTabNavigationTracker, removeNoteById } from './easyReadData.mjs';
+import { applyVideoProgress, createTabNavigationTracker } from './easyReadData.mjs';
 
+import { migrateNotes, notesOperation, withNotesLock } from './notesStore.mjs';
+import { sendPageMessage } from './pageConnection.mjs';
+
+// Also cover unpacked reloads / worker restarts where installation events may not fire.
+// Queue before RPCs; only Notes stores are migrated, all other user data stays untouched.
+withNotesLock(migrateNotes).catch(console.error);
+
+chrome.runtime.onMessage.addListener((message, sender, reply) => {
+  if (message?.command !== 'easyreadNotes') return;
+  if (sender.id !== chrome.runtime.id) { reply({ error: 'Invalid Notes sender' }); return; }
+  const extensionPage = !sender.tab || sender.url?.startsWith(chrome.runtime.getURL(''));
+  if (!extensionPage && ['all', 'clearAll', 'import'].includes(message.action)) { reply({ error: 'Invalid Notes action' }); return; }
+  const request = { ...message, url: extensionPage ? message.url : sender.tab.url };
+  withNotesLock(async () => {
+    if (request.action === 'import') {
+      await migrateNotes();
+      let result;
+      await (request.replace ? easyReadTools.replaceStorageJsonData : easyReadTools.mergeStorageJsonData)(request.data, value => { result = value; });
+      if (!result?.status) throw result?.error || new Error('Invalid backup');
+      return { ok: true };
+    }
+    return notesOperation(request);
+  }).then(reply, error => reply({ error: error.message }));
+  return true;
+});
 const tabNavigationTracker = createTabNavigationTracker();
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && changes.uiLanguage) installContextMenus().catch(console.error);
+});
 const highlightContextByTab = new Map();
 const bilibiliDownloadRules = new Map();
 let nextBilibiliRuleId = 120000;
@@ -60,9 +88,13 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 });
 
 chrome.runtime.onStartup.addListener(() => {
+  withNotesLock(migrateNotes).catch(console.error);
   easyReadTools.updateBudgeText();
 });
 chrome.runtime.onInstalled.addListener(async () => {
+  // No clearing/default overwrite on upgrade. Failed writes leave legacy data intact;
+  // the next Notes request retries the same idempotent migration.
+  try { await withNotesLock(migrateNotes); } catch (error) { console.error(error); }
   easyReadTools.updateBudgeText();
   await installContextMenus();
 });
@@ -140,6 +172,19 @@ function updateStorageCallback_AllRecordsPosition(queryValue, context) {
 // add a Listener to add
 // receive the page position.
 chrome.runtime.onMessage.addListener((message, sender, respond) => {
+  if (message?.command === 'easyreadLocaleDictionary' || message?.command === 'easyreadNotes') return;
+  if (message?.command === 'openAnnotationPopup') {
+    if (!sender.tab?.id) return;
+    (async () => {
+      await chrome.storage.session.set({ popupLastTab: { page: easyReadTools.getKey(sender.tab.url), tab: 'tabAnnotations' } });
+      await chrome.action.openPopup({ windowId: sender.tab.windowId });
+      respond({ ok: true });
+    })().catch(error => respond({ ok: false, error: error.message }));
+    return true;
+  }
+  // diagnostics.js owns these replies. The generic tab acknowledgement must
+  // not race its asynchronous clear response.
+  if (message?.command === 'easyreadDiagnosticClear' || message?.command === 'easyreadDiagnosticRecord') return;
   const sendResponse = (result) => {
     if (result?.ok === false && result.error) {
       globalThis.EasyReadDiagnostics?.record(new Error(result.error), {
@@ -397,7 +442,7 @@ chrome.runtime.onMessage.addListener((message, sender, respond) => {
   }
   if (message?.command === "startDirectDownload") {
     if (!chrome.downloads?.download) {
-      sendResponse({ ok: false, error: chrome.i18n.getMessage("capture_download_permission_missing") });
+      sendResponse({ ok: false, error: (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_download_permission_missing") });
       return false;
     }
     (async () => {
@@ -448,7 +493,7 @@ chrome.runtime.onMessage.addListener((message, sender, respond) => {
   }
   if (message?.command === "getDirectDownloadStatus") {
     if (!chrome.downloads?.search) {
-      sendResponse({ ok: false, error: chrome.i18n.getMessage("capture_download_permission_missing") });
+      sendResponse({ ok: false, error: (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_download_permission_missing") });
       return false;
     }
     chrome.downloads.search({ id: message.downloadId }, (downloads) => {
@@ -577,6 +622,7 @@ async function setTabScroll(tab) {
 }
 
 async function installContextMenus() {
+  await globalThis.EasyReadLocale?.ready;
   await chrome.contextMenus.removeAll();
   chrome.contextMenus.create({
     title: easyReadTools.getMessageForLocales("contextMenus_title_page_addReadLater"),
@@ -595,6 +641,15 @@ async function installContextMenus() {
     contexts: ["selection"],
     id: "selection-add-annotation"
   });
+  chrome.contextMenus.create({
+    title: easyReadTools.getMessageForLocales('contextMenus_title_page_addNote'),
+    contexts: ['page', 'link', 'image', 'video', 'audio'],
+    id: 'page-add-note'
+  });
+  chrome.contextMenus.create({
+    title: easyReadTools.getMessageForLocales('notes_edit'),
+    contexts: ['all'], id: 'edit-existing-note', visible: false
+  });
 
   chrome.contextMenus.create({
     title: easyReadTools.getMessageForLocales("contextMenus_title_selection_removeHighlight"),
@@ -602,12 +657,7 @@ async function installContextMenus() {
     id: "selection-remove-highlight",
     visible: false
   });
-  chrome.contextMenus.create({
-    title: easyReadTools.getMessageForLocales("contextMenus_title_selection_removeAnnotation"),
-    contexts: ["all"],
-    id: "selection-remove-annotation",
-    visible: false
-  });
+
 }
 
 async function updateHighlightContextMenu(tabId, context) {
@@ -617,9 +667,10 @@ async function updateHighlightContextMenu(tabId, context) {
   try {
     await Promise.all([
       chrome.contextMenus.update("selection-add-highlight", { visible: context.hasSelection && !isHighlight && !isAnnotation }),
-      chrome.contextMenus.update("selection-add-annotation", { visible: context.hasSelection && !isAnnotation }),
-      chrome.contextMenus.update("selection-remove-highlight", { visible: isHighlight }),
-      chrome.contextMenus.update("selection-remove-annotation", { visible: isAnnotation })
+      chrome.contextMenus.update("selection-add-annotation", { visible: !isHighlight && !isAnnotation }),
+      chrome.contextMenus.update('page-add-note', { visible: !context.hasSelection && !isHighlight && !isAnnotation }),
+      chrome.contextMenus.update('edit-existing-note', { visible: isHighlight || isAnnotation }),
+      chrome.contextMenus.update("selection-remove-highlight", { visible: isHighlight || isAnnotation })
     ]);
   } catch (error) { globalThis.EasyReadDiagnostics?.record(error, { source: "src/scripts/background.js" }, false);
     console.log("Could not update EasyRead highlight context menus.", error);
@@ -636,13 +687,16 @@ function contextMenusOnClick(info, tab) {
       addNotesSelection(info.selectionText, tab);
       break;
     case 'selection-add-annotation':
+    case 'edit-existing-note':
       openAnnotationComposer(info.selectionText, tab);
+      break;
+    case 'page-add-note':
+      if (tab?.id && easyReadTools.isSupportedScheme(tab.url)) {
+        sendPageMessage(tab.id, { command: 'openAnnotationComposer', selectionText: '' }).catch(console.log);
+      }
       break;
     case 'selection-remove-highlight':
       removeHighlightForTab(tab);
-      break;
-    case 'selection-remove-annotation':
-      removeAnnotationForTab(tab);
       break;
     default:
       console.log('No match context menus.');
@@ -677,107 +731,27 @@ function showMessages(message) {
   console.log("background.js: " + message);
 }
 
-function updateStorageCallback_addNotes(queryValue, context) {
-  let result = {
-    status: easyReadTools.UPDATE_STATUS_NO,
-    value: null,
-    message: "",
-    callback_onUpdated: context.callbackOnUpdated
-  };
-  // queryValue == {} or {thePageKey : it's value}
-  // console.log(queryValue);
-  let oldValue = queryValue[context.key];
-  const note = createNoteItem(context.selectionText, {
-    id: easyReadTools.generateRandomId(),
-    now: Date.now,
-    prefix: context.prefix,
-    suffix: context.suffix
-  });
-  if (oldValue && oldValue["notes"] && oldValue["notes"].length > 0) {
-      oldValue["notes"] = [...oldValue["notes"], note];
-      result.value = oldValue;
-      result.status = easyReadTools.UPDATE_STATUS_YES;
-  }
-  else {
-    // create new
-    let newValue = { title: context.tab.title, url: context.tab.url, "createDateTime": Date.now(),
-      notes: [note] };
-    result.value = newValue;
-    result.status = easyReadTools.UPDATE_STATUS_YES;
-  }
-  return result;
-}
-
-async function addNotesSelection(selectionText, contextMenuTab) {
-  if(selectionText && selectionText.length > 0) {
-    const tabs = contextMenuTab ? [contextMenuTab] : await chrome.tabs.query({ active: true, currentWindow: true });
-    if (tabs && tabs.length > 0) {
-      const tab = tabs[0];
-      const pageKey = easyReadTools.getKey(tab.url);
-      if (easyReadTools.isSupportedScheme(tab.url)) {
-        let selectionContext = {};
-        try {
-          selectionContext = await chrome.tabs.sendMessage(tab.id, { command: "getSelectionContext" }) ?? {};
-        } catch (error) { globalThis.EasyReadDiagnostics?.record(error, { source: "src/scripts/background.js" }, false);
-          console.log("Could not capture selection context; saving the selected text only.", error);
-        }
-        const keyChain = easyReadTools.keyChainGenerate([easyReadTools.NOTES_NAME, pageKey]);
-        easyReadTools.updateStorageJsonData(keyChain, updateStorageCallback_addNotes, {
-          key: pageKey,
-          tab: tab,
-          selectionText,
-          prefix: selectionContext.prefix,
-          suffix: selectionContext.suffix,
-          callbackOnUpdated(updateStatus) {
-            if (updateStatus) {
-              chrome.tabs.sendMessage(tab.id, { command: "refreshHighlights" }).catch(() => {});
-            }
-          }
-        });
-      }
-    }
-  }
-}
-
-async function removeAnnotationForTab(tab) {
-  const context = tab ? highlightContextByTab.get(tab.id) : null;
-  if (!tab?.id || context?.annotationId === null || context?.annotationId === undefined) return;
-  const currentPageKey = easyReadTools.getKey(tab.url);
-  if (context.pageKey !== currentPageKey) return;
-  await chrome.tabs.sendMessage(tab.id, { command: "removeAnnotation", annotationId: context.annotationId }).catch(() => {});
-  highlightContextByTab.delete(tab.id);
-  await updateHighlightContextMenu(tab.id, { noteId: null, annotationId: null, pageKey: currentPageKey, hasSelection: false });
-}
-
-async function openAnnotationComposer(selectionText, tab) {
-  if (!selectionText || !tab?.id) return;
-  let selectionContext = {};
+async function addNotesSelection(selectionText, tab) {
+  if (!selectionText?.trim() || !tab?.id || !easyReadTools.isSupportedScheme(tab.url)) return;
   try {
-    selectionContext = await chrome.tabs.sendMessage(tab.id, { command: "getSelectionContext" }) ?? {};
-  } catch (error) { globalThis.EasyReadDiagnostics?.record(error, { source: "src/scripts/background.js" }, false);
-    console.log("Could not capture annotation context.", error);
-  }
-  chrome.tabs.sendMessage(tab.id, {
-    command: "openAnnotationComposer",
-    selectionText,
-    prefix: selectionContext.prefix,
-    suffix: selectionContext.suffix
-  }).catch(() => {});
+    const context = await sendPageMessage(tab.id, { command: 'getSelectionContext' }) || {};
+    await withNotesLock(() => notesOperation({ action: 'add', url: tab.url, title: tab.title, selectionText, ...context }));
+  } catch (error) { globalThis.EasyReadDiagnostics?.record(error, { operation: 'highlight' }); }
 }
-
+async function openAnnotationComposer(selectionText, tab) {
+  if (!tab?.id) return;
+  try {
+    const state = highlightContextByTab.get(tab.id);
+    const id = state?.pageKey === easyReadTools.getKey(tab.url) ? state.annotationId ?? state.noteId : null;
+    const context = selectionText ? await sendPageMessage(tab.id, { command: 'getSelectionContext' }) || {} : {};
+    await sendPageMessage(tab.id, { command: 'openAnnotationComposer', selectionText: selectionText || '', noteId: id, ...context });
+  } catch (error) { globalThis.EasyReadDiagnostics?.record(error, { operation: 'open-note' }); }
+}
 async function removeHighlightForTab(tab) {
   const context = tab ? highlightContextByTab.get(tab.id) : null;
-  if (!tab || context?.noteId === null || context?.noteId === undefined) return;
-
-  const currentPageKey = easyReadTools.getKey(tab.url);
-  if (context.pageKey !== currentPageKey) return;
-
-  const stored = await chrome.storage.local.get([easyReadTools.NOTES_NAME]);
-  const result = removeNoteById(stored[easyReadTools.NOTES_NAME] ?? {}, currentPageKey, context.noteId);
-  if (!result.removed) return;
-
-  await chrome.storage.local.set({ [easyReadTools.NOTES_NAME]: result.notesByPage });
+  const id = context?.annotationId ?? context?.noteId;
+  if (!tab?.id || (id === null || id === undefined) || context.pageKey !== easyReadTools.getKey(tab.url)) return;
+  await withNotesLock(() => notesOperation({ action: 'remove', url: tab.url, id }));
   highlightContextByTab.delete(tab.id);
-  await updateHighlightContextMenu(tab.id, { noteId: null, annotationId: null, pageKey: currentPageKey, hasSelection: false });
-  chrome.tabs.sendMessage(tab.id, { command: "refreshHighlights" }).catch(() => {});
+  await updateHighlightContextMenu(tab.id, { noteId: null, annotationId: null, hasSelection: false });
 }

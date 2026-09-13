@@ -1,3 +1,5 @@
+import { normalizeNotesImport, orderNotes } from './notesModel.mjs';
+import './locale.js';
 import {
   ALL_RECORDS_NAME,
   ANNOTATIONS_NAME,
@@ -13,10 +15,14 @@ import {
   UPDATE_STATUS_NO,
   UPDATE_STATUS_YES,
   createReadLaterUpdate,
+  decodeStoredText,
+  validateStorageImport,
+  latestRecordTime,
   normalizePageUrl
 } from "./easyReadData.mjs";
 
 export {
+  decodeStoredText,
   ALL_RECORDS_NAME,
   ANNOTATIONS_NAME,
   ANNOTATION_AUTHOR_NAME,
@@ -65,7 +71,7 @@ export function hasAnchor(url) {
 // console.log(formatDate(1621760400000));  // export: "23/05/2021 à 00:00:00"
 export function formatDate(timestamp) {
   const dateObj = new Date(timestamp);
-  const formattedDate = dateObj.toLocaleString(chrome.i18n.getUILanguage(), { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric' });
+  const formattedDate = dateObj.toLocaleString((globalThis.EasyReadLocale || chrome.i18n).getUILanguage(), { hour12: false, year: 'numeric', month: '2-digit', day: '2-digit', hour: 'numeric', minute: 'numeric', second: 'numeric' });
   return formattedDate;
 }
 
@@ -100,12 +106,12 @@ export function sortDateTimeList(datetimes) {
 }
 
 export function isSupportedScheme(url) {
-  return url.startsWith('http');
+  try { return /^https?:$/.test(new URL(url).protocol); } catch { return false; }
 }
 
 export function isByHuman(datetimes) {
   if (datetimes && datetimes.length > 0) {
-    const maxDatetime = new Date(Math.max(...datetimes));
+    const maxDatetime = new Date(latestRecordTime({ datetimes }));
     if ((Date.now() - maxDatetime.getTime()) > 60000) {
       return true;
     }
@@ -115,10 +121,10 @@ export function isByHuman(datetimes) {
 
 export function getMessageForLocales(name, placeHolder) {
   if (placeHolder) {
-    return chrome.i18n.getMessage(name, placeHolder);
+    return (globalThis.EasyReadLocale || chrome.i18n).getMessage(name, placeHolder);
   }
   else {
-    return chrome.i18n.getMessage(name);
+    return (globalThis.EasyReadLocale || chrome.i18n).getMessage(name);
   }
 }
 
@@ -169,7 +175,7 @@ function exportToFile(data, filename, filetype, convertDataCallback) {
     link.download = filename;
     link.click();
 
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
   }
 }
 
@@ -207,7 +213,7 @@ export async function updateStorageJsonData(keyChain, callback, context) {
   if (keyArray && keyArray.length > 0) {
     const key0 = keyArray[0];
 
-    await _storage.get([key0], (result) => {
+    const result = await _storage.get([key0]);
       // console.log("key0=" + key0);
       // console.log(result);
       var obj = {};
@@ -246,19 +252,17 @@ export async function updateStorageJsonData(keyChain, callback, context) {
       };
       if (updateBlock && updateBlock.status === UPDATE_STATUS_YES) {
         setValue(keyArray, updateBlock.value);
-        _storage.set(obj, () => {
+        await _storage.set(obj);
           // console.log("['" + key0 + "']:Updated:");
           // console.log(obj);
           if (updateBlock.callback_onUpdated) {
             updateBlock.callback_onUpdated(true, obj, context);
           }
-        });
       } else {
         if (updateBlock && updateBlock.callback_onUpdated) {
           updateBlock.callback_onUpdated(false, null, context);
         }
       }
-    });
   }
 }
 
@@ -278,7 +282,8 @@ export function removeStorageJsonData(keyChain, callback) {
         function remove(keys) {
           var value = obj;
           for (var i = 0; i < keys.length - 1; i++) {
-            value = value[keys[i]];
+            value = value?.[keys[i]];
+            if (!value) return;
           }
           delete value[keys[keys.length - 1]];
         }
@@ -354,6 +359,8 @@ export async function mergeStorageJsonData(data, callback) {
     return;
   }
   try {
+    validateStorageImport(data);
+    data = normalizeNotesImport(data);
     var startDateTime = new Date();
     var counterAllRecordsDuplicateItems = 0;
     var counterAllRecordsMergeItems = 0;
@@ -366,9 +373,9 @@ export async function mergeStorageJsonData(data, callback) {
     var newAllRecords = data[ALL_RECORDS_NAME];
     var newReadLaters = data[READ_LATERS_NAME];
     var newNotes = data[NOTES_NAME];
-    var newAnnotations = data[ANNOTATIONS_NAME];
+
     var newArtifacts = data[ARTIFACTS_NAME];
-    _storage.get(null).then((result) => {
+    const result = normalizeNotesImport(await _storage.get(null));
       // merge all records.
       if (newAllRecords) {
         if(!result[ALL_RECORDS_NAME]) {
@@ -378,17 +385,19 @@ export async function mergeStorageJsonData(data, callback) {
         for (let rawKey in newAllRecords) {
           const key = getKey(rawKey);
           let oldItem = result[ALL_RECORDS_NAME][key];
-          const newItem = newAllRecords[key];
+          const newItem = newAllRecords[rawKey];
           if (!oldItem) {
-            result[ALL_RECORDS_NAME][key] = newAllRecords[key];
+            result[ALL_RECORDS_NAME][key] = newItem;
             ++counterAllRecordsMergeItems;
           }
           else {
             // merge items.
             oldItem["url"] = newItem["url"];
             oldItem["title"] = newItem["title"];
-            oldItem["position"] = newItem["position"];
-            const newDateTimes = newItem["datetimes"];
+            if (newItem.position) oldItem.position = newItem.position;
+            if ((newItem.videoProgress?.updatedAt ?? 0) > (oldItem.videoProgress?.updatedAt ?? 0)) oldItem.videoProgress = newItem.videoProgress;
+            oldItem.datetimes = oldItem.datetimes ?? [];
+            const newDateTimes = newItem["datetimes"] ?? [];
             const length = newDateTimes.length;
             for (let i = 0; i < length; ++i) {
               const datetime = newDateTimes[i];
@@ -410,22 +419,22 @@ export async function mergeStorageJsonData(data, callback) {
         const length = newReadLaters.length;
         for (var i = 0; i < length; ++i) {
           var item = newReadLaters[i];
-          result[READ_LATERS_NAME].push(item);
-          ++counterReadLatersMergeItems;
+          const existing = result[READ_LATERS_NAME].some(old => old.key === item.key && old.createDateTime === item.createDateTime && old.status === item.status);
+          if (!existing) { result[READ_LATERS_NAME].push(item); ++counterReadLatersMergeItems; }
         }
       }
       // merge notes.
       if(newNotes) {
-        if(!result[NOTES_NAME]) {
-          result[NOTES_NAME] = [];
+        if(!result[NOTES_NAME] || Array.isArray(result[NOTES_NAME])) {
+          result[NOTES_NAME] = {};
         }
 
         for (let rawKey in newNotes) {
           const key = getKey(rawKey);
           let oldItem = result[NOTES_NAME][key];
-          const newItem = newNotes[key];
+          const newItem = newNotes[rawKey];
           if (!oldItem) {
-            result[NOTES_NAME][key] = newNotes[key];
+            result[NOTES_NAME][key] = newItem;
             ++counterNotesMergeItems;
           }
           else {
@@ -437,14 +446,10 @@ export async function mergeStorageJsonData(data, callback) {
             const length = newNotes.length;
             for (let i = 0; i < length; ++i) {
               const newNote = newNotes[i];
-              let oldNoteFound = oldItem["notes"].find((n) => n.id === newNote.id)
+              let oldNoteFound = oldItem["notes"].find((n) => String(n.id) === String(newNote.id))
               if (oldNoteFound) {
-                if(oldNoteFound["createDateTime"] < newNote["createDateTime"]) {
-                  for(let jsonName in oldNoteFound) {
-                    if(jsonName !== "id" && oldNoteFound.hasOwnProperty(jsonName)) {
-                      oldNoteFound[jsonName] = newNote[jsonName];
-                    }
-                  }
+                if ((oldNoteFound.updatedAt ?? oldNoteFound.createDateTime ?? 0) < (newNote.updatedAt ?? newNote.createDateTime ?? 0)) {
+                  Object.assign(oldNoteFound, newNote);
                 }
               }
               else {
@@ -458,31 +463,6 @@ export async function mergeStorageJsonData(data, callback) {
         }
       }
 
-      if (newAnnotations) {
-        if (!result[ANNOTATIONS_NAME] || Array.isArray(result[ANNOTATIONS_NAME])) {
-          result[ANNOTATIONS_NAME] = {};
-        }
-        for (const rawKey in newAnnotations) {
-          const key = getKey(rawKey);
-          const incomingPage = newAnnotations[rawKey];
-          const existingPage = result[ANNOTATIONS_NAME][key];
-          if (!existingPage) {
-            result[ANNOTATIONS_NAME][key] = incomingPage;
-            counterAnnotationsMergeItems += incomingPage.annotations?.length ?? 0;
-            continue;
-          }
-          existingPage.annotations = existingPage.annotations ?? [];
-          const existingIds = new Set((existingPage.annotations ?? []).map((annotation) => String(annotation.id)));
-          for (const annotation of incomingPage.annotations ?? []) {
-            if (!existingIds.has(String(annotation.id))) {
-              existingPage.annotations.push(annotation);
-              existingIds.add(String(annotation.id));
-              counterAnnotationsMergeItems += 1;
-            }
-          }
-          existingPage.annotations.sort((left, right) => left.createDateTime - right.createDateTime);
-        }
-      }
       if (!result[ANNOTATION_AUTHOR_NAME] && data[ANNOTATION_AUTHOR_NAME]) {
         result[ANNOTATION_AUTHOR_NAME] = data[ANNOTATION_AUTHOR_NAME];
       }
@@ -509,7 +489,7 @@ export async function mergeStorageJsonData(data, callback) {
         }
       }
 
-      _storage.set(result).then(() => {
+      await _storage.set(result);
         if(callback) {
           callback({
             "status": true,
@@ -524,8 +504,6 @@ export async function mergeStorageJsonData(data, callback) {
             "takeMilliseconds": (new Date() - startDateTime)
           });
         }
-      });
-    });
   } catch(e) { globalThis.EasyReadDiagnostics?.record(e, { source: "src/scripts/easyReadTools.js" }, false);
     if(callback) {
       callback({
@@ -545,9 +523,11 @@ export async function replaceStorageJsonData(data, callback) {
     return;
   }
   try {
+    validateStorageImport(data);
+    data = normalizeNotesImport(data);
     var startDateTime = new Date();
-    _storage.get(null).then((result) => {
-      _storage.set(data).then(() => {
+    const result = await _storage.get(null);
+    await _storage.set(data);
         if(callback) {
           callback({
             "status": true,
@@ -556,8 +536,6 @@ export async function replaceStorageJsonData(data, callback) {
             "takeMilliseconds": (new Date() - startDateTime)
           });
         }
-      });
-    });
   } catch(e) { globalThis.EasyReadDiagnostics?.record(e, { source: "src/scripts/easyReadTools.js" }, false);
     if(callback) {
       callback({
@@ -628,15 +606,20 @@ export function convertNotesToMarkdownFiles(data, mdTemplate, mdNotesSectionTemp
         if(mdNotesSectionTemplate) {      
           let notesSection = "";
           if(item["notes"]) {          
-            for(let i = 0; i < item["notes"].length; ++i) {
-              const note = item["notes"][i];
+            for (const note of orderNotes(item.notes)) {
               let notesSectionItem = mdNotesSectionTemplate;
               notesSectionItem = markdownTemplaceReplace(notesSectionItem, "createDateTime", formatDate(note["createDateTime"]))
-              notesSectionItem = markdownTemplaceReplace(notesSectionItem, "selectionText", decodeURIComponent(note["selectionText"]))
+              const original = decodeStoredText(note.selectionText).replace(/\r\n?/g, '\n');
+              const quote = original.trim() ? original.split('\n').map(line => `> ${line}`).join('\n') : '';
+              // Keep comments outside the quote, including older templates already using >.
+              notesSectionItem = notesSectionItem.replace(/(?:^[\t ]*>[\t ]*)?\$selectionText\$/gm, () => quote ? `\n\n${quote}\n\n` : '');
+              notesSectionItem = markdownTemplaceReplace(notesSectionItem, "author", note.author || "");
+              if (mdNotesSectionTemplate.includes('$comment$')) notesSectionItem = markdownTemplaceReplace(notesSectionItem, "comment", note.comment || "");
+              else if (note.comment) notesSectionItem += "\n\n" + note.comment + "\n";
               notesSection += notesSectionItem;
             }
           }
-          markdown = markdown.replace("{notes_section}", notesSection);
+          markdown = markdown.replace("{notes_section}", () => notesSection);
         }
         files.push({"name": fileName, "content": markdown} );
       }
@@ -647,7 +630,7 @@ export function convertNotesToMarkdownFiles(data, mdTemplate, mdNotesSectionTemp
 
 function markdownTemplaceReplace(template, key, value) {
   var regex = new RegExp("\\$" + key + "\\$", "g");
-  template = template.replace(regex, value);
+  template = template.replace(regex, () => String(value ?? ''));
   return template;
 }
 
@@ -663,7 +646,7 @@ export function getScrollProgress() {
   // Get scroll bar position
   const scrollPosition = window.scrollY;
   // Calculate scroll bar progress
-  const progress = (scrollPosition / (pageHeight - windowHeight)) * 100;
+  const progress = pageHeight <= windowHeight ? 100 : Math.min(100, Math.max(0, (scrollPosition / (pageHeight - windowHeight)) * 100));
   return progress;
 }
 

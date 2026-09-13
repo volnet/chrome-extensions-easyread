@@ -1,8 +1,3 @@
-::highlight(easyread-notes) {
-  background-color: #ff8a00;
-  color: #1f1f1f;
-}
-
 ::highlight(easyread-annotations) {
   background-color: #ffd29c;
   color: #1f1f1f;
@@ -23,7 +18,8 @@
   justify-content: center;
   min-width: 18px;
   padding: 0 4px;
-  pointer-events: none;
+  pointer-events: auto;
+  cursor: pointer;
   position: absolute;
   z-index: 2147483644;
 }

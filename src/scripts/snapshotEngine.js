@@ -246,7 +246,7 @@
         if (!/^(https?:|blob:)/i.test(url)) return whole;
         const response = await this.fetchResource(url, { referrer: stylesheetUrl });
         this.processedResources += 1;
-        this.progress(Math.min(84, 35 + this.processedResources), chrome.i18n.getMessage("capture_stage_resource_url", [this.processedResources]));
+        this.progress(Math.min(84, 35 + this.processedResources), (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_resource_url", [this.processedResources]));
         return response?.dataUrl ? `url("${response.dataUrl}")` : `url("${url}")`;
       });
       return css.replace(/@charset\s+[^;]+;/gi, "");
@@ -257,7 +257,7 @@
       for (let index = 0; index < links.length; index += 1) {
         const link = links[index];
         const url = absoluteUrl(link.getAttribute("href"), pageUrl);
-        this.progress(24 + Math.round((index + 1) / Math.max(links.length, 1) * 10), chrome.i18n.getMessage("capture_stage_stylesheet", [index + 1, links.length]));
+        this.progress(24 + Math.round((index + 1) / Math.max(links.length, 1) * 10), (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_stylesheet", [index + 1, links.length]));
         const response = await this.fetchResource(url, { asText: true, referrer: pageUrl });
         if (!response) { link.setAttribute("href", url); continue; }
         const style = document.createElement("style");
@@ -281,7 +281,7 @@
         const response = await this.fetchResource(url, { referrer: pageUrl });
         if (response?.dataUrl) element.setAttribute(attribute, response.dataUrl);
         else element.setAttribute(attribute, url);
-        if (index % 5 === 0) this.progress(50 + Math.round((index + 1) / Math.max(targets.length, 1) * 30), chrome.i18n.getMessage("capture_stage_resources", [index + 1, targets.length]));
+        if (index % 5 === 0) this.progress(50 + Math.round((index + 1) / Math.max(targets.length, 1) * 30), (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_resources", [index + 1, targets.length]));
       }
       querySnapshot(clone, "a[href], area[href]").forEach((element) => element.setAttribute("href", absoluteUrl(element.getAttribute("href"), pageUrl)));
       querySnapshot(clone, "form[action]").forEach((element) => element.setAttribute("action", absoluteUrl(element.getAttribute("action"), pageUrl)));
@@ -296,7 +296,7 @@
     }
 
     async inlineFrames(clone, frames, parentFrameId = 0, pageUrl = location.href) {
-      this.progress(16, chrome.i18n.getMessage("capture_stage_frames"));
+      this.progress(16, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_frames"));
       const children = frames.filter((frame) => frame.parentFrameId === parentFrameId && frame.html);
       const used = new Set();
       for (const iframe of querySnapshot(clone, "iframe, frame")) {
@@ -333,7 +333,7 @@
               const tab = (initialTab.id && document.getElementById(initialTab.id)) || initialTab;
               const title = tab.textContent.trim();
               const id = tab.getAttribute("aria-controls");
-              this.progress(11, chrome.i18n.getMessage("capture_stage_tab", [String(panels.length + 1), String(tabs.length), title]));
+              this.progress(11, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_tab", [String(panels.length + 1), String(tabs.length), title]));
               try {
                 if (!tab.isConnected || tab.disabled || tab.getAttribute("aria-disabled") === "true") throw new Error("Tab is unavailable");
                 tab.click();
@@ -436,7 +436,7 @@
             if (!preserveRegion) section.append(copy);
           } else {
             const warning = document.createElement("p");
-            warning.textContent = chrome.i18n.getMessage("capture_tab_unavailable");
+            warning.textContent = (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_tab_unavailable");
             section.append(warning);
           }
           expanded.append(section);
@@ -451,7 +451,7 @@
     }
 
     async capture() {
-      this.progress(10, chrome.i18n.getMessage("capture_stage_document"));
+      this.progress(10, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_document"));
       const tabGroups = await this.collectTabs();
       const clone = cloneLiveDocument(document);
       this.expandTabs(clone, tabGroups);
@@ -464,7 +464,7 @@
       generator.name = "generator";
       generator.content = "EasyRead Snapshot Engine 2.0";
       clone.querySelector("head")?.appendChild(generator);
-      this.progress(90, chrome.i18n.getMessage("capture_stage_packaging"));
+      this.progress(90, (globalThis.EasyReadLocale || chrome.i18n).getMessage("capture_stage_packaging"));
       const content = `${doctypeText(document)}\n${clone.outerHTML}`;
       return {
         blob: new Blob([content], { type: "text/html;charset=utf-8" }),

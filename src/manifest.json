@@ -34,7 +34,7 @@
       "match_about_blank": true
     },
     {
-      "js": ["scripts/diagnostics.js", "scripts/youtubeMedia.js", "scripts/snapshotEngine.js", "scripts/content.js"],
+      "js": ["scripts/locale.js", "scripts/diagnostics.js", "scripts/youtubeMedia.js", "scripts/snapshotEngine.js", "scripts/annotationView.js", "scripts/content.js"],
       "css": ["styles/highlights.css", "styles/annotations.css", "styles/capture.css"],
       "matches": [
         "http://*/*",

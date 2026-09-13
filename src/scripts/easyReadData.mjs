@@ -95,6 +95,47 @@ export function normalizePageUrl(url) {
   return url.split("#")[0].toLowerCase().trim();
 }
 
+export function decodeStoredText(value) {
+  const text = String(value ?? '');
+  try { return decodeURIComponent(text); } catch { return text; }
+}
+
+export function validateStorageImport(data) {
+  if (!data || typeof data !== 'object' || Array.isArray(data) || Object.keys(data).length === 0) {
+    throw new Error('Invalid backup: expected a non-empty storage object.');
+  }
+  const collections = { allRecords: 'datetimes', notes: 'notes', annotations: 'annotations', artifacts: 'artifacts' };
+  for (const [key, field] of Object.entries(collections)) {
+    if (!(key in data)) continue;
+    const pages = data[key];
+    if (!pages || typeof pages !== 'object' || (Array.isArray(pages) && pages.length)) throw new Error(`Invalid backup: ${key}`);
+    for (const [pageKey, page] of Object.entries(pages)) {
+      if (['__proto__', 'constructor', 'prototype'].includes(normalizePageUrl(pageKey))) throw new Error('Invalid backup: unsafe page key');
+      if (!page || typeof page !== 'object' || Array.isArray(page) || !Array.isArray(page[field])) throw new Error(`Invalid backup: ${key}.${pageKey}.${field}`);
+    }
+  }
+  if ('readLaters' in data && (!Array.isArray(data.readLaters) || data.readLaters.some(item => !item || typeof item !== 'object' || typeof item.key !== 'string'))) {
+    throw new Error('Invalid backup: readLaters');
+  }
+  // Settings and unknown future keys remain untouched for backup compatibility.
+  return data;
+}
+
+export function latestRecordTime(item) {
+  let latest = Number(item?.videoProgress?.updatedAt) || 0;
+  for (const value of Array.isArray(item?.datetimes) ? item.datetimes : []) {
+    const timestamp = typeof value === 'number' ? value : new Date(value).getTime();
+    if (Number.isFinite(timestamp)) latest = Math.max(latest, timestamp);
+  }
+  return latest;
+}
+
+export function indexRecords(records) {
+  return Object.entries(records ?? {}).filter(([, value]) => value && typeof value === 'object')
+    .map(([key, value]) => ({ ...value, key, latestRead: latestRecordTime(value) }))
+    .sort((left, right) => right.latestRead - left.latestRead);
+}
+
 export function createNoteItem(selectionText, context = {}) {
   const item = {
     id: context.id,
@@ -139,15 +180,7 @@ export function createAnnotation(selectionText, comment, context = {}) {
 }
 
 export function paginateRecords(allRecords, page, pageSize = 500) {
-  const items = Object.entries(allRecords ?? {}).map(([key, value]) => ({ key, ...value }));
-  const latestTime = (item) => {
-    let latest = item.videoProgress?.updatedAt ?? 0;
-    for (const datetime of item.datetimes ?? []) latest = Math.max(latest, datetime);
-    return latest;
-  };
-  items.sort((left, right) => {
-    return latestTime(right) - latestTime(left);
-  });
+  const items = indexRecords(allRecords);
 
   const totalItems = items.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
@@ -202,7 +235,7 @@ export function createReadLaterUpdate(queryValue, context) {
   }
 
   const alreadyUnread = oldValue.some((item) =>
-    key === item.key && item.status === READ_STATUS_UNREAD
+    key === item.key && [READ_STATUS_UNREAD, READ_STATUS_READING].includes(item.status)
   );
   if (alreadyUnread) {
     result.message = context.messages.duplicate;

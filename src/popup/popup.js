@@ -1,10 +1,75 @@
 import "../scripts/diagnostics.js";
 import * as easyReadTools from "../scripts/easyReadTools.js";
+import { initializeTabs } from '../scripts/ui.js';
+import { sendPageMessage } from '../scripts/pageConnection.mjs';
+import { initializePopupAnnotations, renderPopupAnnotations } from './popupAnnotations.mjs';
+import { MediaPlayback } from './mediaPlayback.mjs';
+const mediaPlayback = new MediaPlayback();
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && (changes.mediaAutoplay || changes.mediaMuted)) {
+    chrome.storage.local.get(['mediaAutoplay', 'mediaMuted']).then(stored => mediaPlayback.configure(stored)).catch(console.error);
+  }
+});
+window.addEventListener('message', event => {
+  if (event.origin !== 'https://player.vimeo.com') return;
+  const player = [...document.querySelectorAll('.mediaPlayer')].find(element => element.querySelector('iframe')?.contentWindow === event.source);
+  if (!player) return;
+  let data = event.data;
+  try { if (typeof data === 'string') data = JSON.parse(data); } catch { return; }
+  const send = message => event.source.postMessage(message, event.origin);
+  if (data?.event === 'ready') {
+    send({ method: 'addEventListener', value: 'ended' });
+    send({ method: 'addEventListener', value: 'volumechange' });
+    player.__mediaAdapter?.mute(mediaPlayback.muted);
+    if (document.getElementById('panelMedia').hidden) player.__mediaAdapter?.pause();
+  }
+  if (data?.event === 'ended') mediaPlayback.ended(player.__mediaAdapter);
+  if (data?.event === 'volumechange' && mediaPlayback.preferences.mode === 'simultaneous' && data.data?.volume > 0) send({ method: 'setVolume', value: 0 });
+});
+await globalThis.EasyReadLocale?.ready;
+// A one-shot entrance must not restart when keyboard/pointer modality changes.
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  const entrance = document.querySelector('.popupShell').animate(
+    [{ opacity: .25, transform: 'translateY(-5px) scale(.98)' }, { opacity: 1, transform: 'none' }],
+    { duration: 150, easing: 'cubic-bezier(.23,1,.32,1)' }
+  );
+  document.addEventListener('keydown', () => entrance.cancel(), { once: true });
+}
+
+const diagnosticStore = globalThis.EasyReadDiagnosticStore;
+const diagnosticButton = document.getElementById('btnDiagnostics');
+let diagnosticRevision = 0;
+async function refreshDiagnosticIndicator() {
+  const revision = ++diagnosticRevision;
+  const data = await chrome.storage.local.get([diagnosticStore.storageKey, diagnosticStore.preferenceKey]);
+  if (revision !== diagnosticRevision) return;
+  const reports = Array.isArray(data[diagnosticStore.storageKey]) ? data[diagnosticStore.storageKey] : [];
+  diagnosticButton.hidden = data[diagnosticStore.preferenceKey] !== true || reports.length === 0;
+  diagnosticButton.title = easyReadTools.getMessageForLocales(reports.length === 1 ? 'diagnostics_single' : 'diagnostics_multiple', [String(reports.length)]);
+  diagnosticButton.setAttribute('aria-label', diagnosticButton.title);
+}
+diagnosticButton.addEventListener('click', async () => {
+  try {
+    const data = await chrome.storage.local.get([diagnosticStore.storageKey, diagnosticStore.preferenceKey]);
+    if (data[diagnosticStore.preferenceKey] !== true) return;
+    const reports = Array.isArray(data[diagnosticStore.storageKey]) ? data[diagnosticStore.storageKey] : [];
+    if (reports.length === 1) diagnosticStore.download(reports);
+    else if (reports.length > 1) await chrome.tabs.create({ url: chrome.runtime.getURL('setting/setting.html#diagnostics') });
+  } catch (error) { showMessages(error.message); }
+});
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'local') return;
+  if (changes[diagnosticStore.preferenceKey]?.newValue !== true && changes[diagnosticStore.preferenceKey]) mediaDebugStages.clear();
+  if (changes[diagnosticStore.storageKey] || changes[diagnosticStore.preferenceKey]) refreshDiagnosticIndicator().catch(() => {});
+});
+refreshDiagnosticIndicator().catch(() => {});
 
 /* showMessages to notify users */
+let messageTimer;
 function showMessages(message) {
+  clearTimeout(messageTimer);
   document.getElementById("outputMesssages").textContent = message;
-  setTimeout(function () {
+  messageTimer = setTimeout(function () {
     document.getElementById("outputMesssages").textContent = "";
   }, 3000);
 }
@@ -13,63 +78,67 @@ function showMessages(message) {
 
 function onPageLoad_InitTitle() {
   document.getElementById("popupTitle").textContent = easyReadTools.getMessageForLocales("popup_page_title");
+  document.title = 'EasyRead';
+  const labels = { btnReadedAndRemove: 'ui_remove_page_records' };
+  for (const [id, key] of Object.entries(labels)) {
+    const button = document.getElementById(id);
+    button.title = easyReadTools.getMessageForLocales(key);
+    button.setAttribute('aria-label', button.title);
+  }
 }
 
 let activeTab;
+let captureBusy = false;
+function setCaptureBusy(value) {
+  captureBusy = value;
+  document.querySelectorAll('[data-capture], [data-copy]').forEach(button => button.disabled = value);
+}
 let mediaItems = [];
+let mediaFilter = 'all';
+function mediaCategory(item) {
+  if (item.kind === 'image' || /^image\//i.test(item.mimeType || '')) return 'image';
+  if (item.kind === 'audio' || item.trackType === 'audio' || /^audio\//i.test(item.mimeType || '') || /\.(mp3|m4a|aac|wav|oga|flac)(?:[?#]|$)/i.test(item.url)) return 'audio';
+  return 'video';
+}
+function applyMediaFilter() {
+  mediaPlayback.reset();
+  let visible = 0;
+  document.querySelectorAll('#mediaList .popupMediaItem').forEach(row => {
+    row.hidden = mediaFilter !== 'all' && row.dataset.category !== mediaFilter;
+    if (!row.hidden) { visible++; if (row.__mediaAdapter) mediaPlayback.register(row.__mediaAdapter); }
+  });
+  document.getElementById('mediaEmptyState').hidden = visible > 0;
+  document.getElementById('mediaEmptyTitle').textContent = easyReadTools.getMessageForLocales(mediaItems.length && !visible ? 'media_filter_empty' : 'capture_media_none');
+  document.getElementById('mediaList').hidden = visible === 0;
+  document.querySelectorAll('[data-media-filter]').forEach(button => { button.setAttribute('aria-selected', String(button.dataset.mediaFilter === mediaFilter)); button.tabIndex = button.dataset.mediaFilter === mediaFilter ? 0 : -1; });
+  mediaPlayback.activate(!document.getElementById('panelMedia').hidden);
+}
 const mediaDebugStages = new Map();
 const mediaProgressStats = new Map();
 
 function addMediaDebugStage(index, stage, details = {}) {
+  if (!globalThis.EasyReadDiagnostics) return;
   const stages = mediaDebugStages.get(index) ?? [];
   stages.push({ at: new Date().toISOString(), stage: String(stage || ""), ...details });
   mediaDebugStages.set(index, stages.slice(-250));
 }
 
-async function downloadMediaDebugReport(item, index, error) {
-  if (!globalThis.EasyReadDiagnostics) return;
-  const tab = await getActiveSupportedTab();
-  const manifest = chrome.runtime.getManifest();
-  const report = {
-    schema: "easyread-media-debug-v1",
-    capturedAt: new Date().toISOString(),
-    extension: { name: manifest.name, version: manifest.version, manifestVersion: manifest.manifest_version },
-    environment: { userAgent: navigator.userAgent, language: navigator.language, platform: navigator.platform },
-    page: tab ? { id: tab.id, title: tab.title, url: tab.url } : null,
-    selectedMedia: item,
-    detectedMedia: mediaItems,
-    stages: mediaDebugStages.get(index) ?? [],
-    error: {
-      name: error?.name || "Error",
-      message: error?.message || String(error),
-      stack: error?.stack || "",
-      details: error?.debug || null
-    }
-  };
-  const blobUrl = URL.createObjectURL(new Blob([JSON.stringify(report, null, 2)], { type: "application/json;charset=utf-8" }));
-  const link = document.createElement("a");
-  const host = (() => { try { return new URL(tab?.url || item?.url).hostname.replace(/[^a-z0-9.-]/gi, "-"); } catch { return "page"; } })();
-  link.href = blobUrl;
-  link.download = `EasyRead-media-error-${host}-${Date.now()}.json`;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  setTimeout(() => URL.revokeObjectURL(blobUrl), 1500);
-}
 
 async function getActiveSupportedTab() {
-  if (activeTab?.id) return activeTab;
-  [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!activeTab) [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
   return activeTab?.id && easyReadTools.isSupportedScheme(activeTab.url) ? activeTab : null;
 }
 
 function selectPopupTab(tabButton) {
+  mediaPlayback.activate(tabButton.id === 'tabMedia');
   document.querySelectorAll(".popupTab").forEach((button) => {
     const selected = button === tabButton;
     button.classList.toggle("isActive", selected);
     button.setAttribute("aria-selected", String(selected));
     document.getElementById(button.getAttribute("aria-controls")).hidden = !selected;
   });
+  if (activeTab?.url) chrome.storage.session.set({ popupLastTab: { page: easyReadTools.getKey(activeTab.url), tab: tabButton.id } }).catch(console.error);
+  if (tabButton.id === 'tabAnnotations') renderPopupAnnotations().catch(error => showMessages(error.message));
 }
 
 function renderTaskProgress(message) {
@@ -83,16 +152,17 @@ function renderTaskProgress(message) {
 }
 
 async function startCapture(type, options = {}) {
+  if (captureBusy) return;
   const tab = await getActiveSupportedTab();
   if (!tab) return;
-  document.querySelector("#captureTask [data-easyread-error-details]")?.remove();
+  setCaptureBusy(true);
   renderTaskProgress({ percent: 2, stage: easyReadTools.getMessageForLocales("capture_stage_starting") });
   try {
     if (type === "html") {
       renderTaskProgress({ percent: 3, stage: easyReadTools.getMessageForLocales("capture_stage_permission") });
       options.crossOriginAccess = await chrome.permissions.request({ origins: ["http://*/*", "https://*/*"] });
     }
-    const result = await chrome.tabs.sendMessage(tab.id, {
+    const result = await sendPageMessage(tab.id, {
       command: "startCapture",
       type,
       options
@@ -101,15 +171,17 @@ async function startCapture(type, options = {}) {
   } catch (error) {
     renderTaskProgress({ percent: 100, title: easyReadTools.getMessageForLocales("capture_status_failed"), stage: error.message });
     globalThis.EasyReadDiagnostics?.record(error, { operation: "save", type, options, page: tab }, document.getElementById("captureTask"));
-  }
+  } finally { setCaptureBusy(false); }
 }
 
 async function copyCapture(type, options = {}) {
+  if (captureBusy) return;
   const tab = await getActiveSupportedTab();
   if (!tab) return;
+  setCaptureBusy(true);
   renderTaskProgress({ percent: 2, stage: easyReadTools.getMessageForLocales("capture_stage_starting") });
   const mimeType = type === "image" ? "image/png" : "text/plain";
-  const contentPromise = chrome.tabs.sendMessage(tab.id, {
+  const contentPromise = sendPageMessage(tab.id, {
     command: "startCapture",
     type,
     options: { ...options, action: "prepareCopy" }
@@ -124,7 +196,7 @@ async function copyCapture(type, options = {}) {
   } catch (error) {
     renderTaskProgress({ percent: 100, title: easyReadTools.getMessageForLocales("capture_status_failed"), stage: error.message });
     globalThis.EasyReadDiagnostics?.record(error, { operation: "clipboard", type, page: tab }, document.getElementById("captureTask"));
-  }
+  } finally { setCaptureBusy(false); }
 }
 
 function mediaName(item, index) {
@@ -161,6 +233,11 @@ function mediaExtension(item) {
     "audio/mpeg": "mp3", "audio/aac": "aac", "audio/ogg": "ogg", "video/ogg": "ogv", "video/mp2t": "ts"
   };
   if (byMime[mime]) return byMime[mime];
+  if (mediaCategory(item) === 'image') {
+    const parsed = new URL(item.url);
+    const format = mime.replace(/^image\//, '').replace('svg+xml', 'svg') || parsed.pathname.match(/\.(png|jpe?g|gif|webp|avif|svg|bmp|ico)$/i)?.[1] || parsed.searchParams.get('format');
+    return /^(png|jpe?g|gif|webp|avif|svg|bmp|ico)$/i.test(format || '') ? format.toLowerCase() : 'image';
+  }
   try {
     const extension = new URL(item.url).pathname.split(".").pop().toLowerCase();
     if (/^(mp4|m4a|webm|mp3|aac|ogg|ogv|ts|mov|wav)$/.test(extension)) return extension;
@@ -172,7 +249,7 @@ function safeMediaFileName(item, index) {
   const candidate = item.name || mediaName(item, index);
   const pageTitle = cleanFileNameBase(activeTab?.title).replace(/\s*[-|·]\s*(?:YouTube|Vimeo|X|Twitter|哔哩哔哩).*$/i, "");
   const fallback = pageTitle ? `${pageTitle}-${index + 1}` : `EasyRead-media-${index + 1}`;
-  const base = cleanFileNameBase(isUsefulMediaName(candidate) ? candidate : fallback).replace(/\.(mp4|m4a|webm|mp3|aac|ogg|ogv|ts|mov|wav)$/i, "").trim().slice(0, 120) || `EasyRead-media-${index + 1}`;
+  const base = cleanFileNameBase(isUsefulMediaName(candidate) ? candidate : fallback).replace(/\.(mp4|m4a|webm|mp3|aac|ogg|ogv|ts|mov|wav|png|jpe?g|gif|webp|avif|svg|bmp|ico)$/i, "").trim().slice(0, 120) || `EasyRead-media-${index + 1}`;
   return `${base}.${mediaExtension(item)}`;
 }
 
@@ -198,17 +275,21 @@ async function downloadDirectMedia(item, index, task) {
     addMediaDebugStage(index, "direct-download-started", { downloadId, attempt: attemptIndex + 1, ruleId: started.ruleId || null, referrerApplied: Boolean(started.referrerApplied) });
     try {
       await new Promise((resolve, reject) => {
-    const timer = setInterval(async () => {
+    const poll = async () => {
+      try {
       const status = await chrome.runtime.sendMessage({ command: "getDirectDownloadStatus", downloadId });
-      if (!status?.ok) { clearInterval(timer); reject(new Error(status?.error || "Download status unavailable")); return; }
+      if (!status?.ok) throw new Error(status?.error || "Download status unavailable");
       const download = status.download;
-      if (!download) return;
+      if (!download) throw new Error("Download no longer available");
       const percent = download.totalBytes > 0 ? Math.min(100, download.bytesReceived / download.totalBytes * 100) : 0;
       if (download.totalBytes > 0) setExactMediaFileSize(task.closest(".popupMediaItem").querySelector(".mediaFileSize"), download.totalBytes);
       updateMediaTaskProgress(task, index, percent, easyReadTools.getMessageForLocales("capture_status_working"), download.bytesReceived, download.totalBytes);
-      if (download.state === "complete") { clearInterval(timer); task.querySelector("progress").value = 100; addMediaDebugStage(index, "direct-download-complete", { download }); resolve(); }
-      if (download.state === "interrupted") { const error = new Error(download.error || "Download interrupted"); error.debug = { download }; clearInterval(timer); reject(error); }
-    }, 350);
+      if (download.state === "complete") { task.querySelector("progress").value = 100; addMediaDebugStage(index, "direct-download-complete", { download }); resolve(); return; }
+      if (download.state === "interrupted") { const error = new Error(download.error || "Download interrupted"); error.debug = { download }; throw error; }
+      setTimeout(poll, 350);
+      } catch (error) { reject(error); }
+    };
+    poll();
       });
       return;
     } catch (error) {
@@ -222,13 +303,13 @@ async function downloadDirectMedia(item, index, task) {
   throw error;
 }
 
-async function requestMediaHostPermission(item, index) {
+async function requestMediaHostPermission(item, index, allowPrompt = true) {
   const mediaUrl = new URL(item.url);
   if (!/^https?:$/.test(mediaUrl.protocol)) return;
   const origin = `${mediaUrl.origin}/*`;
   const origins = [...new Set([origin, ...(item.mediaOrigins || []), ...(item.requiredOrigins || [])])].filter(origin => { try { return /^https?:$/.test(new URL(origin).protocol); } catch { return false; } });
   addMediaDebugStage(index, "media-host-permission-request", { origin });
-  const granted = await chrome.permissions.request({ origins });
+  const granted = allowPrompt ? await chrome.permissions.request({ origins }) : await chrome.permissions.contains({ origins });
   addMediaDebugStage(index, "media-host-permission-result", { origin, granted });
   if (!granted) throw new Error(easyReadTools.getMessageForLocales("capture_download_permission_missing"));
 }
@@ -330,7 +411,7 @@ async function probeMediaFileSize(item, label) {
   try {
     const tab = await getActiveSupportedTab();
     if (!tab) return;
-    const result = await chrome.tabs.sendMessage(tab.id, { command: "probeMediaSize", url: item.url });
+    const result = await sendPageMessage(tab.id, { command: "probeMediaSize", url: item.url });
     if (result?.size > 0) {
       item.contentLength = result.size;
       setExactMediaFileSize(label, result.size);
@@ -344,7 +425,7 @@ async function loadMediaSources(item, index) {
   if (item.kind === "hls" || item.source === "vimeo-player") await requestMediaHostPermission(item, index);
   const grantedOrigins = new Set();
   for (let attempt = 0; attempt < 8; attempt += 1) {
-    const result = await chrome.tabs.sendMessage(tab.id, { command: "inspectMediaSources", media: item });
+    const result = await sendPageMessage(tab.id, { command: "inspectMediaSources", media: item });
     if (result?.ok) return result.sources || [];
     if (!result?.requiredOrigin || grantedOrigins.has(result.requiredOrigin)) throw Object.assign(new Error(result?.error || easyReadTools.getMessageForLocales("capture_media_sources_failed")), { debug: result?.debug });
     grantedOrigins.add(result.requiredOrigin);
@@ -361,13 +442,18 @@ function sourceTypeText(type) {
 function createMediaPlayer(item, index, dimensions, fileSize) {
   const player = document.createElement("div");
   player.className = "mediaPlayer";
-  const isAudio = item.kind === "audio" || String(item.mimeType || "").startsWith("audio/");
+  if (mediaCategory(item) === 'image') {
+    const image = document.createElement('img'); image.src = item.url; image.alt = item.name || ''; image.loading = 'lazy';
+    image.addEventListener('load', () => updateMediaDimensions(dimensions, image.naturalWidth, image.naturalHeight));
+    player.classList.add('isImage'); player.append(image); return player;
+  }
+  const isAudio = mediaCategory(item) === 'audio';
   if (isAudio) {
     const audio = document.createElement("audio");
     audio.controls = true;
     audio.preload = "metadata";
-    audio.defaultMuted = true;
-    audio.muted = true;
+    audio.defaultMuted = mediaPlayback.muted;
+    audio.muted = mediaPlayback.muted;
     audio.src = item.url;
     player.classList.add("isAudio");
     player.appendChild(audio);
@@ -391,7 +477,8 @@ function createMediaPlayer(item, index, dimensions, fileSize) {
       const source = new URL(item.url);
       source.searchParams.set("controls", "1");
       source.searchParams.set("autoplay", "1");
-      source.searchParams.set("muted", "1");
+      source.searchParams.set('autopause', mediaPlayback.preferences.mode === 'simultaneous' ? '0' : '1');
+      source.searchParams.set("muted", mediaPlayback.muted ? "1" : "0");
       source.searchParams.set("title", "0");
       source.searchParams.set("byline", "0");
       frame.src = source.href;
@@ -407,8 +494,8 @@ function createMediaPlayer(item, index, dimensions, fileSize) {
   video.controls = true;
   video.preload = "metadata";
   video.playsInline = true;
-  video.defaultMuted = true;
-  video.muted = true;
+  video.defaultMuted = mediaPlayback.muted;
+  video.muted = mediaPlayback.muted;
   if (item.poster) video.poster = item.poster;
   const isHls = item.kind === "hls" || /mpegurl/i.test(item.mimeType || "") || /\.m3u8?(?:$|[?#])/i.test(item.url);
   if (isHls && !video.canPlayType("application/vnd.apple.mpegurl")) {
@@ -417,10 +504,10 @@ function createMediaPlayer(item, index, dimensions, fileSize) {
     play.className = "mediaPreviewPlay";
     play.setAttribute("aria-label", easyReadTools.getMessageForLocales("capture_media_preview"));
     play.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7.5v9l7-4.5-7-4.5Z"/></svg>';
-    play.addEventListener("click", async () => {
+    play.addEventListener("click", async event => {
       play.disabled = true;
       try {
-        await requestMediaHostPermission(item, index);
+        await requestMediaHostPermission(item, index, event.isTrusted);
         if (!globalThis.Hls?.isSupported()) throw new Error(easyReadTools.getMessageForLocales("capture_media_preview_unsupported"));
         const hls = new globalThis.Hls({ enableWorker: true, maxBufferLength: 30, backBufferLength: 15 });
         let selectedBitrate = 0;
@@ -431,7 +518,7 @@ function createMediaPlayer(item, index, dimensions, fileSize) {
             selectedBitrate = Number(level.averageBitrate || level.bitrate) || 0;
             updateEstimatedMediaFileSize(fileSize, selectedBitrate * Number(item.duration || 0) / 8);
           }
-          video.play().catch(() => {});
+          if (player.isConnected && !document.getElementById('panelMedia').hidden && (event.isTrusted || mediaPlayback.preferences.mode !== 'off')) video.play().catch(() => {});
         });
         hls.on(globalThis.Hls.Events.LEVEL_LOADED, (_event, data) => {
           const level = hls.levels?.[data.level];
@@ -468,6 +555,7 @@ function createMediaPlayer(item, index, dimensions, fileSize) {
 }
 
 function renderMediaItems() {
+  mediaPlayback.reset();
   const list = document.getElementById("mediaList");
   const emptyState = document.getElementById("mediaEmptyState");
   list.replaceChildren();
@@ -481,6 +569,7 @@ function renderMediaItems() {
   mediaItems.forEach((item, index) => {
     const row = document.createElement("article");
     row.className = "popupMediaItem";
+    row.dataset.category = mediaCategory(item);
     const dimensions = document.createElement("span");
     dimensions.className = "mediaDimensions";
     updateMediaDimensions(dimensions, item.width, item.height);
@@ -491,14 +580,14 @@ function renderMediaItems() {
     const plannedFileName = safeMediaFileName(item, index);
     item.fileName = plannedFileName;
     const player = createMediaPlayer(item, index, dimensions, fileSize);
-    probeMediaFileSize(item, fileSize);
+    if (mediaCategory(item) !== 'image') probeMediaFileSize(item, fileSize);
     const copy = document.createElement("div");
     copy.className = "mediaCopy";
     const title = document.createElement("strong");
     title.textContent = plannedFileName;
     title.title = plannedFileName;
     const description = document.createElement("small");
-    description.textContent = item.description || String(item.kind || "media").toUpperCase();
+    description.textContent = item.url || item.description || String(item.kind || "media").toUpperCase();
     description.title = item.url;
     const metadata = document.createElement("div");
     metadata.className = "mediaMetadata";
@@ -515,6 +604,7 @@ function renderMediaItems() {
     actions.className = "mediaActions";
     const sourceButton = document.createElement("button");
     sourceButton.className = "mediaSource";
+    sourceButton.setAttribute('aria-expanded', 'false');
     sourceButton.textContent = easyReadTools.getMessageForLocales("capture_action_sources");
     const button = document.createElement("button");
     button.className = "mediaDownload";
@@ -522,9 +612,7 @@ function renderMediaItems() {
     const task = document.createElement("div");
     task.className = "mediaTask";
     task.hidden = true;
-    task.innerHTML = "<progress max=\"100\" value=\"0\"></progress><small></small><button type=\"button\" class=\"mediaDebugDownload\" hidden></button>";
-    const debugButton = task.querySelector(".mediaDebugDownload");
-    debugButton.textContent = easyReadTools.getMessageForLocales("capture_media_debug_download");
+    task.innerHTML = "<progress max=\"100\" value=\"0\"></progress><small></small>";
     const sourcePanel = document.createElement("div");
     sourcePanel.className = "mediaSourcePanel";
     sourcePanel.hidden = true;
@@ -545,7 +633,15 @@ function renderMediaItems() {
         const copyAll = document.createElement("button");
         copyAll.type = "button";
         copyAll.textContent = easyReadTools.getMessageForLocales("capture_media_sources_copy");
-        copyAll.addEventListener("click", async () => navigator.clipboard.writeText(sources.map(source => source.url).join("\n")));
+        copyAll.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(sources.map(source => source.url).join("\n"));
+            copyAll.textContent = easyReadTools.getMessageForLocales('capture_status_copied');
+          } catch (error) {
+            globalThis.EasyReadDiagnostics?.record(error, { operation: 'copy-media-sources' }, sourcePanel);
+            showMessages(easyReadTools.getMessageForLocales('ui_operation_failed'));
+          }
+        });
         toolbar.append(summary, copyAll);
         const list = document.createElement("ol");
         for (const source of sources) {
@@ -553,7 +649,7 @@ function renderMediaItems() {
           const type = document.createElement("span");
           type.textContent = sourceTypeText(source.type);
           const link = document.createElement("a");
-          link.href = source.url;
+          if (easyReadTools.isSupportedScheme(source.url)) link.href = source.url;
           link.target = "_blank";
           link.rel = "noopener noreferrer";
           link.textContent = source.url;
@@ -577,25 +673,30 @@ function renderMediaItems() {
       const tab = await getActiveSupportedTab();
       if (!tab) return;
       task.hidden = false;
-      debugButton.hidden = true;
-      debugButton.onclick = null;
+      task.dataset.state = 'working';
       button.disabled = true;
       mediaDebugStages.set(index, []);
       mediaProgressStats.delete(index);
       addMediaDebugStage(index, "download-clicked", { media: item });
       try {
         const mediaHost = new URL(item.url).hostname;
+        if (mediaCategory(item) === 'image' && mediaExtension(item) === 'image') {
+          const metadata = await sendPageMessage(tab.id, { command: 'probeMediaSize', url: item.url });
+          if (/^image\//i.test(metadata?.mimeType || '')) item.mimeType = metadata.mimeType;
+          item.fileName = safeMediaFileName(item, index); title.textContent = item.fileName; title.title = item.fileName;
+          if (metadata?.size > 0) setExactMediaFileSize(fileSize, metadata.size);
+        }
         // Bilibili DASH resources reject content-script fetches through CORS.
         // chrome.downloads can retrieve their signed URLs without that page-fetch restriction.
         const needsPageContext = item.kind === "hls" || item.source === "vimeo-player" || item.source === "youtube-player" || /(?:^|\.)(?:video\.twimg\.com|video\.weibocdn\.com)$/i.test(mediaHost);
         if (needsPageContext) {
           if (item.kind === "hls" || item.source === "vimeo-player") await requestMediaHostPermission(item, index);
-          let result = await chrome.tabs.sendMessage(tab.id, { command: "downloadMedia", media: item, taskId: item.id });
+          let result = await sendPageMessage(tab.id, { command: "downloadMedia", media: item, taskId: item.id });
           const requiredOrigin = result?.debug?.details?.requiredOrigin;
           if (!result?.ok && requiredOrigin) {
             item.requiredOrigins = [...new Set([...(item.requiredOrigins || []), requiredOrigin])];
             await requestMediaHostPermission(item, index);
-            result = await chrome.tabs.sendMessage(tab.id, { command: "downloadMedia", media: item, taskId: item.id });
+            result = await sendPageMessage(tab.id, { command: "downloadMedia", media: item, taskId: item.id });
           }
           if (!result?.ok) {
             const error = new Error(result?.error || "Download failed");
@@ -609,16 +710,9 @@ function renderMediaItems() {
         }
       } catch (error) {
         addMediaDebugStage(index, "download-failed", { error: { name: error.name, message: error.message, stack: error.stack || "", details: error.debug || null } });
+        task.dataset.state = 'error';
         task.querySelector("small").textContent = error.message;
         globalThis.EasyReadDiagnostics?.record(error, { operation: "media-download", media: item, stages: mediaDebugStages.get(index) }, false);
-        debugButton.hidden = !globalThis.EasyReadDiagnostics;
-        debugButton.onclick = async () => {
-          try {
-            await downloadMediaDebugReport(item, index, error);
-          } catch (debugError) {
-            task.querySelector("small").textContent = `${error.message} · ${debugError.message}`;
-          }
-        };
         button.disabled = false;
       }
     });
@@ -628,42 +722,86 @@ function renderMediaItems() {
     details.append(copy, actions);
     row.append(player, details, sourcePanel, task);
     list.appendChild(row);
+    const native = player.querySelector('video, audio');
+    const frameMessage = message => player.querySelector('iframe')?.contentWindow?.postMessage(message, 'https://player.vimeo.com');
+    const adapter = {
+      play: async () => {
+        if (!player.isConnected || document.getElementById('panelMedia').hidden) return;
+        const button = player.querySelector('.mediaPreviewPlay');
+        if (button) {
+          // Automatic preview must never open optional host-permission prompts.
+          const origin = `${new URL(item.url).origin}/*`;
+          if (!(await chrome.permissions.contains({ origins: [origin] }))) return;
+          if (document.getElementById('panelMedia').hidden || !player.isConnected || mediaPlayback.preferences.mode === 'off') return;
+          button.click();
+        } else if (native) await native.play().catch(() => {});
+        else frameMessage({ method: 'play' });
+      },
+      pause: () => { native?.pause(); frameMessage({ method: 'pause' }); },
+      mute: muted => { if (native) native.muted = muted; frameMessage({ method: 'setVolume', value: muted ? 0 : 1 }); frameMessage({ method: 'setAutopause', value: mediaPlayback.preferences.mode !== 'simultaneous' }); }
+    };
+    native?.addEventListener('ended', () => mediaPlayback.ended(adapter));
+    native?.addEventListener('volumechange', () => { if (mediaPlayback.preferences.mode === 'simultaneous' && !native.muted) native.muted = true; });
+    player.__mediaAdapter = adapter;
+    if (mediaCategory(item) !== 'image') row.__mediaAdapter = adapter;
   });
+  applyMediaFilter();
 }
 
 async function initializeWorkspaceTabs() {
+  const filters = [...document.querySelectorAll('[data-media-filter]')];
+  filters.forEach((button, index) => {
+    button.textContent = easyReadTools.getMessageForLocales(`media_filter_${button.dataset.mediaFilter}`);
+    button.onclick = () => { mediaFilter = button.dataset.mediaFilter; applyMediaFilter(); };
+    button.onkeydown = event => {
+      const next = event.key === 'ArrowRight' ? (index + 1) % 4 : event.key === 'ArrowLeft' ? (index + 3) % 4 : event.key === 'Home' ? 0 : event.key === 'End' ? 3 : -1;
+      if (next >= 0) { event.preventDefault(); filters[next].focus(); filters[next].click(); }
+    };
+  });
   const labels = [
     ["tabReadLater", "popup_tab_read_later"],
     ["tabSavePage", "popup_tab_save_page"]
   ];
   labels.forEach(([id, key]) => { document.getElementById(id).textContent = easyReadTools.getMessageForLocales(key); });
   document.querySelector("#tabMedia .tabLabel").textContent = easyReadTools.getMessageForLocales("popup_tab_media");
-  document.querySelectorAll(".popupTab").forEach((button) => button.addEventListener("click", () => selectPopupTab(button)));
-  document.getElementById("savePageIntro").textContent = easyReadTools.getMessageForLocales("capture_save_page_intro");
+  document.querySelector('#tabAnnotations .tabLabel').textContent = easyReadTools.getMessageForLocales('annotation_sidebar_title');
+  mediaPlayback.configure(await chrome.storage.local.get(['mediaAutoplay', 'mediaMuted']));
+  await getActiveSupportedTab();
+  const { popupLastTab } = await chrome.storage.session.get('popupLastTab');
+  if (activeTab?.url && popupLastTab?.page === easyReadTools.getKey(activeTab.url)) {
+    const remembered = document.getElementById(popupLastTab.tab);
+    if (remembered?.classList.contains('popupTab')) {
+      document.querySelectorAll('.popupTab').forEach(button => button.classList.toggle('isActive', button === remembered));
+    }
+  }
+  initializePopupAnnotations(getActiveSupportedTab, showMessages);
+  renderPopupAnnotations().catch(error => showMessages(error.message));
+  initializeTabs('.popupTab', selectPopupTab);
   document.getElementById("mediaEmptyTitle").textContent = easyReadTools.getMessageForLocales("capture_media_none");
   document.getElementById("mediaEmptyDescription").textContent = easyReadTools.getMessageForLocales("capture_media_none_description");
   const copy = {
-    saveHtmlTitle: "capture_html_title", saveHtmlDescription: "capture_html_description",
-    savePdfTitle: "capture_pdf_title", savePdfDescription: "capture_pdf_description",
-    saveImageTitle: "capture_png_title", saveImageDescription: "capture_image_description",
-    saveMarkdownTitle: "capture_markdown_title", saveMarkdownDescription: "capture_markdown_description",
-    saveImageAction: "capture_action_save", copyImageAction: "capture_action_copy", copyMarkdownAction: "capture_action_copy"
+    saveHtmlTitle: "capture_html_title",
+    savePdfTitle: "capture_pdf_title",
+    saveImageTitle: "capture_png_title",
+    saveMarkdownTitle: "capture_markdown_title",
+    copyMarkdownAction: "capture_action_copy"
   };
   Object.entries(copy).forEach(([id, key]) => { document.getElementById(id).textContent = easyReadTools.getMessageForLocales(key); });
-  document.querySelectorAll("[data-capture]").forEach((button) => { button.textContent = easyReadTools.getMessageForLocales("capture_action_save"); });
-  document.querySelector("#imageScope [data-value='viewport']").textContent = easyReadTools.getMessageForLocales("capture_scope_viewport");
-  document.querySelector("#imageScope [data-value='fullPage']").textContent = easyReadTools.getMessageForLocales("capture_scope_full_page");
-  document.querySelectorAll(".segmentedControl").forEach((control) => control.addEventListener("click", (event) => {
-    const button = event.target.closest("button");
-    if (!button) return;
-    control.querySelectorAll("button").forEach((item) => item.classList.toggle("isActive", item === button));
-  }));
+  document.querySelectorAll("[data-capture], [data-label]").forEach(button => {
+    button.textContent = easyReadTools.getMessageForLocales(button.dataset.label || 'capture_action_save');
+  });
+  let imageFormat = 'png';
+  const preferences = await chrome.storage.local.get('captureImageFormat');
+  imageFormat = preferences.captureImageFormat === 'jpeg' ? 'jpeg' : 'png';
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.captureImageFormat) imageFormat = changes.captureImageFormat.newValue === 'jpeg' ? 'jpeg' : 'png';
+  });
   document.querySelectorAll("[data-capture]").forEach((button) => button.addEventListener("click", () => {
     const type = button.dataset.capture;
     if (type === "image") {
       startCapture(type, {
-        scope: document.querySelector("#imageScope .isActive").dataset.value,
-        format: document.querySelector("#imageFormat .isActive").dataset.value
+        scope: button.dataset.scope,
+        format: imageFormat
       });
     } else startCapture(type);
   }));
@@ -671,8 +809,8 @@ async function initializeWorkspaceTabs() {
     const type = button.dataset.copy;
     if (type === "image") {
       copyCapture("image", {
-        scope: document.querySelector("#imageScope .isActive").dataset.value,
-        format: document.querySelector("#imageFormat .isActive").dataset.value
+        scope: button.dataset.scope,
+        format: 'png'
       });
     } else copyCapture(type);
   }));
@@ -681,10 +819,12 @@ async function initializeWorkspaceTabs() {
   if (!tab) {
     badge.hidden = true;
     badge.textContent = "";
+    document.querySelectorAll('[data-capture], [data-copy], #btnReadLater').forEach(button => button.disabled = true);
+    renderMediaItems();
     return;
   }
   try {
-    mediaItems = await chrome.tabs.sendMessage(tab.id, { command: "getMediaCandidates" }) || [];
+    mediaItems = await sendPageMessage(tab.id, { command: "getMediaCandidates" }) || [];
     badge.hidden = mediaItems.length === 0;
     badge.textContent = mediaItems.length > 0 ? String(mediaItems.length) : "";
     renderMediaItems();
@@ -703,6 +843,7 @@ chrome.runtime.onMessage.addListener((message) => {
     const task = [...document.querySelectorAll(".popupMediaItem")][message.index]?.querySelector(".mediaTask");
     if (!task) return;
     task.hidden = false;
+    task.dataset.state = message.error ? 'error' : 'working';
     updateMediaTaskProgress(task, message.index, message.percent, message.stage, message.loadedBytes, message.totalBytes || message.fileSize);
     if (message.fileSize > 0) setExactMediaFileSize(task.closest(".popupMediaItem").querySelector(".mediaFileSize"), message.fileSize);
     if (message.done || message.error) task.closest(".popupMediaItem").querySelector(".mediaDownload").disabled = false;
@@ -712,36 +853,10 @@ chrome.runtime.onMessage.addListener((message) => {
 /* -------- Top Menu bar -------- */
 
 function onPageLoad_InitTopMenuBar() {
-  const btnAnnotations = document.getElementById("btnAnnotations");
-  btnAnnotations.setAttribute("title", easyReadTools.getMessageForLocales("popup_page_top_menu_bar_annotations_title"));
-  btnAnnotations.setAttribute("aria-label", btnAnnotations.title);
-  chrome.tabs.query({ active: true, currentWindow: true }).then(async ([tab]) => {
-    if (!tab?.id || !easyReadTools.isSupportedScheme(tab.url)) {
-      btnAnnotations.disabled = true;
-      return;
-    }
-    try {
-      const state = await chrome.tabs.sendMessage(tab.id, { command: "getAnnotationSidebarState" });
-      btnAnnotations.setAttribute("aria-pressed", String(Boolean(state?.visible)));
-    } catch {
-      btnAnnotations.disabled = true;
-    }
-  });
-  btnAnnotations.addEventListener("click", async () => {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    if (!tab?.id) return;
-    const state = await chrome.tabs.sendMessage(tab.id, { command: "toggleAnnotationSidebar" });
-    btnAnnotations.setAttribute("aria-pressed", String(Boolean(state?.visible)));
-  });
-
-  const btnAllRecords = document.getElementById("btnAllRecords");
-  btnAllRecords.setAttribute("title", easyReadTools.getMessageForLocales("popup_page_top_menu_bar_all_records_title"));
-  btnAllRecords.addEventListener('click', async () => {
-    chrome.tabs.create({ active: true, url: '/records/allRecords.html' });
-  });
 
   const btnSetting = document.getElementById("btnSetting");
   btnSetting.setAttribute("title", easyReadTools.getMessageForLocales("popup_page_top_menu_bar_setting_title"));
+  btnSetting.setAttribute('aria-label', btnSetting.title);
   btnSetting.addEventListener('click', async () => {
     chrome.tabs.create({ active: true, url: '/setting/setting.html' });
   });
@@ -750,6 +865,9 @@ function onPageLoad_InitTopMenuBar() {
 /* -------- ReadLaters -------- */
 
 async function renderReadLaters(queryValue, context) {
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const currentKey = easyReadTools.getKey(tab?.url);
+  document.querySelector('#outputReadLaters ol').replaceChildren();
   let lists = queryValue[context.key];
   let unreadCount = 0;
   if (lists && lists.length > 0) {
@@ -786,15 +904,16 @@ async function renderReadLaters(queryValue, context) {
           }
         });
 
-        const isHighlightItem = await isNeedHighlightCurrentPageInReadLaters(item["key"]);
+        const isHighlightItem = item.key === currentKey;
 
         element.querySelector('label').setAttribute('for', ckId);
         element.querySelector('a').textContent = (isHighlightItem ? "👀 " : "") + item["title"];
-        element.querySelector('a').href = item["url"];
+        if (easyReadTools.isSupportedScheme(item.url)) element.querySelector('a').href = item.url;
+        else element.querySelector('a').removeAttribute('href');
         element.querySelector('a').setAttribute('title', item["title"]);
 
         const position = item["position"];
-        if(position && position.progress) {
+        if(Number.isFinite(position?.progress)) {
           element.querySelector('.progress').textContent = " (" + position.progress.toFixed(2) + "%)";
         }
         
@@ -810,9 +929,7 @@ async function renderReadLaters(queryValue, context) {
     olElement.innerHTML = '';
     olElement.append(...elements);
   }
-  else {
-    showMessages(easyReadTools.getMessageForLocales("popup_page_message_no_readlaters"));
-  }
+  document.getElementById('readLaterEmpty').hidden = unreadCount > 0;
   document.getElementById("titleReadLaters").textContent = easyReadTools.getMessageForLocales("popup_page_total_pages", [unreadCount]);
   easyReadTools.updateBudgeText();
 }
@@ -826,11 +943,12 @@ function addReadLatersStorageUpdated(updateStatus, updateData) {
 function removeReadLatersStorageUpdated(updateStatus, updateData, context) {
   if (updateStatus) {
     setTimeout(() => {
-      const liElement = document.getElementById(context.checkBoxId).parentElement;
+      const liElement = document.getElementById(context.checkBoxId)?.parentElement;
       if (liElement) {
         const olElement = liElement.parentElement;
         olElement.removeChild(liElement);
         document.getElementById("titleReadLaters").textContent = easyReadTools.getMessageForLocales("popup_page_total_pages", [olElement.childNodes.length]);
+        document.getElementById('readLaterEmpty').hidden = olElement.childElementCount > 0;
       }
     }, 500);
   }
@@ -855,7 +973,7 @@ function updateStorageCallback_ReadLaterRemove(queryValue, context) {
 
     let isFound = false;
     for (let i = 0; i < oldValue.length; ++i) {
-      if (context.pageKey === oldValue[i].key && oldValue[i].status === easyReadTools.READ_STATUS_UNREAD) {
+      if (context.pageKey === oldValue[i].key && [easyReadTools.READ_STATUS_UNREAD, easyReadTools.READ_STATUS_READING].includes(oldValue[i].status)) {
         oldValue[i]["status"] = easyReadTools.READ_STATUS_READED;
         oldValue[i]["endReadDateTime"] = Date.now();
         result.status = easyReadTools.UPDATE_STATUS_YES;
@@ -875,20 +993,9 @@ function updateStorageCallback_ReadLaterRemove(queryValue, context) {
   }
 }
 
-async function isNeedHighlightCurrentPageInReadLaters(key) {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tabs && tabs.length > 0) {
-    const tab = tabs[0];
-    const pageUrl = easyReadTools.getKey(tab.url);
-    if (key === pageUrl) {
-      return true;
-    }
-  }
-  return false;
-}
-
 function onPageLoad_InitReadLaters() {
   document.getElementById("btnReadLaterText").textContent = easyReadTools.getMessageForLocales("popup_btn_read_later_text");
+  document.getElementById('readLaterEmpty').textContent = easyReadTools.getMessageForLocales('popup_page_message_no_readlaters');
 
   const btnReadLater = document.getElementById("btnReadLater");
   btnReadLater.addEventListener('click', async () => {
@@ -915,7 +1022,8 @@ function onPageLoad_InitReadLaters() {
       const tab = tabs[0];
       const pageUrl = easyReadTools.getKey(tab.url);
       easyReadTools.removeStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME, pageUrl]), () => {
-        document.getElementById("outputAllRecords").innerHTML = easyReadTools.getMessageForLocales("popup_page_message_records_removed");
+        document.getElementById("pageRecordContent").textContent = easyReadTools.getMessageForLocales("popup_page_message_records_removed");
+        btnReadedAndRemove.hidden = true;
       });
     }
   });
@@ -925,113 +1033,11 @@ function onPageLoad_InitReadLaters() {
     renderReadLaters, { key: easyReadTools.READ_LATERS_NAME });
 }
 
-/* -------- Notes -------- */
-
-async function onPageLoad_InitNotes() {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tabs && tabs.length > 0) {
-    const tab = tabs[0];
-    const pageUrl = easyReadTools.getKey(tab.url);
-    if (easyReadTools.isSupportedScheme(pageUrl)) {
-      easyReadTools.getStorageJsonData(
-        easyReadTools.keyChainGenerate([easyReadTools.NOTES_NAME, pageUrl]),
-        renderPageNotes,
-        { key: pageUrl });
-    }
-  }
-}
-
-function renderPageNotes(queryValue, context) {
-  let notesPage = queryValue[context.key];
-  if (notesPage) {
-    if (notesPage.notes && notesPage.notes.length > 0) {
-      // display the outputNotes
-      const outputNotesSeperator = document.getElementById("outputNotesSeperator");
-      const outputNotes = document.getElementById("outputNotes");
-      outputNotesSeperator.classList.remove("outputNotesSeperatorDefault");
-      outputNotesSeperator.classList.add("outputNotesSeperator");
-      outputNotes.classList.remove("outputNotesDefault");
-      outputNotes.classList.add("outputNotes");
-
-      const elements = new Set();
-      for(var i = 0; i < notesPage.notes.length; i++) {
-        const template = document.getElementById('templateNotes');
-        const element = template.content.cloneNode(true);
-
-        const noteItem = element.querySelector('.noteItem');
-        noteItem.textContent = decodeURIComponent(notesPage.notes[i].selectionText);
-        noteItem.setAttribute("title", easyReadTools.formatDate(notesPage.notes[i].createDateTime));
-
-        elements.add(element);
-      }
-      document.getElementById("titleNotes").textContent = easyReadTools.getMessageForLocales("popup_page_notes_title");
-      document.getElementById('outputNotes').querySelector("ol").append(...elements);
-    }
-    else {
-      showMessages(easyReadTools.getMessageForLocales("popup_page_message_no_notes"));
-    }
-  }
-  else {
-    // hidden the outputNotes
-    const outputNotesSeperator = document.getElementById("outputNotesSeperator");
-    const outputNotes = document.getElementById("outputNotes");
-    
-    outputNotesSeperator.classList.remove("outputNotesSeperator");
-    outputNotesSeperator.classList.add("outputNotesSeperatorDefault");
-
-    outputNotes.classList.remove("outputNotes");
-    outputNotes.classList.add("outputNotesDefault");
-  }
-}
-
-const btnDownloadNotes = document.getElementById("btnDownloadNotes");
-btnDownloadNotes.addEventListener('click', async () => {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tabs && tabs.length > 0) {
-    const tab = tabs[0];
-    const pageUrl = easyReadTools.getKey(tab.url);
-    easyReadTools.getStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.NOTES_NAME, pageUrl]), (result) => {
-      var txtMarkdownTemplate = `  
-# $title$
-
-- Tags: #EasyRead
-- CreateDateTime: $createDateTime$
-- Link: [$title$]($url$)
-
----
-
-## ${easyReadTools.getMessageForLocales("popup_page_notes_title")}
-{notes_section}`;
-      var txtMarkdownNotesSectionTemplate = `
-### $createDateTime$
-
-$selectionText$
-`;
-      const files = easyReadTools.convertNotesToMarkdownFiles(result, txtMarkdownTemplate, txtMarkdownNotesSectionTemplate);
-      if(files && files.length > 0) {
-        easyReadTools.exportToMarkdownFile(files[0].content, files[0].name);
-      }
-      showMessages(easyReadTools.getMessageForLocales("popup_page_message_notes_downloaded"));
-    });
-  }
-});
-
-const btnRemoveNotes = document.getElementById("btnRemoveNotes");
-btnRemoveNotes.addEventListener('click', async () => {
-  const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-  if (tabs && tabs.length > 0) {
-    const tab = tabs[0];
-    const pageUrl = easyReadTools.getKey(tab.url);
-    easyReadTools.removeStorageJsonData(easyReadTools.keyChainGenerate([easyReadTools.NOTES_NAME, pageUrl]), () => {
-      onPageLoad_InitNotes();
-      showMessages(easyReadTools.getMessageForLocales("popup_page_message_notes_removed"));
-    });
-  }
-});
-
 /* -------- AutoRecords -------- */
 
 function renderPageRecords(queryValue, context) {
+  document.getElementById('pageRecordContent').replaceChildren();
+  document.getElementById('btnReadedAndRemove').hidden = !queryValue[context.key];
   let readedPage = queryValue[context.key];
   if (readedPage) {
     if (readedPage.datetimes && readedPage.datetimes.length > 0) {
@@ -1044,19 +1050,26 @@ function renderPageRecords(queryValue, context) {
       const element = template.content.cloneNode(true);
 
       element.querySelector('.titleAllRecords').textContent = readedPage.title;
+      const title = element.querySelector('.titleAllRecords');
+      const favicon = document.createElement('img');
+      favicon.className = 'pageFavicon'; favicon.alt = ''; favicon.referrerPolicy = 'no-referrer';
+      const fallback = chrome.runtime.getURL('assets/logo/icon-32.png');
+      favicon.src = /^(https?:|data:image\/)/i.test(activeTab?.favIconUrl || '') ? activeTab.favIconUrl : fallback;
+      favicon.addEventListener('error', () => { if (favicon.src !== fallback) favicon.src = fallback; });
+      title.prepend(favicon);
       element.querySelector('.url').textContent = readedPage.url;
       element.querySelector('.message').textContent = message;
       element.querySelector('.readedTimes').innerHTML = readTimesToString;
 
       elements.add(element);
-      document.getElementById('outputAllRecords').append(...elements);
+      document.getElementById('pageRecordContent').append(...elements);
     }
     else {
       showMessages(easyReadTools.getMessageForLocales("popup_page_message_no_records_no_datetimes"));
     }
   }
   else {
-    document.getElementById('outputAllRecords').innerHTML = easyReadTools.getMessageForLocales("popup_page_message_no_records_text");
+    document.getElementById('pageRecordContent').textContent = easyReadTools.getMessageForLocales("popup_page_message_no_records_text");
   }
 }
 
@@ -1066,14 +1079,14 @@ async function onPageLoad_InitAllRecords() {
     const tab = tabs[0];
     const pageUrl = easyReadTools.getKey(tab.url);
     if (easyReadTools.isSupportedScheme(pageUrl)) {
-      await new Promise((resolve) => setTimeout(resolve, 250));
       easyReadTools.getStorageJsonData(
         easyReadTools.keyChainGenerate([easyReadTools.ALL_RECORDS_NAME, pageUrl]),
         renderPageRecords,
         { key: pageUrl });
     }
     else {
-      document.getElementById("outputAllRecords").textContent = easyReadTools.getMessageForLocales("popup_page_message_records_not_supported");
+      document.getElementById("pageRecordContent").textContent = easyReadTools.getMessageForLocales("popup_page_message_records_not_supported");
+      document.getElementById('btnReadedAndRemove').hidden = true;
     }
   }
 }
@@ -1082,7 +1095,12 @@ async function onPageLoad_InitAllRecords() {
   onPageLoad_InitTitle();
   onPageLoad_InitTopMenuBar();
   onPageLoad_InitReadLaters();
-  onPageLoad_InitNotes();
+
   onPageLoad_InitAllRecords();
   initializeWorkspaceTabs();
 })();
+
+// Keep the open popup current when the background records a visit after it loads.
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === 'local' && changes[easyReadTools.ALL_RECORDS_NAME]) onPageLoad_InitAllRecords();
+});

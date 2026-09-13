@@ -1,59 +1,73 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-	<meta charset="UTF-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<link rel="stylesheet" href="../styles/easyread.css" />
-	<script src="../scripts/copyright.js" type="text/javascript"></script>
-	<link rel="stylesheet" href="setting.css" />
-	<script type="text/javascript" src="../scripts/jszip.min.js"></script>
-	<script src="setting.js" type="module"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="../styles/easyread.css" />
+  <link rel="stylesheet" href="setting.css" />
+  <script src="../scripts/copyright.js"></script>
+  <script src="../scripts/jszip.min.js"></script>
+  <script src="setting.js" type="module"></script>
 </head>
-
 <body>
-	<main class="settingsShell">
-	<header class="settingsHeader"><h1 id="setting_page_title">EasyRead</h1><p id="setting_page_notice"></p></header>
-	<nav class="settingsTabs" role="tablist">
-		<button class="settingsTab isActive" data-panel="generalPanel" id="setting_tab_general" role="tab"></button>
-		<button class="settingsTab" data-panel="dataPanel" id="setting_tab_data" role="tab"></button>
-		<button class="settingsTab" data-panel="backupPanel" id="setting_tab_backup" role="tab"></button>
-	</nav>
-	<section id="generalPanel" class="settingsPanel isActive" role="tabpanel">
-	<div class="settingBlock settingToggleBlock">
-		<div><strong id="settingHighlightsTitle">Show page highlights</strong><p id="settingHighlightsDescription"></p></div>
-		<label class="modernSwitch" for="settingHighlightsEnabled">
-			<input type="checkbox" id="settingHighlightsEnabled" />
-			<span aria-hidden="true"></span>
-		</label>
-	</div>
-	<div class="sectionHeading"><h2 id="setting_page_notice_annotationAuthor">Annotation author</h2></div>
-	<div class="settingBlock annotationAuthorBlock">
-		<label id="annotationAuthorLabel" for="annotationAuthor">Author shown beside new annotations</label>
-		<div class="inlineSetting">
-			<input type="text" id="annotationAuthor" maxlength="80" autocomplete="name" />
-			<button id="btnSaveAnnotationAuthor" type="button">Save</button>
-		</div>
-	</div>
-	</section>
-	<section id="dataPanel" class="settingsPanel" role="tabpanel" hidden>
-	<h2 id="setting_page_notice_allRecords">Reading history</h2>
-	<div class="settingBlock">
-		<button id="btnDownloadAllRecordsAsJson">Download All Records</button><br /><br />
-		<button id="btnRemoveAllRecords" class="btnWarning">Remove All Records</button>
-	</div>
-	<h2 id="setting_page_notice_readLaters">Read later</h2>
-	<div class="settingBlock">
-		<button id="btnDownloadReadLatersAsJson">Download ReadLaters</button><br /><br />
-		<button id="btnRemoveReadLaters" class="btnWarning">Remove Read Laters</button>
-	</div>
-	<h2 id="setting_page_notice_notes">Highlights</h2>
-	<div class="settingBlock">
-		<button id="btnDownloadNotesAsJson">Download Highlights as JSON (*.json)</button><br /><br />
-		Markdown Template:
-		<textarea id="txtMarkdownTemplate" class="txtMarkdownTemplate">
-# $title$
+  <main class="settingsShell">
+    <header class="settingsHeader"><img src="../assets/logo/icon-48.png" alt="" /><div><h1 id="setting_page_title">EasyRead</h1><p id="setting_page_notice"></p></div></header>
+    <aside class="settingsSidebar"><nav class="settingsTabs" role="tablist" aria-orientation="vertical">
+      <button class="settingsTab isActive" data-panel="generalPanel" id="setting_tab_general" role="tab" aria-controls="generalPanel"></button>
+      <button class="settingsTab" data-panel="readLaterPanel" id="setting_tab_read_later" role="tab" aria-controls="readLaterPanel"></button>
+      <button class="settingsTab settingsSubTab" data-parent="setting_tab_read_later" data-panel="readLaterPanel" id="setting_tab_read_later_list" role="tab" aria-controls="readLaterPanel"></button>
+      <button class="settingsTab settingsSubTab" data-parent="setting_tab_read_later" data-panel="dataPanel" id="setting_tab_data" role="tab" aria-controls="dataPanel"></button>
+      <button class="settingsTab" data-panel="savePagePanel" id="setting_tab_save_page" role="tab" aria-controls="savePagePanel"></button>
+      <button class="settingsTab" data-panel="mediaPanel" id="setting_tab_media" role="tab" aria-controls="mediaPanel"></button>
+      <button class="settingsTab" data-panel="annotationsPanel" id="setting_tab_annotations" role="tab" aria-controls="annotationsPanel"></button>
+      <button class="settingsTab" data-panel="backupPanel" id="setting_tab_backup" role="tab" aria-controls="backupPanel"></button>
+    </nav><footer class="copyright"></footer></aside>
+    <section id="generalPanel" class="settingsPanel" role="tabpanel" aria-labelledby="setting_tab_general">
+      <div class="settingBlock languageRow"><label id="languageLabel" for="uiLanguage"></label><select id="uiLanguage"><option value="auto" id="languageAuto"></option><option value="en">English</option><option value="zh-CN">简体中文</option></select></div>
+      <div id="diagnosticsSection" class="settingBlock" tabindex="-1">
+        <div class="settingToggleBlock">
+          <div><strong id="diagnosticsTitle"></strong><p id="diagnosticsDescription"></p></div>
+          <label class="modernSwitch"><input type="checkbox" id="diagnosticsEnabled" aria-labelledby="diagnosticsTitle" /><span aria-hidden="true"></span></label>
+        </div>
+        <div class="diagnosticsToolbar"><span id="diagnosticsCount" role="status"></span><button type="button" id="clearDiagnostics" class="secondaryButton"></button></div>
+        <p id="diagnosticsEmpty" class="helpText"></p>
+        <ol id="diagnosticsList" class="diagnosticsList"></ol>
+      </div>
+    </section>
+    <section id="readLaterPanel" class="settingsPanel" role="tabpanel" aria-labelledby="setting_tab_read_later" hidden>
+      <h2 id="setting_page_notice_readLaters"></h2>
+      <div class="settingBlock">
+        <div class="actionRow readLaterToolbar"><button id="btnDownloadReadLatersAsJson"></button><button id="btnRemoveReadLaters" class="secondaryButton"></button></div>
+        <div class="readLaterSectionHeader"><h3 id="readLaterUnreadTitle"></h3><div id="readLaterPagination" class="readLaterPagination" hidden><button id="readLaterPrevious" class="secondaryButton" disabled></button><span id="readLaterCount" role="status"></span><button id="readLaterNext" class="secondaryButton" disabled></button></div></div>
+        <ol id="settingsReadLaterList" class="settingsReadLaterList"></ol>
+        <div id="settingsReadLaterEmpty" class="settingsReadLaterEmpty" hidden><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="10" y="6" width="28" height="36" rx="6"/><path d="M18 6v16l6-4 6 4V6M18 30h12M18 35h8"/></svg><strong id="readLaterEmptyTitle"></strong><p id="readLaterEmptyHint"></p></div>
+        <details id="readLaterCompleted"><summary><span id="readLaterCompletedTitle"></span><span id="readLaterCompletedPagination" class="readLaterPagination" hidden><button id="readLaterCompletedPrevious" class="secondaryButton" disabled></button><span id="readLaterCompletedCount" role="status"></span><button id="readLaterCompletedNext" class="secondaryButton" disabled></button></span></summary><ol id="settingsReadLaterCompletedList" class="settingsReadLaterList"></ol><p id="readLaterCompletedEmpty" class="helpText" hidden></p></details>
+      </div>
+    </section>
+    <section id="savePagePanel" class="settingsPanel" role="tabpanel" aria-labelledby="setting_tab_save_page" hidden>
+      <h2 id="screenshotSettingsTitle"></h2>
+      <div class="settingBlock">
+        <label id="screenshotFormatLabel" for="screenshotFormat"></label>
+        <select id="screenshotFormat"><option value="png">PNG</option><option value="jpeg">JPG</option></select>
+        <p id="screenshotFormatDescription" class="helpText"></p>
+      </div>
+    </section>
+    <section id="mediaPanel" class="settingsPanel" role="tabpanel" aria-labelledby="setting_tab_media" hidden>
+      <div class="settingBlock mediaAutoplayRow"><label id="mediaAutoplayLabel" for="mediaAutoplay"></label><select id="mediaAutoplay"><option value="off" id="mediaAutoplayOff"></option><option value="sequential" id="mediaAutoplaySequential"></option><option value="simultaneous" id="mediaAutoplaySimultaneous"></option></select></div>
+      <div class="settingBlock settingToggleBlock"><strong id="mediaMutedLabel"></strong><label class="modernSwitch"><input id="mediaMuted" type="checkbox" aria-labelledby="mediaMutedLabel" /><span aria-hidden="true"></span></label></div>
+      <div class="settingBlock"><p id="mediaSettingsDescription" class="helpText"></p></div>
+    </section>
+    <section id="annotationsPanel" class="settingsPanel" role="tabpanel" aria-labelledby="setting_tab_annotations" hidden>
+      <div class="settingBlock settingToggleBlock">
+        <div><strong id="settingHighlightsTitle"></strong><p id="settingHighlightsDescription"></p></div>
+        <label class="modernSwitch"><input type="checkbox" id="settingHighlightsEnabled" aria-labelledby="settingHighlightsTitle" /><span aria-hidden="true"></span></label>
+      </div>
+      <h2 id="setting_page_notice_notes"></h2>
+      <div class="settingBlock">
+        <div class="actionRow"><button id="btnDownloadNotesAsJson"></button><button id="btnDownloadNotesAsMarkdown"></button></div>
+        <details class="templateDetails"><summary id="markdownTemplateTitle"></summary>
+          <label id="markdownPageLabel" for="txtMarkdownTemplate"></label>
+          <textarea id="txtMarkdownTemplate" spellcheck="false"># $title$
 
 - Tags: #EasyRead
 - CreateDateTime: $createDateTime$
@@ -61,32 +75,81 @@
 
 ---
 
-## Highlights
-{notes_section}</textarea><br />{notes_section}:
-		<textarea id="txtMarkdownNotesSectionTemplate" class="txtMarkdownNotesSectionTemplate">
-
+## Notes
+{notes_section}</textarea>
+          <label id="markdownNoteLabel" for="txtMarkdownNotesSectionTemplate"></label>
+          <textarea id="txtMarkdownNotesSectionTemplate" spellcheck="false">
 ### $createDateTime$
 
 $selectionText$
-</textarea><br />
-		<button id="btnDownloadNotesAsMarkdown">Download Highlights as Markdown (*.zip)</button><br /><br />
-		<button id="btnRemoveNotes" class="btnWarning">Remove Highlights</button>
-	</div>
-	</section>
-	<section id="backupPanel" class="settingsPanel" role="tabpanel" hidden>
-	<h2 id="setting_page_notice_storage">Full backup</h2>
-	<div class="settingBlock">
-		<button id="btnDownloadStorageAsJson">Download Storage</button><br /><br />
-		<input type="file" id="fileInputStorageJson" accept="application/json" />
-		<button id="btnMergeStorageJson" class="btnWarning">Merge Storage</button>
-		<button id="btnReplaceStorageJson" class="btnWarning">Replace Storage</button><br /><br />
-		<button id="btnDropStorage" class="btnWarning">Drop Storage</button>
-	</div>
-	</section>
-	<div id="output" class="output" role="status" aria-live="polite"></div>
-	<div class="copyright">
-	</div>
-	</main>
-</body>
 
+$comment$
+</textarea>
+        </details>
+        <div class="dangerRow"><button id="btnRemoveNotes" class="secondaryButton"></button></div>
+      </div>
+      <h2 id="setting_page_notice_annotationAuthor"></h2>
+      <div class="settingBlock">
+        <label id="annotationAuthorLabel" for="annotationAuthor"></label>
+        <form id="authorForm" class="inlineSetting">
+          <input type="text" id="annotationAuthor" maxlength="80" autocomplete="name" aria-labelledby="annotationAuthorLabel" />
+          <button id="btnSaveAnnotationAuthor" type="submit"></button>
+        </form>
+      </div>
+    </section>
+    <section id="dataPanel" class="settingsPanel" role="tabpanel" aria-labelledby="setting_tab_data" hidden>
+      <h2 id="historyTitle"></h2>
+      <div class="settingBlock recordsView">
+        <template id="line_template">
+		<tr>
+			<td><span class="seq">Line Seq</span></td>
+			<td><a href="" target="_blank"><span class="title">Page Title</span></a></td>
+			<td><span class="readedTimes">Read Times</span></td>
+			<td><span class="lastReadTime"></span></td>
+			<td><span class="readProgress"></span></td>
+			<td><span class="videoProgress"></span></td>
+			<td><span class="artifacts"></span></td>
+		</tr>
+	</template>
+        <div class="historyToolbar">
+          <span id="recordSummary" role="status"></span>
+          <div class="historyActions">
+          <button id="exportRecords" type="button"></button>
+          <button id="btnRemoveAllRecords" class="secondaryButton" type="button"></button>
+          </div>
+          <nav class="historyPagination">
+            <button id="previousPage" class="secondaryButton" type="button" disabled></button>
+            <span id="pageIndicator" aria-live="polite"></span>
+            <button id="nextPage" class="secondaryButton" type="button" disabled></button>
+          </nav>
+        </div>
+        <div class="historyTableScroll"><table id="outputTable">
+			<thead><tr>
+				<th id="recordsHeaderNumber" class="col-01">No.</th>
+				<th id="recordsHeaderTitle" class="col-02">Title(Url)</th>
+				<th id="recordsHeaderReadTimes" class="col-03">Read Times</th>
+				<th id="recordsHeaderLastReadTime">Last read</th>
+				<th id="recordsHeaderReadProgress" class="col-04">Read Progress</th>
+				<th id="recordsHeaderVideoProgress" class="col-05">Video Progress</th>
+				<th id="recordsHeaderArtifacts" class="col-06">Saved copies</th>
+			</tr></thead>
+			<tbody id="recordsBody"></tbody>
+		</table></div>
+        <div id="recordsEmpty" role="status" hidden></div>
+      </div>
+    </section>
+    <section id="backupPanel" class="settingsPanel" role="tabpanel" aria-labelledby="setting_tab_backup" hidden>
+      <h2 id="setting_page_notice_storage"></h2>
+      <div class="settingBlock"><p id="backupDescription" class="helpText"></p><button id="btnDownloadStorageAsJson"></button></div>
+      <h2 id="importTitle"></h2>
+      <div class="settingBlock">
+        <label id="importFileLabel" for="fileInputStorageJson"></label>
+        <input type="file" id="fileInputStorageJson" accept=".json,application/json" />
+        <div class="actionRow"><button id="btnMergeStorageJson"></button><button id="btnReplaceStorageJson" class="secondaryButton"></button></div>
+      </div>
+      <div class="settingBlock dangerBlock"><p id="clearDescription" class="helpText"></p><button id="btnDropStorage" class="btnWarning"></button></div>
+    </section>
+    <div id="output" class="output" role="status" aria-live="polite" hidden></div>
+  </main>
+</body>
 </html>

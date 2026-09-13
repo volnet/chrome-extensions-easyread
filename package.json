@@ -11,6 +11,9 @@
     "check": "node scripts/verify-baseline.mjs",
     "lint": "eslint src scripts test",
     "test:unit": "node --test",
+    "test:browser": "node scripts/verify-ui-browser.mjs",
+    "test:upgrade": "node scripts/verify-upgrade-browser.mjs",
+    "test:popup-layout": "node scripts/verify-popup-layout.mjs",
     "test": "npm run check && npm run lint && npm run test:unit"
   },
   "keywords": [

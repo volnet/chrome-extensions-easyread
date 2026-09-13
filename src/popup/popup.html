@@ -7,15 +7,17 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<link rel="stylesheet" href="../styles/easyread.css" />
 	<link rel="stylesheet" href="popup.css" />
-	<script src="../scripts/copyright.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="../styles/annotations.css" />
+    <script src="../scripts/annotationView.js"></script>
 	<script src="../scripts/hls.min.js" type="text/javascript"></script>
 	<script src="popup.js" type="module"></script>
+    <script src="../scripts/copyright.js" defer></script>
 </head>
 
-<body>
+<body class="popupBody">
 	<template id="templateReadLater">
 		<li>
-			<input type="checkbox" id="checkbox1">
+			<input type="checkbox" class="readLaterCheckbox" id="checkbox1">
 			<label for="checkbox1"><a href="" target="_blank" title="Page Title">Page Title</a><span
 					class="progress"></span></label>
 		</li>
@@ -26,75 +28,56 @@
 		<p class="message">Message</p>
 		<p class="readedTimes">ReadedTimes</p>
 	</template>
-	<template id="templateNotes">
-		<li>
-			<span class="noteItem"></span>
-		</li>
-	</template>
-	<div>
+	<div class="popupShell">
 		<div class="buttonLineWrapper">
-			<div id="popupTitle" class="buttonLineDivLeft extensionTitle">EasyRead: enjoy your reading</div>
+			<div class="brand"><img src="../assets/logo/icon-32.png" alt="" /><div id="popupTitle" class="extensionTitle">EasyRead</div></div>
 			<div class="buttonLineDivRight extensionButtons">
-				<button type="button" id="btnAnnotations" class="topIconButton" aria-pressed="false">
-					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v12H9l-4 4V4Z"></path><path d="M9 8h6M9 12h4"></path></svg>
-				</button>
-				<img src="../assets/allRecords.png" id="btnAllRecords" class="buttonImg" alt="View all records">
-				<img src="../assets/setting.png" id="btnSetting" class="buttonImg" alt="Setting">
+				<button type="button" id="btnDiagnostics" class="topIconButton diagnosticIndicator" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="m9 9 6 6m0-6-6 6"/></svg></button>
+				<button type="button" id="btnSetting" class="topIconButton"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 17h16"/><rect x="7" y="4" width="4" height="6" rx="2"/><rect x="13" y="14" width="4" height="6" rx="2"/></svg></button>
 			</div>
 		</div>
-		<div id="outputMesssages" class="outputMesssages"></div>
+		<div id="outputMesssages" class="outputMesssages" role="status" aria-live="polite"></div>
 		<div class="popupTabs" role="tablist">
 			<button id="tabReadLater" class="popupTab isActive" role="tab" aria-selected="true" aria-controls="panelReadLater"></button>
 			<button id="tabSavePage" class="popupTab" role="tab" aria-selected="false" aria-controls="panelSavePage"></button>
 			<button id="tabMedia" class="popupTab" role="tab" aria-selected="false" aria-controls="panelMedia"><span class="tabLabel"></span><span id="mediaBadge" class="tabBadge" hidden></span></button>
+<button id="tabAnnotations" class="popupTab" role="tab" aria-selected="false" aria-controls="panelAnnotations"><span class="tabLabel"></span><span id="notesBadge" class="tabBadge" hidden></span></button>
 		</div>
 		<section id="panelReadLater" class="popupPanel" role="tabpanel" aria-labelledby="tabReadLater">
 		<div id="outputReadLaters" class="outputReadLaters">
 			<div class="buttonWrapper">
 				<button id="btnReadLater" class="buttonWithIcon">
-					<img src="../assets/readlater-icon.png" /><span id="btnReadLaterText">Read Later</span>
+					<img class="readLaterBrandIcon" src="../assets/logo/icon-32.png" alt="" /><span id="btnReadLaterText">Read Later</span>
 				</button>
 			</div>
 			<span id="titleReadLaters" class="titleReadLaters"></span>
 			<ol></ol>
-		</div>
-		<div id="outputNotesSeperator" class="outputNotesSeperatorDefault">
-			<hr />
-		</div>
-		<div id="outputNotes" class="outputNotesDefault">
-			<div class="buttonWrapper">
-				<img src="../assets/download-file.png" id="btnDownloadNotes" class="buttonImg" alt="Download the page's highlights">
-				<img src="../assets/delete.png" id="btnRemoveNotes" class="buttonImg" alt="Delete the page's highlights">
-			</div>
-			<span id="titleNotes" class="titleNotes"></span>
-			<ol></ol>
+			<p id="readLaterEmpty" class="subtleEmpty" hidden></p>
 		</div>
 		<div>
 			<hr />
 		</div>
 		<div id="outputAllRecords" class="outputAllRecords">
 			<div class="buttonWrapper">
-				<img src="../assets/delete.png" id="btnReadedAndRemove" class="buttonImg"
-					alt="Delete the page's records">
+				<button type="button" id="btnReadedAndRemove" class="topIconButton" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 10v7M14 10v7"/></svg></button>
 			</div>
+			<div id="pageRecordContent"></div>
 		</div>
 		</section>
 		<section id="panelSavePage" class="popupPanel" role="tabpanel" aria-labelledby="tabSavePage" hidden>
-			<div class="saveIntro" id="savePageIntro"></div>
 			<div class="saveOptions">
-				<div class="saveOption"><span class="saveIcon">HTML</span><span><strong id="saveHtmlTitle"></strong><small id="saveHtmlDescription"></small></span><div class="saveActions"><button class="primarySave" data-capture="html"></button></div></div>
-				<div class="saveOption"><span class="saveIcon">PDF</span><span><strong id="savePdfTitle"></strong><small id="savePdfDescription"></small></span><div class="saveActions"><button class="primarySave" data-capture="pdf"></button></div></div>
+				<div class="saveOption"><span class="saveIcon">HTML</span><span><strong id="saveHtmlTitle"></strong></span><div class="saveActions"><button class="primarySave" data-capture="html"></button></div></div>
+				<div class="saveOption"><span class="saveIcon">PDF</span><span><strong id="savePdfTitle"></strong></span><div class="saveActions"><button class="primarySave" data-capture="pdf"></button></div></div>
 				<div class="saveOptionGroup">
-					<div class="saveOptionHeading"><span class="saveIcon">IMG</span><span><strong id="saveImageTitle"></strong><small id="saveImageDescription"></small></span></div>
-					<div class="segmentedControl" id="imageScope"><button data-value="viewport" class="isActive"></button><button data-value="fullPage"></button></div>
-					<div class="segmentedControl" id="imageFormat"><button data-value="png" class="isActive">PNG</button><button data-value="jpeg">JPG</button></div>
-					<div class="saveActions"><button class="secondarySave" data-copy="image" id="copyImageAction"></button><button class="primarySave" data-capture="image" id="saveImageAction"></button></div>
+					<div class="saveOptionHeading"><span class="saveIcon">IMG</span><span><strong id="saveImageTitle"></strong></span></div>
+					<div class="saveActions screenshotActions"><button class="secondarySave" data-copy="image" data-scope="viewport" data-label="screenshot_copy_viewport"></button><button class="secondarySave" data-copy="image" data-scope="fullPage" data-label="screenshot_copy_full"></button><button class="primarySave" data-capture="image" data-scope="viewport" data-label="screenshot_save_viewport"></button><button class="primarySave" data-capture="image" data-scope="fullPage" data-label="screenshot_save_full"></button></div>
 				</div>
-				<div class="saveOption"><span class="saveIcon">MD</span><span><strong id="saveMarkdownTitle"></strong><small id="saveMarkdownDescription"></small></span><div class="saveActions"><button class="secondarySave" data-copy="markdown" id="copyMarkdownAction"></button><button class="primarySave" data-capture="markdown"></button></div></div>
+				<div class="saveOption"><span class="saveIcon">MD</span><span><strong id="saveMarkdownTitle"></strong></span><div class="saveActions"><button class="secondarySave" data-copy="markdown" id="copyMarkdownAction"></button><button class="primarySave" data-capture="markdown"></button></div></div>
 			</div>
 			<div id="captureTask" class="taskFeedback" hidden><div class="taskMeta"><strong id="captureTaskTitle"></strong><span id="captureTaskPercent"></span></div><progress id="captureProgress" max="100" value="0"></progress><p id="captureTaskStage"></p></div>
 		</section>
 		<section id="panelMedia" class="popupPanel" role="tabpanel" aria-labelledby="tabMedia" hidden>
+            <div class="mediaFilters" role="tablist"><button type="button" role="tab" data-media-filter="all" aria-selected="true"></button><button type="button" role="tab" data-media-filter="video" aria-selected="false"></button><button type="button" role="tab" data-media-filter="audio" aria-selected="false"></button><button type="button" role="tab" data-media-filter="image" aria-selected="false"></button></div>
 			<div id="mediaEmptyState" class="mediaEmptyState" role="status" aria-live="polite" hidden>
 				<div class="mediaEmptyArtwork" aria-hidden="true">
 					<span class="mediaFormatChip mediaFormatChipVideo">MP4</span>
@@ -112,9 +95,9 @@
 			</div>
 			<div id="mediaList" class="popupMediaList"></div>
 		</section>
-		<div class="copyright">
-		</div>
-	</div>
+<section id="panelAnnotations" class="popupPanel" role="tabpanel" aria-labelledby="tabAnnotations" hidden></section>
+<footer class="copyright"></footer>
+</div>
 </body>
 
 </html>
